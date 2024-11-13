@@ -1,0 +1,32 @@
+from typing import List
+from bisect import bisect_left
+
+class Solution:
+    def countKConstraintSubstrings(self, s: str, k: int, queries: List[List[int]]) -> List[int]:
+        n = len(s)
+        left = [0] * n  # `left[i]` stores the minimum starting index of a valid substring ending at `i`
+        pre = [0] * (n + 1)  # Prefix sum array to accumulate counts of valid substrings up to each index
+        cnt = [0, 0]  # Array to count occurrences of '0's and '1's in the current window
+        l = 0  # Left pointer for the sliding window
+
+        # Calculate `left` and `pre` arrays
+        for i, c in enumerate(s):
+            cnt[ord(c) & 1] += 1  # Update count for '0' or '1' based on the current character
+            # Move `l` (start of window) to ensure the window is valid
+            while cnt[0] > k and cnt[1] > k:
+                cnt[ord(s[l]) & 1] -= 1  # Adjust count as we slide the window
+                l += 1
+            left[i] = l  # Store the minimum starting index of a valid substring ending at `i`
+            # Calculate the number of valid substrings ending at `i` and update the prefix sum
+            pre[i + 1] = pre[i] + (i - l + 1)
+
+        # Process each query using the `pre` and `left` arrays
+        ans = []
+        for l, r in queries:
+            # Find the first position `j` in range [l, r] where left[j] >= l using binary search
+            j = bisect_left(left, l, l, r + 1)  # If no valid `j` found, result is `j = r + 1`
+            # Calculate the number of valid substrings in the range [l, r]
+            result = pre[r + 1] - pre[j] + (j - l + 1) * (j - l) // 2
+            ans.append(result)
+
+        return ans
