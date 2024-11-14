@@ -1,0 +1,41 @@
+from typing import List, Dict
+from collections import defaultdict
+
+class Solution:
+    def countGoodNodes(self, edges: List[List[int]]) -> int:
+        n = len(edges) + 1  # number of nodes
+        tree = defaultdict(list)
+        
+        # Build the tree as an adjacency list
+        for a, b in edges:
+            tree[a].append(b)
+            tree[b].append(a)
+        
+        # Subtree sizes dictionary
+        subtree_sizes = [0] * n
+        visited = [False] * n
+        
+        # DFS to calculate subtree sizes
+        def dfs(node: int) -> int:
+            visited[node] = True
+            size = 1
+            for neighbor in tree[node]:
+                if not visited[neighbor]:
+                    size += dfs(neighbor)
+            subtree_sizes[node] = size
+            return size
+        
+        dfs(0)  # Start DFS from the root node (0)
+        
+        # Function to check if a node is "good"
+        def is_good(node: int) -> bool:
+            child_sizes = [subtree_sizes[child] for child in tree[node] if subtree_sizes[child] < subtree_sizes[node]]
+            return len(set(child_sizes)) <= 1  # All child subtree sizes must be the same
+        
+        # Count good nodes
+        good_node_count = 0
+        for node in range(n):
+            if is_good(node):
+                good_node_count += 1
+        
+        return good_node_count
