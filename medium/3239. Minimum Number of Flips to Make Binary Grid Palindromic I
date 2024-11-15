@@ -1,0 +1,45 @@
+from typing import List
+
+class Solution:
+    def minFlips(self, grid: List[List[int]]) -> int:
+        m, n = len(grid), len(grid[0])
+        
+        def flips_to_palindrome(line: List[int]) -> int:
+            """
+            Calculate the number of flips needed to make a line palindromic.
+            """
+            flips = 0
+            for i in range(len(line) // 2):
+                if line[i] != line[len(line) - i - 1]:
+                    flips += 1
+            return flips
+
+        # Calculate flips for all rows
+        row_flips = sum(flips_to_palindrome(grid[row]) for row in range(m))
+        
+        # Calculate flips for all columns
+        column_flips = 0
+        for col in range(n):
+            column = [grid[row][col] for row in range(m)]
+            column_flips += flips_to_palindrome(column)
+        
+        # Return the minimum of row flips or column flips
+        return min(row_flips, column_flips)
+
+'''
+Explanation
+
+Helper Function:
+flips_to_palindrome computes the number of mismatches in a line (row or column) that need to be flipped to make it palindromic.
+
+Row Analysis:
+Iterate over each row in the grid and calculate the flips needed to make each row palindromic.
+Sum up these flips to get the total row flips.
+
+Column Analysis:
+Extract each column as a list and calculate the flips needed to make each column palindromic.
+Sum up these flips to get the total column flips.
+
+Result:
+Return the smaller value between the total row flips and total column flips.
+'''
