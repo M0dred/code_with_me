@@ -1,0 +1,29 @@
+from typing import List
+from collections import Counter
+
+class Solution:
+    def numFriendRequests(self, ages: List[int]) -> int:
+        # Count the frequency of each age
+        age_count = Counter(ages)
+        total_requests = 0
+
+        # Iterate over all possible ages
+        for age_x in age_count:
+            for age_y in age_count:
+                # Check conditions for a valid friend request
+                if age_y <= 0.5 * age_x + 7:
+                    continue
+                if age_y > age_x:
+                    continue
+                if age_y > 100 and age_x < 100:
+                    continue
+
+                # Count friend requests
+                if age_x == age_y:
+                    # If ages are the same, account for all pairs minus self-pairs
+                    total_requests += age_count[age_x] * (age_count[age_x] - 1)
+                else:
+                    # Count cross-age requests
+                    total_requests += age_count[age_x] * age_count[age_y]
+
+        return total_requests
