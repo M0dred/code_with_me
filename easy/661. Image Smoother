@@ -1,0 +1,45 @@
+from typing import List
+
+class Solution:
+    def imageSmoother(self, img: List[List[int]]) -> List[List[int]]:
+        m, n = len(img), len(img[0])  # Dimensions of the image
+        result = [[0] * n for _ in range(m)]  # Initialize the result matrix
+
+        # Directions for the 3x3 grid neighbors (including the cell itself)
+        directions = [(-1, -1), (-1, 0), (-1, 1),
+                      (0, -1), (0, 0), (0, 1),
+                      (1, -1), (1, 0), (1, 1)]
+
+        # Iterate through each cell in the image
+        for i in range(m):
+            for j in range(n):
+                total = 0  # Sum of valid neighbors
+                count = 0  # Count of valid neighbors
+
+                # Check all neighbors in the 3x3 grid
+                for dx, dy in directions:
+                    x, y = i + dx, j + dy
+                    if 0 <= x < m and 0 <= y < n:  # Check if neighbor is within bounds
+                        total += img[x][y]
+                        count += 1
+
+                # Compute the smoothed value (floor of the average)
+                result[i][j] = total // count
+
+        return result
+
+'''
+Steps to Solve
+
+Iterate Through Each Cell:
+For each cell in the img matrix, calculate the average of its value and the values of its valid neighbors.
+
+Handle Boundaries:
+For cells on the edges or corners, ensure we only consider valid neighbors (cells within the matrix bounds).
+
+Store the Results:
+Create a new matrix result of the same dimensions as img to store the smoothed values.
+
+Floor the Average:
+Use integer division to compute the floor of the average.
+'''
