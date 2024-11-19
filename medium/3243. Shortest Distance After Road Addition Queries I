@@ -1,0 +1,58 @@
+from typing import List
+import heapq
+
+class Solution:
+    def shortestDistanceAfterQueries(self, n: int, queries: List[List[int]]) -> List[int]:
+        # Initialize the graph with the default roads
+        graph = {i: [] for i in range(n)}
+        for i in range(n - 1):
+            graph[i].append((i + 1, 1))  # Road from i to i+1 with weight 1
+
+        # Helper function: Dijkstra's algorithm to find the shortest path from 0 to n-1
+        def dijkstra(start: int, end: int) -> int:
+            distances = [float('inf')] * n
+            distances[start] = 0
+            priority_queue = [(0, start)]  # (distance, node)
+
+            while priority_queue:
+                current_distance, current_node = heapq.heappop(priority_queue)
+
+                if current_distance > distances[current_node]:
+                    continue
+
+                for neighbor, weight in graph[current_node]:
+                    distance = current_distance + weight
+                    if distance < distances[neighbor]:
+                        distances[neighbor] = distance
+                        heapq.heappush(priority_queue, (distance, neighbor))
+
+            return distances[end]
+
+        # Process each query and calculate the shortest path
+        answer = []
+        for u, v in queries:
+            # Add the new road to the graph
+            graph[u].append((v, 1))
+
+            # Calculate the shortest path from 0 to n-1
+            shortest_path = dijkstra(0, n - 1)
+            answer.append(shortest_path)
+
+        return answer
+
+'''
+Algorithm
+
+Initialize the Graph:
+Create an adjacency list for the 𝑛
+n cities and populate it with the default roads.
+
+Process Queries:
+For each query, add the new road to the adjacency list and update the shortest path.
+
+Compute Shortest Path:
+Use Dijkstra's algorithm to find the shortest path from 0 to n-1.
+
+Store Results:
+For each query, store the shortest path length after processing that query.
+'''
