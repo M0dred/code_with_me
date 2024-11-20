@@ -1,0 +1,25 @@
+from typing import List
+
+class Solution:
+    def shortestDistanceAfterQueries(self, n: int, queries: List[List[int]]) -> List[int]:
+        # Initialize the roads to represent the default connections between cities
+        roads = [i + 1 for i in range(n)]  # roads[i] points to city i+1
+        res = []  # Result list to store the shortest distances
+        dist = n - 1  # Initial distance from city 0 to city n-1
+
+        # Process each query
+        for u, v in queries:
+            # Temporarily store the next city for city u
+            next_city = roads[u]
+            # Update the road from city u to city v
+            roads[u] = v
+
+            # Traverse the roads and invalidate intermediate connections
+            while next_city != -1 and next_city < v:
+                roads[next_city], next_city = -1, roads[next_city]
+                dist -= 1  # Decrease the distance for every skipped connection
+
+            # Add the current shortest distance to the result
+            res.append(dist)
+
+        return res
