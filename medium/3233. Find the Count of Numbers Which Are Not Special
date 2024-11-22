@@ -1,0 +1,33 @@
+from typing import List
+import math
+
+class Solution:
+    def nonSpecialCount(self, l: int, r: int) -> int:
+        # Helper function to generate primes up to a given limit using Sieve of Eratosthenes
+        def generate_primes(limit: int) -> List[bool]:
+            is_prime = [True] * (limit + 1)
+            is_prime[0] = is_prime[1] = False  # 0 and 1 are not prime
+            for i in range(2, int(math.sqrt(limit)) + 1):
+                if is_prime[i]:
+                    for j in range(i * i, limit + 1, i):
+                        is_prime[j] = False
+            return is_prime
+
+        # Total numbers in the range [l, r]
+        total_numbers = r - l + 1
+
+        # Identify the range of perfect squares in [l, r]
+        start = math.ceil(math.sqrt(l))
+        end = math.floor(math.sqrt(r))
+
+        # Generate all primes up to `end`
+        primes = generate_primes(end)
+
+        # Count special numbers
+        special_count = 0
+        for x in range(start, end + 1):
+            if primes[x]:  # Check if the square root of the perfect square is prime
+                special_count += 1
+
+        # Non-special count
+        return total_numbers - special_count
