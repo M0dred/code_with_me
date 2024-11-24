@@ -1,0 +1,60 @@
+from typing import List
+import heapq
+
+class Solution:
+    def smallestRange(self, nums: List[List[int]]) -> List[int]:
+        # Min-heap to keep track of the smallest element in the current window
+        heap = []
+        max_val = float('-inf')  # Track the largest number in the current window
+
+        # Initialize the heap with the first element of each list
+        for i, row in enumerate(nums):
+            heapq.heappush(heap, (row[0], i, 0))  # (value, list index, element index)
+            max_val = max(max_val, row[0])  # Update max_val to the largest first element
+
+        # Variables to store the best range found
+        best_range = [float('-inf'), float('inf')]
+
+        # Process the heap
+        while heap:
+            min_val, list_idx, ele_idx = heapq.heappop(heap)  # Get the smallest element from the heap
+
+            # Update the best range if the current range is smaller
+            if max_val - min_val < best_range[1] - best_range[0] or \
+               (max_val - min_val == best_range[1] - best_range[0] and min_val < best_range[0]):
+                best_range = [min_val, max_val]
+
+            # If the current list has more elements, push the next element into the heap
+            if ele_idx + 1 < len(nums[list_idx]):
+                next_val = nums[list_idx][ele_idx + 1]
+                heapq.heappush(heap, (next_val, list_idx, ele_idx + 1))
+                max_val = max(max_val, next_val)  # Update max_val to include the new element
+            else:
+                # If any list is exhausted, we can no longer include all lists in the range
+                break
+
+        return best_range
+
+'''
+Key Steps in the Solution
+
+Initialization:
+Use a min-heap to store the smallest elements across thek lists. 
+Each element in the heap is a tuple of the form (value, list_index, element_index).
+Track the largest element in the heap (max_val) to define the current range.
+
+Heap Operations:
+Pop the smallest element (min_val) from the heap to define the left boundary of the current range.
+Calculate the current range [min_val, max_val].
+Update the smallest range if the current range is better (smaller or lexicographically smaller).
+
+Expand the Range:
+Push the next element from the same list as the popped element into the heap.
+Update max_val if the new element is larger.
+
+Stop Condition:
+If any list is exhausted (no more elements to push into the heap), terminate the loop because it is no longer possible to include all lists in the range.
+
+Return the Result:
+Return the smallest range [a, b] found during the iterations.
+'''
