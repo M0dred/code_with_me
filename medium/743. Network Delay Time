@@ -1,0 +1,53 @@
+from typing import List
+import heapq
+from collections import defaultdict
+
+class Solution:
+    def networkDelayTime(self, times: List[List[int]], n: int, k: int) -> int:
+        # Step 1: Build the graph as an adjacency list
+        graph = defaultdict(list)
+        for u, v, w in times:
+            graph[u].append((v, w))  # Node u points to v with weight w
+
+        # Step 2: Use a priority queue to perform Dijkstra's Algorithm
+        # Priority queue stores (time, node), where `time` is the time to reach `node`
+        pq = [(0, k)]  # Start with the source node k and time 0
+        shortest_time = {}  # Dictionary to store the shortest time to each node
+
+        while pq:
+            time, node = heapq.heappop(pq)  # Get the node with the smallest time
+            if node in shortest_time:
+                continue  # If already visited, skip
+            shortest_time[node] = time  # Record the shortest time to this node
+
+            # Explore neighbors
+            for neighbor, weight in graph[node]:
+                if neighbor not in shortest_time:  # Only consider unvisited neighbors
+                    heapq.heappush(pq, (time + weight, neighbor))
+
+        # Step 3: Check if all nodes are reachable
+        if len(shortest_time) < n:
+            return -1  # Not all nodes are reachable
+
+        # Step 4: Return the maximum time to reach any node
+        return max(shortest_time.values())
+
+'''
+Explanation
+
+Graph Construction:
+Build the adjacency list from the times input.
+Each node points to its neighbors along with the corresponding edge weight.
+
+Dijkstra's Algorithm:
+Use a min-heap to always expand the node with the smallest time first.
+Record the shortest time to reach each node in shortest_time.
+Skip nodes that have already been visited.
+
+Reachability Check:
+After processing all nodes, check if the number of nodes in shortest_time is less than 𝑛
+If so, return -1.
+
+Return Maximum Time:
+The maximum value in shortest_time is the time it takes for the signal to reach the farthest node.
+'''
