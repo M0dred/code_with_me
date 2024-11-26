@@ -1,0 +1,18 @@
+from typing import List
+
+class Solution:
+    def numberOfAlternatingGroups(self, colors: List[int]) -> int:
+        n = len(colors)
+        count = 0
+
+        # Iterate through each tile and check the alternating condition
+        for i in range(n):
+            prev = colors[(i - 1) % n]  # Previous tile (circular)
+            curr = colors[i]            # Current tile
+            next = colors[(i + 1) % n]  # Next tile (circular)
+
+            # Check if it forms an alternating group
+            if prev != curr and next != curr:
+                count += 1
+
+        return count
