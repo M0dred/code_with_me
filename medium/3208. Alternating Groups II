@@ -1,0 +1,36 @@
+from typing import List
+
+class Solution:
+    def numberOfAlternatingGroups(self, colors: List[int], k: int) -> int:
+        n = len(colors)
+        ans = 0
+        cnt = 1  # Start counting with 1 since we are checking pairs
+
+        # Extend the array virtually by considering `2 * n` iterations for circularity
+        for i in range(1, n * 2):
+            # If the current and previous colors are the same, reset the counter
+            if colors[i % n] == colors[(i - 1) % n]:
+                cnt = 1
+            else:
+                cnt += 1  # Increment the counter for a valid alternating sequence
+
+            # Check if we have a valid group
+            if i >= n and cnt >= k:
+                ans += 1
+
+        return ans
+
+'''
+Reset Counter Correctly:
+Reset cnt to 1 (not 0) whenever the colors are the same. This ensures that the next group starts correctly.
+
+Count Alternating Groups Properly:
+Increment cnt only when the current tile alternates with the previous one.
+
+Ensure Circularity:
+By iterating 2 * n times and using modulo arithmetic, the code simulates the circular nature of the array.
+
+Validate Group Length:
+Ensure the group length is at least 
+k before counting it as a valid alternating group.
+'''
