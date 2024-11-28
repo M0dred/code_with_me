@@ -1,0 +1,49 @@
+from typing import List
+
+class Solution:
+    def countOfPairs(self, nums: List[int]) -> int:
+        n = len(nums)  # Length of the input array
+        mod = 10 ** 9 + 7  # Modulo value to prevent overflow
+        
+        # Initialize a DP table where:
+        # dp[i][v]: Number of valid monotonic pairs up to index `i` with arr1[i] = v
+        # 51 is used since the maximum value in nums[i] is 50.
+        dp = [[0] * 51 for _ in range(n)]
+        
+        # Base case: For the first element, all valid arr1[0] = v and arr2[0] = nums[0] - v pairs are valid
+        for v in range(nums[0] + 1):
+            dp[0][v] = 1  # Only one way to form the pair for each valid v
+
+        # Fill the DP table for the rest of the indices
+        for i in range(1, n):  # Iterate through the array starting from index 1
+            for v2 in range(nums[i] + 1):  # Iterate through all possible values of arr1[i]
+                for v1 in range(v2 + 1):  # Iterate through all possible values of arr1[i-1] (monotonically non-decreasing)
+                    # Check if arr2[i] = nums[i] - v2 satisfies the monotonic condition with arr2[i-1]
+                    if nums[i - 1] - v1 >= nums[i] - v2:
+                        # Add the count of ways from the previous state dp[i-1][v1] to dp[i][v2]
+                        dp[i][v2] = (dp[i][v2] + dp[i - 1][v1]) % mod
+
+        # Return the total number of valid monotonic pairs for the last index
+        return sum(dp[n - 1]) % mod
+
+'''
+Steps
+
+Initialize a DP Table:
+Create a table where each entry represents the count of valid pairs for a specific index and a specific value of the first array.
+Base Case:
+
+For the first element, initialize all possible values of the first array as valid pairs since there are no constraints yet.
+
+Iterate Through the Array:
+For each index, calculate the count of valid pairs for all possible values of the first array:
+Check constraints to ensure that the first array is non-decreasing.
+Check constraints to ensure that the second array is non-increasing.
+Accumulate the counts based on the previous valid states.
+
+Use a Modular Arithmetic:
+Apply modulo to all calculations to handle large numbers efficiently and prevent overflow.
+
+Compute the Result:
+Sum the counts of valid pairs from the last row of the DP table to get the final result.
+'''
