@@ -1,0 +1,25 @@
+from typing import List
+
+class Solution:
+    def canAliceWin(self, nums: List[int]) -> bool:
+        # Separate single-digit and double-digit numbers
+        single_digit_sum = sum(num for num in nums if num < 10)
+        double_digit_sum = sum(num for num in nums if num >= 10)
+        
+        # Alice wins if her sum is strictly greater than Bob's in either scenario
+        return single_digit_sum > double_digit_sum or double_digit_sum > single_digit_sum
+
+'''
+Approach
+
+To solve the problem:
+Separate the numbers in nums into single-digit and double-digit groups.
+
+Calculate the sum of the single-digit numbers and the sum of the double-digit numbers.
+
+Compare the two scenarios:
+Alice chooses single-digit numbers, and Bob gets the double-digit numbers.
+Alice chooses double-digit numbers, and Bob gets the single-digit numbers.
+
+Return True if either scenario allows Alice's sum to be strictly greater than Bob's sum, otherwise return False.
+'''
