@@ -1,0 +1,65 @@
+from typing import List
+
+class Solution:
+    def solveNQueens(self, n: int) -> List[List[str]]:
+        def is_valid(row, col):
+            # Check column and diagonals for conflicts
+            return col not in cols and \
+                   (row - col) not in diag1 and \
+                   (row + col) not in diag2
+        
+        def place_queen(row, col):
+            # Place a queen and mark the column and diagonals
+            board[row][col] = 'Q'
+            cols.add(col)
+            diag1.add(row - col)
+            diag2.add(row + col)
+        
+        def remove_queen(row, col):
+            # Remove a queen and unmark the column and diagonals
+            board[row][col] = '.'
+            cols.remove(col)
+            diag1.remove(row - col)
+            diag2.remove(row + col)
+        
+        def backtrack(row):
+            if row == n:
+                # Convert the board to string format and add to results
+                results.append([''.join(row) for row in board])
+                return
+            
+            for col in range(n):
+                if is_valid(row, col):
+                    place_queen(row, col)
+                    backtrack(row + 1)
+                    remove_queen(row, col)
+        
+        # Initialize the board and supporting sets
+        board = [['.'] * n for _ in range(n)]
+        cols = set()   # Tracks columns with queens
+        diag1 = set()  # Tracks major diagonals (row - col)
+        diag2 = set()  # Tracks minor diagonals (row + col)
+        results = []
+
+        # Start backtracking from the first row
+        backtrack(0)
+        return results
+
+'''
+Steps
+
+Create the Board:
+Use a 2D list to represent the board, where '.' indicates an empty space, and 'Q' indicates a queen.
+
+Use Backtracking:
+Start from the first row and attempt to place a queen in each column.
+Check if placing a queen at a position is valid (i.e., no conflicts in the same column or diagonals).
+If valid, place the queen and move to the next row.
+If the placement leads to a dead end, backtrack by removing the queen and trying the next column.
+
+Add Valid Solutions:
+Once all queens are placed (base case: row == n), convert the board to the desired string format and add it to the results.
+
+Return Results:
+After exploring all possibilities, return the list of valid solutions.
+'''
