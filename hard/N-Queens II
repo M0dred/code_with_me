@@ -1,0 +1,59 @@
+class Solution:
+    def totalNQueens(self, n: int) -> int:
+        def is_valid(row, col):
+            # Check if the column or diagonals are occupied
+            return col not in cols and \
+                   (row - col) not in diag1 and \
+                   (row + col) not in diag2
+        
+        def place_queen(row, col):
+            # Place a queen and mark the column and diagonals
+            cols.add(col)
+            diag1.add(row - col)
+            diag2.add(row + col)
+        
+        def remove_queen(row, col):
+            # Remove a queen and unmark the column and diagonals
+            cols.remove(col)
+            diag1.remove(row - col)
+            diag2.remove(row + col)
+        
+        def backtrack(row):
+            nonlocal count
+            if row == n:
+                # A valid solution is found
+                count += 1
+                return
+            
+            for col in range(n):
+                if is_valid(row, col):
+                    place_queen(row, col)
+                    backtrack(row + 1)
+                    remove_queen(row, col)
+        
+        # Initialize supporting sets and variables
+        cols = set()   # Tracks columns with queens
+        diag1 = set()  # Tracks major diagonals (row - col)
+        diag2 = set()  # Tracks minor diagonals (row + col)
+        count = 0
+
+        # Start backtracking from the first row
+        backtrack(0)
+        return count
+
+'''
+Steps to Solve
+
+Use Backtracking:
+Start placing queens row by row.
+For each row, try placing a queen in every column.
+Check if the current placement is valid (no conflicts in column or diagonals).
+If valid, move to the next row. If not, try the next column.
+If all rows are filled, increment the solution count.
+
+Prune Invalid States:
+Use sets to track which columns and diagonals are occupied to quickly validate potential placements.
+
+Stop When All Queens are Placed:
+When a valid placement is found for all rows, increment the count and backtrack to explore other possibilities.
+'''
