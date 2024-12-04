@@ -1,0 +1,69 @@
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
+
+from typing import List, Optional
+import heapq
+
+# Definition for singly-linked list.
+class ListNode:
+    def __init__(self, val=0, next=None):
+        self.val = val
+        self.next = next
+
+class Solution:
+    def mergeKLists(self, lists: List[Optional[ListNode]]) -> Optional[ListNode]:
+        # Custom comparator for the heap
+        class Wrapper:
+            def __init__(self, node):
+                self.node = node
+            
+            def __lt__(self, other):
+                return self.node.val < other.node.val
+        
+        # Min-heap to store the smallest elements
+        heap = []
+        
+        # Initialize the heap with the first node of each list
+        for l in lists:
+            if l:
+                heapq.heappush(heap, Wrapper(l))
+        
+        # Dummy node to build the result list
+        dummy = ListNode(0)
+        current = dummy
+        
+        # Process the heap
+        while heap:
+            # Get the smallest element
+            wrapper = heapq.heappop(heap)
+            smallest_node = wrapper.node
+            
+            # Add it to the result list
+            current.next = smallest_node
+            current = current.next
+            
+            # If the smallest node has a next node, push it to the heap
+            if smallest_node.next:
+                heapq.heappush(heap, Wrapper(smallest_node.next))
+        
+        return dummy.next
+
+'''
+Explanation of the Code
+
+Wrapper Class:
+Python's heapq does not directly support comparisons between ListNode objects.
+A Wrapper class is used to wrap ListNode objects and define a custom comparison function (__lt__).
+
+Initialize the Heap:
+Push the first node of each list into the heap, ensuring we only handle non-null nodes.
+
+Merge Process:
+Repeatedly extract the smallest node from the heap, append it to the result list, and push the next node from the same list into the heap (if it exists).
+
+Result Construction:
+Use a dummy node to simplify the construction of the merged list.
+'''
