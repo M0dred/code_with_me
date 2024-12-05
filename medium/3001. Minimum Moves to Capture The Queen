@@ -1,0 +1,30 @@
+class Solution:
+    def minMovesToCaptureTheQueen(self, a: int, b: int, c: int, d: int, e: int, f: int) -> int:
+        # Rook and queen are in the same row, and there is no bishop in between
+        if a == e and (c != a or d <= min(b, f) or d >= max(b, f)):
+            return 1
+        # Rook and queen are in the same column, and there is no bishop in between
+        if b == f and (d != b or c <= min(a, e) or c >= max(a, e)):
+            return 1
+        # Bishop and queen are on the same diagonal, and there is no rook in between
+        if abs(c - e) == abs(d - f) and ((c - e) * (b - f) != (a - e) * (d - f) \
+                                         or a < min(c, e) or a > max(c, e)):
+            return 1
+        # Otherwise, it takes two moves
+        return 2
+
+'''
+Explanation of the Logic
+
+Rook's Horizontal Movement:
+The rook can capture the queen in one move if they are on the same row, and there is no bishop blocking the path.
+
+Rook's Vertical Movement:
+Similarly, the rook can capture the queen in one move if they are in the same column, without the bishop blocking.
+
+Bishop's Diagonal Movement:
+The bishop can capture the queen in one move if they are on the same diagonal, and the rook does not block the path.
+
+Default Case:
+If none of the above conditions are met, it requires at least two moves to capture the queen.
+'''
