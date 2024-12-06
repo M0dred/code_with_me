@@ -1,0 +1,49 @@
+from typing import List
+
+class Solution:
+    def numRookCaptures(self, board: List[List[str]]) -> int:
+        # Locate the rook's position
+        for i in range(8):
+            for j in range(8):
+                if board[i][j] == 'R':
+                    rook_row, rook_col = i, j
+                    break
+
+        def count_pawns_in_direction(dx, dy):
+            x, y = rook_row, rook_col
+            while 0 <= x < 8 and 0 <= y < 8:
+                x += dx
+                y += dy
+                if not (0 <= x < 8 and 0 <= y < 8):
+                    break
+                if board[x][y] == 'B':  # Blocked by a bishop
+                    return 0
+                if board[x][y] == 'p':  # Captures a pawn
+                    return 1
+            return 0
+
+        # Check all four directions
+        captures = (
+            count_pawns_in_direction(1, 0) +  # Down
+            count_pawns_in_direction(-1, 0) +  # Up
+            count_pawns_in_direction(0, 1) +  # Right
+            count_pawns_in_direction(0, -1)  # Left
+        )
+
+        return captures
+
+'''
+Explanation of the Code
+
+Locate the Rook:
+Iterate through the board to find the rook's position (rook_row, rook_col).
+
+Check in Directions:
+Use a helper function count_pawns_in_direction(dx, dy) to:
+- Traverse a direction (up, down, left, right) by updating the coordinates using dx and dy.
+- Stop if the path encounters a bishop ('B') or the board edge.
+- Count and stop if a pawn ('p') is encountered.
+
+Aggregate Results:
+Sum up all pawns captured in the four directions.
+'''
