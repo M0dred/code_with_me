@@ -1,0 +1,33 @@
+class Solution:
+    def getFinalState(self, nums: List[int], k: int, multiplier: int) -> List[int]:
+        # Perform k operations
+        for _ in range(k):
+            # Find the index of the first occurrence of the minimum value
+            min_index = nums.index(min(nums))
+            # Replace the minimum value with its multiplied value
+            nums[min_index] *= multiplier
+        
+        return nums
+
+"""
+Approach:
+1. Perform k operations as described:
+   - In each operation, find the minimum value in the array.
+   - If there are multiple occurrences of the minimum value, select the first one (leftmost occurrence).
+   - Replace this minimum value with its value multiplied by the given multiplier.
+
+2. Implementation:
+   - Use the `min` function to find the minimum value in the array.
+   - Use the `index` method to find the index of the first occurrence of this minimum value.
+   - Update the value at the identified index by multiplying it with the multiplier.
+
+3. Repeat this process k times to perform all operations.
+
+4. Return the final state of the array.
+
+Complexity:
+- Time Complexity: O(k * n):
+  - Finding the minimum value and its index takes O(n).
+  - This is repeated for k operations.
+- Space Complexity: O(1): No additional data structures are used, and modifications are made in-place.
+"""
