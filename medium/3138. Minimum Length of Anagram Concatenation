@@ -1,0 +1,26 @@
+class Solution:
+    def minAnagramLength(self, s: str) -> int:
+        n = len(s)
+
+        # Try all possible lengths of t
+        for k in range(1, n + 1):
+            if n % k == 0:  # t must be a divisor of the length of s
+                t = sorted(s[:k])  # Sort the first k characters to form t
+                # Check if all k-length segments in s are anagrams of t
+                if all(sorted(s[i:i + k]) == t for i in range(0, n, k)):
+                    return k
+
+        # If no shorter t is found, return n
+        return n
+
+"""
+Approach:
+1. Iterate through all possible lengths \( k \) for \( t \) such that \( k \) divides \( n \) evenly.
+2. Sort the first \( k \) characters of \( s \) to form \( t \).
+3. Compare all k-length segments of \( s \) to \( t \) to verify if \( s \) is a concatenation of anagrams of \( t \).
+4. Return the minimum \( k \) where all checks pass. If no such \( k \) is found, return \( n \).
+
+Complexity:
+- Time Complexity: O(n^2 / k), as each divisor \( k \) requires processing \( n / k \) substrings of length \( k \).
+- Space Complexity: O(k), for storing and sorting the substring \( t \).
+"""
