@@ -1,0 +1,46 @@
+class Solution:
+    def eatenApples(self, apples: List[int], days: List[int]) -> int:
+        import heapq
+
+        heap = []  # Min-heap to store (rot day, count of apples)
+        day = 0  # Current day
+        eaten = 0  # Total apples eaten
+
+        while day < len(apples) or heap:
+            # Add new apples to the heap
+            if day < len(apples) and apples[day] > 0:
+                heapq.heappush(heap, (day + days[day], apples[day]))
+
+            # Remove rotten or consumed apples from the heap
+            while heap and (heap[0][0] <= day or heap[0][1] == 0):
+                heapq.heappop(heap)
+
+            # Eat one apple if available
+            if heap:
+                rot_day, count = heapq.heappop(heap)
+                eaten += 1
+                if count > 1:
+                    heapq.heappush(heap, (rot_day, count - 1))
+
+            # Move to the next day
+            day += 1
+
+        return eaten
+
+'''
+Approach:
+1. Use a min-heap to manage apples by their expiration days.
+   - Each heap entry is a tuple (rot_day, count_of_apples).
+2. Iterate through each day:
+   - Add the apples grown that day to the heap with their expiration day.
+   - Remove rotten apples or apples with a count of 0 from the heap.
+   - If there are apples available, eat one and update the count in the heap.
+3. Continue eating apples from the heap after the initial days if available.
+4. Return the total count of apples eaten.
+
+Time Complexity:
+- O(n log n), where n is the number of days. Adding and removing from the heap is O(log n), and we process each day and each apple at most once.
+
+Space Complexity:
+- O(n), for the heap that stores the apples.
+'''
