@@ -1,0 +1,38 @@
+class Solution:
+    def occurrencesOfElement(self, nums: List[int], queries: List[int], x: int) -> List[int]:
+        # Precompute the indices of all occurrences of x in nums
+        occurrences = []
+        for i, num in enumerate(nums):
+            if num == x:
+                occurrences.append(i)
+
+        # Process each query
+        result = []
+        for query in queries:
+            # If the query exceeds the number of occurrences, return -1
+            if query > len(occurrences):
+                result.append(-1)
+            else:
+                # Return the (query-1)th index
+                result.append(occurrences[query - 1])
+
+        return result
+
+'''
+Approach:
+1. Precompute all the indices of occurrences of x in the nums array:
+   - Iterate through nums and store the indices where the value equals x.
+   - This step ensures we efficiently answer queries.
+2. For each query in queries:
+   - Check if the query exceeds the number of occurrences of x. If yes, append -1.
+   - Otherwise, use the precomputed list to fetch the index of the (query-1)th occurrence.
+3. Return the result list containing answers for all queries.
+
+Time Complexity:
+- Precomputing indices: O(n), where n is the length of nums.
+- Answering queries: O(m), where m is the length of queries.
+- Total: O(n + m).
+
+Space Complexity:
+- O(k), where k is the number of occurrences of x in nums, to store the indices.
+'''
