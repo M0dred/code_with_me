@@ -1,0 +1,32 @@
+class MyCalendar:
+
+    def __init__(self):
+        # Initialize an empty list to store events as tuples (start, end)
+        self.events = []
+
+    def book(self, startTime: int, endTime: int) -> bool:
+        # Check for overlap with existing events
+        for start, end in self.events:
+            if not (endTime <= start or startTime >= end):
+                return False
+
+        # If no overlap, add the event to the calendar
+        self.events.append((startTime, endTime))
+        return True
+
+'''
+Approach:
+1. Maintain a list `events` to store all booked events as tuples (startTime, endTime).
+2. To book a new event:
+   - Iterate through all existing events and check for overlap.
+   - Overlap exists if `not (endTime <= start or startTime >= end)`.
+   - If there is overlap, return `False`.
+3. If no overlap is found, append the new event to `events` and return `True`.
+
+Time Complexity:
+- Booking a single event: O(n), where n is the number of previously booked events.
+- For 1000 calls to `book`: O(n^2) in the worst case.
+
+Space Complexity:
+- O(n), where n is the number of stored events.
+'''
