@@ -1,0 +1,42 @@
+class MyCalendarTwo:
+
+    def __init__(self):
+        # Stores all single bookings
+        self.bookings = []
+        # Stores all double bookings
+        self.overlaps = []
+
+    def book(self, startTime: int, endTime: int) -> bool:
+        # Check if the new event overlaps with any double booking
+        for overlap_start, overlap_end in self.overlaps:
+            if not (endTime <= overlap_start or startTime >= overlap_end):
+                return False
+
+        # Add overlaps for all bookings this event intersects
+        for start, end in self.bookings:
+            if not (endTime <= start or startTime >= end):
+                self.overlaps.append((max(startTime, start), min(endTime, end)))
+
+        # Add the event to single bookings
+        self.bookings.append((startTime, endTime))
+        return True
+
+'''
+Approach:
+1. Maintain two lists:
+   - `bookings`: Stores all single booking intervals.
+   - `overlaps`: Stores all intervals that have been double booked.
+2. When booking a new event:
+   - Check if the new event overlaps with any interval in `overlaps` (triple booking case).
+     - If yes, return `False`.
+   - For every overlap with intervals in `bookings`, calculate the overlapping interval and add it to `overlaps`.
+   - Add the new event to `bookings`.
+3. Return `True` if the event is successfully booked.
+
+Time Complexity:
+- O(n) for each booking, where n is the number of previously booked intervals.
+- For 1000 calls to `book`, the total complexity is O(n^2) in the worst case.
+
+Space Complexity:
+- O(n), where n is the number of stored intervals in `bookings` and `overlaps`.
+'''
