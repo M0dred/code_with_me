@@ -1,0 +1,37 @@
+class MyCalendarThree:
+
+    def __init__(self):
+        # Dictionary to store changes in event counts at specific times
+        self.timeline = {}
+
+    def book(self, startTime: int, endTime: int) -> int:
+        # Increment count at the start time and decrement it at the end time
+        self.timeline[startTime] = self.timeline.get(startTime, 0) + 1
+        self.timeline[endTime] = self.timeline.get(endTime, 0) - 1
+
+        # Compute the maximum k-booking
+        max_k, current_k = 0, 0
+        for time in sorted(self.timeline):
+            current_k += self.timeline[time]
+            max_k = max(max_k, current_k)
+
+        return max_k
+
+'''
+Approach:
+1. Use a `timeline` dictionary to track the net changes in event counts at specific times:
+   - Increment the count at `startTime`.
+   - Decrement the count at `endTime`.
+2. To determine the maximum `k`-booking:
+   - Sort the keys of the timeline and iterate over them.
+   - Maintain a running sum of event counts (`current_k`).
+   - Track the maximum value of `current_k` as `max_k`.
+3. Return `max_k` after processing the current booking.
+
+Time Complexity:
+- Adding a booking: O(n log n), where n is the number of unique time points in the timeline (sorting the keys).
+- For 1000 calls, worst-case complexity is O(n^2 log n).
+
+Space Complexity:
+- O(n), where n is the number of unique time points stored in the timeline.
+'''
