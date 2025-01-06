@@ -1,0 +1,44 @@
+class Solution:
+    def minOperations(self, boxes: str) -> List[int]:
+        n = len(boxes)
+        answer = [0] * n
+
+        # Prefix pass to calculate operations from left to right
+        count = 0  # Number of balls encountered so far
+        ops = 0  # Operations needed for current pass
+        for i in range(n):
+            answer[i] += ops
+            if boxes[i] == '1':
+                count += 1
+            ops += count
+
+        # Suffix pass to calculate operations from right to left
+        count = 0  # Reset count of balls
+        ops = 0  # Reset operations for this pass
+        for i in range(n - 1, -1, -1):
+            answer[i] += ops
+            if boxes[i] == '1':
+                count += 1
+            ops += count
+
+        return answer
+
+'''
+Approach:
+1. Perform a left-to-right pass:
+   - Track the cumulative number of balls (`count`).
+   - Update the operations needed to move all balls to the current box (`ops`).
+   - Add these operations to `answer[i]` for each box.
+
+2. Perform a right-to-left pass:
+   - Repeat the same process as the left-to-right pass but in reverse.
+   - Update `answer[i]` by adding the operations from this pass.
+
+3. Return the `answer` array, which now contains the minimum operations for each box.
+
+Time Complexity:
+- O(n), where n is the length of the string `boxes`, as we perform two linear passes.
+
+Space Complexity:
+- O(n) for the output `answer` array.
+'''
