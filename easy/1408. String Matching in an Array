@@ -1,0 +1,27 @@
+class Solution:
+    def stringMatching(self, words: List[str]) -> List[str]:
+        result = []
+
+        # Iterate through all pairs of words to check for substrings
+        for i in range(len(words)):
+            for j in range(len(words)):
+                if i != j and words[i] in words[j]:
+                    result.append(words[i])
+                    break
+
+        return result
+
+'''
+Approach:
+1. Use a nested loop to compare each word with all other words in the input list.
+   - For each pair of indices `(i, j)` where `i != j`, check if `words[i]` is a substring of `words[j]` using the `in` operator.
+   - If true, append `words[i]` to the result and break out of the inner loop.
+
+2. Return the `result` list, which contains all words that are substrings of another word.
+
+Time Complexity:
+- O(n^2 * m), where n is the number of words and m is the average length of the words.
+
+Space Complexity:
+- O(k), where k is the number of words added to the result.
+'''
