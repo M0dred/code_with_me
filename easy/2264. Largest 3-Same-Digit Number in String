@@ -1,0 +1,28 @@
+class Solution:
+    def largestGoodInteger(self, num: str) -> str:
+        max_good = ""
+
+        # Iterate through the string, checking substrings of length 3
+        for i in range(len(num) - 2):
+            substring = num[i:i + 3]
+            # Check if the substring consists of the same digit
+            if substring[0] == substring[1] == substring[2]:
+                # Update max_good if the current substring is larger
+                max_good = max(max_good, substring)
+
+        return max_good
+
+'''
+Approach:
+1. Use a sliding window approach to check all substrings of length 3 in the input string `num`.
+2. For each substring:
+   - Check if all three characters are identical.
+   - If true, compare it with the current maximum good integer (`max_good`) and update if larger.
+3. Return `max_good`, which contains the largest good integer found, or an empty string if none are found.
+
+Time Complexity:
+- O(n), where n is the length of the input string `num`, as each character is processed once.
+
+Space Complexity:
+- O(1), as the solution uses a constant amount of extra space.
+'''
