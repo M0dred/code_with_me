@@ -1,0 +1,61 @@
+class Solution {
+    public long validSubstringCount(String word1, String word2) {
+        int[] count = new int[26];
+        // Count the frequency of each character in word2
+        for (char c : word2.toCharArray()) {
+            count[c - 'a']++;
+        }
+
+        int n = word1.length();
+        int[][] preCount = new int[n + 1][26];
+
+        // Build prefix sum array for word1
+        for (int i = 1; i <= n; i++) {
+            for (int j = 0; j < 26; j++) {
+                preCount[i][j] = preCount[i - 1][j];
+            }
+            preCount[i][word1.charAt(i - 1) - 'a']++;
+        }
+
+        long res = 0;
+        // Iterate through each possible starting position
+        for (int l = 1; l <= n; l++) {
+            int r = get(l, n + 1, preCount, count);
+            res += n - r + 1;
+        }
+        return res;
+    }
+
+    private int get(int l, int r, int[][] preCount, int[] count) {
+        int border = l;
+        while (l < r) {
+            int m = (l + r) / 2;
+            if (isValid(border, m, preCount, count)) {
+                r = m;
+            } else {
+                l = m + 1;
+            }
+        }
+        return l;
+    }
+
+    private boolean isValid(int border, int m, int[][] preCount, int[] count) {
+        for (int i = 0; i < 26; i++) {
+            if (preCount[m][i] - preCount[border - 1][i] < count[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+}
+
+/*
+The code efficiently counts valid substrings in word1 using:
+
+1. Preprocessing: Frequency counts and prefix sums.
+2. Sliding Window: Iterates through starting positions.
+3. Binary Search: Finds the right endpoint of each valid substring.
+4. Validation: Checks if a substring contains all characters from word2 with sufficient frequency.
+
+This approach combines efficient data structures and search algorithms for optimal performance.
+*/
