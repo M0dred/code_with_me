@@ -1,0 +1,61 @@
+class Solution:
+    def validSubstringCount(self, word1: str, word2: str) -> int:
+        diff = [0] * 26
+        # Initialize the frequency difference for characters in word2
+        for c in word2:
+            diff[ord(c) - ord('a')] -= 1
+
+        res = 0
+        cnt = sum(1 for c in diff if c < 0)
+
+        def update(c: int, add: int):
+            nonlocal cnt
+            diff[c] += add
+            if add == 1 and diff[c] == 0:
+                # diff[c] changes from -1 to 0
+                cnt -= 1
+            elif add == -1 and diff[c] == -1:
+                # diff[c] changes from 0 to -1
+                cnt += 1
+
+        l, r = 0, 0
+        # Sliding window logic
+        while l < len(word1):
+            while r < len(word1) and cnt > 0:
+                update(ord(word1[r]) - ord('a'), 1)
+                r += 1
+            if cnt == 0:
+                res += len(word1) - r + 1
+            update(ord(word1[l]) - ord('a'), -1)
+            l += 1
+
+        return res
+
+'''
+Approach:
+1. **Frequency Difference Array:**
+   - Use an array `diff` of size 26 to track the difference in character frequencies between the current window of `word1` and `word2`.
+   - Decrease `diff` for each character in `word2`.
+
+2. **Sliding Window:**
+   - Use two pointers `l` (left) and `r` (right) to maintain the current window in `word1`.
+   - Expand the window by incrementing `r` while there are unmet frequency requirements (`cnt > 0`).
+   - Shrink the window by incrementing `l` after processing the window.
+
+3. **Update Function:**
+   - Adjust the `diff` array for the current character when adding or removing it from the window.
+   - Update `cnt` to reflect the number of characters still below the required frequency.
+
+4. **Counting Valid Substrings:**
+   - If `cnt == 0`, the current window satisfies the frequency requirements of `word2`.
+   - Add all substrings starting from `l` and ending at or after `r` to the result.
+
+5. **Return Result:**
+   - After processing all possible windows, return the total count of valid substrings.
+
+Time Complexity:
+- O(n), where `n` is the length of `word1`, as each character is processed at most twice (once when added to the window and once when removed).
+
+Space Complexity:
+- O(26) = O(1), for the `diff` array.
+'''
