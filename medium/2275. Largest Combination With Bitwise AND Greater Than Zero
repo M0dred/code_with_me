@@ -1,0 +1,33 @@
+class Solution:
+    def largestCombination(self, candidates: List[int]) -> int:
+        # Array to count the number of 1s at each bit position (up to 24 bits for 10^7)
+        bit_count = [0] * 24
+
+        # Count the number of candidates with a 1 at each bit position
+        for num in candidates:
+            for i in range(24):
+                if num & (1 << i):
+                    bit_count[i] += 1
+
+        # The largest combination is the maximum value in bit_count
+        return max(bit_count)
+
+'''
+Approach:
+1. **Bit Analysis:**
+   - Each bit position (from 0 to 23) is independent of others for the bitwise AND operation.
+   - A combination of numbers with a 1 at the same bit position will have a non-zero AND result for that bit.
+
+2. **Count 1s per Bit Position:**
+   - For each number in `candidates`, check each bit position.
+   - If a bit is 1, increment the counter for that bit position in `bit_count`.
+
+3. **Find Maximum Count:**
+   - The largest combination size is the maximum value in `bit_count`, as it represents the number of numbers sharing the same bit position with a 1.
+
+Time Complexity:
+- O(n * b), where `n` is the number of candidates and `b` is the number of bits (24 for 10^7).
+
+Space Complexity:
+- O(b), for storing `bit_count`.
+'''
