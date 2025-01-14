@@ -1,0 +1,38 @@
+class Solution:
+    def minOperations(self, nums: List[int], k: int) -> int:
+        # Sort the array to process the smallest elements first
+        nums.sort()
+
+        # Initialize counters
+        operations = 0
+        index = 0
+
+        # Iterate through the array
+        while index < len(nums) and nums[index] < k:
+            # Remove the smallest element
+            operations += 1
+            index += 1
+
+        return operations
+
+'''
+Approach:
+1. **Sort the Array:**
+   - Sort `nums` in ascending order to easily access the smallest elements.
+
+2. **Iterate Through the Array:**
+   - Use a pointer `index` to traverse the array.
+   - Increment the `operations` counter and move the pointer for each element smaller than `k`.
+
+3. **Terminate When All Elements >= k:**
+   - Stop once the pointer reaches an element greater than or equal to `k`.
+
+4. **Return Result:**
+   - The `operations` counter gives the minimum number of removals needed.
+
+Time Complexity:
+- O(n log n), where `n` is the length of `nums`, due to the sorting step.
+
+Space Complexity:
+- O(1), as no additional data structures are used.
+'''
