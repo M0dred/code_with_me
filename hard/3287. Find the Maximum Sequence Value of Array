@@ -1,0 +1,71 @@
+from functools import reduce
+from operator import or_
+
+class Solution:
+    def maxValue(self, nums: List[int], k: int) -> int:
+        # Calculate the maximum possible OR value of any subsequence
+        mx = reduce(or_, nums)
+        n = len(nums)
+        
+        # Initialize a suffix array to store OR values for the second half
+        suf = [None] * (n - k + 1)
+        
+        # Initialize a DP table for the first half
+        f = [[False] * (mx + 1) for _ in range(k + 1)]
+        f[0][0] = True
+        
+        # Fill the suffix array by processing the array from the end
+        for i in range(n - 1, k - 1, -1):
+            v = nums[i]
+            # Update the DP table for the second half
+            for j in range(min(k - 1, n - 1 - i), -1, -1):
+                for x, has_x in enumerate(f[j]):
+                    if has_x:
+                        f[j + 1][x | v] = True
+            # Store the OR values for the second half
+            if i <= n - k:
+                suf[i] = f[k].copy()
+        
+        # Initialize the answer
+        ans = 0
+        
+        # Reset the DP table for the first half
+        f = [[False] * (mx + 1) for _ in range(k + 1)]
+        f[0][0] = True
+        
+        # Process the array from the start to fill the DP table for the first half
+        for i, v in enumerate(nums[:-k]):
+            for j in range(min(k - 1, i), -1, -1):
+                for x, has_x in enumerate(f[j]):
+                    if has_x:
+                        f[j + 1][x | v] = True
+            # Skip if we haven't processed enough elements for the first half
+            if i < k - 1:
+                continue
+            # Compare the OR values of the first half with the suffix array
+            for x, has_x in enumerate(f[k]):
+                if has_x:
+                    for y, has_y in enumerate(suf[i + 1]):
+                        if has_y and x ^ y > ans:
+                            ans = x ^ y
+            # If the maximum possible value is reached, return it
+            if ans == mx:
+                return ans
+        return ans
+
+'''
+Approach:
+1. The problem requires finding the maximum value of a subsequence of size 2 * k, where the value is defined as the XOR of two OR operations: the OR of the first k elements and the OR of the next k elements.
+2. To optimize, we use dynamic programming to compute the OR values for all possible combinations of k elements for both the first half and the second half.
+3. We process the array from the end to fill the suffix array (suf) with OR values for the second half.
+4. We process the array from the start to fill the DP table (f) with OR values for the first half.
+5. We compare the OR values of the first half with the suffix array to find the maximum XOR value.
+6. The time complexity is O(n * mx), where n is the length of the array and mx is the maximum possible OR value.
+7. The space complexity is O(n * mx) due to the DP table and suffix array.
+
+Time Complexity: O(n * mx)
+- We process the array twice, once from the end and once from the start, and for each element, we update the DP table, which has a size of O(mx).
+
+Space Complexity: O(n * mx)
+- We use a DP table and a suffix array, each of size O(n * mx), to store the OR values.
+'''
