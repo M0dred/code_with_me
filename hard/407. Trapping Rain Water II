@@ -1,0 +1,52 @@
+import heapq
+
+class Solution:
+    def trapRainWater(self, heightMap: List[List[int]]) -> int:
+        if not heightMap:
+            return 0
+        
+        m, n = len(heightMap), len(heightMap[0])
+        if m < 3 or n < 3:
+            return 0
+        
+        # Initialize the min-heap with the boundary cells
+        heap = []
+        visited = [[False] * n for _ in range(m)]
+        
+        for i in range(m):
+            for j in range(n):
+                if i == 0 or i == m - 1 or j == 0 or j == n - 1:
+                    heapq.heappush(heap, (heightMap[i][j], i, j))
+                    visited[i][j] = True
+        
+        # Directions for moving to neighboring cells
+        directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+        water = 0
+        
+        while heap:
+            current_height, x, y = heapq.heappop(heap)
+            for dx, dy in directions:
+                nx, ny = x + dx, y + dy
+                if 0 <= nx < m and 0 <= ny < n and not visited[nx][ny]:
+                    if heightMap[nx][ny] < current_height:
+                        water += current_height - heightMap[nx][ny]
+                        heightMap[nx][ny] = current_height
+                    visited[nx][ny] = True
+                    heapq.heappush(heap, (heightMap[nx][ny], nx, ny))
+        
+        return water
+
+'''
+Approach:
+1. The problem requires calculating the volume of water trapped after raining in a 2D elevation map.
+2. We use a priority queue (min-heap) to process the boundary cells first and work inward.
+3. For each cell, we calculate the amount of water that can be trapped based on the current water level and the height of the cell.
+4. We update the water level and push the neighboring cells into the heap.
+5. The process continues until all cells have been processed, and the total volume of trapped water is returned.
+
+Time Complexity: O(m * n * log(m * n))
+- The heap operations dominate the time complexity, and in the worst case, each cell is processed once, leading to O(m * n * log(m * n)).
+
+Space Complexity: O(m * n)
+- We use a visited matrix of size m * n and a heap that can store up to m * n cells.
+'''
