@@ -1,0 +1,37 @@
+class Solution:
+    def countTexts(self, pressedKeys: str) -> int:
+        MOD = 10**9 + 7
+        n = len(pressedKeys)
+        dp = [0] * (n + 1)
+        dp[0] = 1  # Empty string has one way to be decoded
+
+        for i in range(1, n + 1):
+            # Single press
+            dp[i] = dp[i - 1]
+            # Double press
+            if i >= 2 and pressedKeys[i - 1] == pressedKeys[i - 2]:
+                dp[i] = (dp[i] + dp[i - 2]) % MOD
+            # Triple press
+            if i >= 3 and pressedKeys[i - 1] == pressedKeys[i - 2] == pressedKeys[i - 3]:
+                dp[i] = (dp[i] + dp[i - 3]) % MOD
+            # Quadruple press for '7' and '9'
+            if i >= 4 and pressedKeys[i - 1] == pressedKeys[i - 2] == pressedKeys[i - 3] == pressedKeys[i - 4]:
+                if pressedKeys[i - 1] in {'7', '9'}:
+                    dp[i] = (dp[i] + dp[i - 4]) % MOD
+
+        return dp[n]
+
+'''
+Approach:
+1. The problem requires counting the number of possible text messages Alice could have sent based on the sequence of pressed keys.
+2. We use dynamic programming to count the number of ways to decode the sequence of pressed keys into valid text messages.
+3. For each character in the string, we consider the possible ways to form valid sequences of presses (single, double, triple, and quadruple for '7' and '9').
+4. We update the dynamic programming array based on these possibilities, ensuring to handle the modulo operation to keep the numbers manageable.
+5. The final result is the value in the dynamic programming array corresponding to the entire string, modulo \(10^9 + 7\).
+
+Time Complexity: O(n)
+- We process each character in the string once, and for each character, we perform a constant number of operations.
+
+Space Complexity: O(n)
+- We use a dynamic programming array of size n+1 to store the number of ways to decode the first i characters of the string.
+'''
