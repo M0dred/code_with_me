@@ -1,0 +1,52 @@
+class Solution:
+    def calculate(self, s: str) -> int:
+        stack = []
+        result = 0
+        num = 0
+        sign = 1  # 1 for positive, -1 for negative
+        
+        for char in s:
+            if char.isdigit():
+                num = num * 10 + int(char)
+            elif char == '+':
+                result += sign * num
+                num = 0
+                sign = 1
+            elif char == '-':
+                result += sign * num
+                num = 0
+                sign = -1
+            elif char == '(':
+                stack.append((result, sign))
+                result = 0
+                sign = 1
+            elif char == ')':
+                result += sign * num
+                num = 0
+                prev_result, prev_sign = stack.pop()
+                result = prev_result + prev_sign * result
+            # Ignore spaces
+        
+        # Add the last number
+        result += sign * num
+        return result
+
+'''
+Approach:
+1. The problem requires evaluating a string expression containing digits, '+', '-', '(', ')', and spaces.
+2. We use a stack to handle the parentheses and the current result and sign.
+3. We iterate through each character in the string:
+   - If the character is a digit, we form the complete number.
+   - If the character is '+', we update the result with the current number and reset the number and sign.
+   - If the character is '-', we update the result with the current number and reset the number and sign, but set the sign to -1.
+   - If the character is '(', we push the current result and sign onto the stack, and reset the result and sign.
+   - If the character is ')', we pop the previous result and sign from the stack and combine them with the current result.
+4. We skip spaces as they do not affect the calculation.
+5. After processing all characters, we add the last number to the result.
+
+Time Complexity: O(n)
+- We iterate through the string once, performing constant-time operations for each character.
+
+Space Complexity: O(n)
+- In the worst case, the stack can grow up to the depth of nested parentheses, which is O(n) in the worst case.
+'''
