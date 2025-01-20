@@ -1,0 +1,41 @@
+class Solution:
+    def findClosestNumber(self, nums: List[int]) -> int:
+        # Initialize the closest number as the first element in the array
+        closest_num = nums[0]
+        # Initialize the smallest distance as the absolute value of the first element
+        min_distance = abs(nums[0])
+        
+        # Iterate through each number in the array
+        for num in nums:
+            # Calculate the absolute value (distance to 0) of the current number
+            current_distance = abs(num)
+            # If the current distance is smaller than the smallest distance found so far
+            if current_distance < min_distance:
+                # Update the closest number and the smallest distance
+                closest_num = num
+                min_distance = current_distance
+            # If the current distance is equal to the smallest distance found so far
+            elif current_distance == min_distance:
+                # Update the closest number to the larger of the two numbers
+                if num > closest_num:
+                    closest_num = num
+        
+        # Return the closest number found
+        return closest_num
+
+'''
+Approach:
+1. The problem requires finding the number in the array that is closest to 0.
+2. If there are multiple numbers with the same distance to 0, the largest one should be returned.
+3. We initialize variables to keep track of the closest number and the smallest distance.
+4. We iterate through the array, calculate the absolute value of each number, and compare it with the smallest distance found so far.
+5. If the current distance is smaller, we update the closest number and the smallest distance.
+6. If the current distance is equal to the smallest distance, we update the closest number to the larger of the two numbers.
+7. After processing all numbers, we return the closest number found.
+
+Time Complexity: O(n)
+- We iterate through the array once, performing constant-time operations for each element.
+
+Space Complexity: O(1)
+- We use a constant amount of extra space to store the closest number and the smallest distance.
+'''
