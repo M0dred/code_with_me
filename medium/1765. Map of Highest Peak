@@ -1,0 +1,47 @@
+from collections import deque
+
+class Solution:
+    def highestPeak(self, isWater: List[List[int]]) -> List[List[int]]:
+        m, n = len(isWater), len(isWater[0])
+        height = [[-1 for _ in range(n)] for _ in range(m)]
+        queue = deque()
+        
+        # Initialize the queue with all water cells and set their height to 0
+        for i in range(m):
+            for j in range(n):
+                if isWater[i][j] == 1:
+                    height[i][j] = 0
+                    queue.append((i, j))
+        
+        # Directions for moving to neighboring cells
+        directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+        
+        # Perform BFS
+        while queue:
+            x, y = queue.popleft()
+            for dx, dy in directions:
+                nx, ny = x + dx, y + dy
+                if 0 <= nx < m and 0 <= ny < n and height[nx][ny] == -1:
+                    height[nx][ny] = height[x][y] + 1
+                    queue.append((nx, ny))
+        
+        return height
+
+'''
+Approach:
+1. The problem requires assigning heights to cells in a matrix such that:
+   - Water cells have a height of 0.
+   - Adjacent cells have an absolute height difference of at most 1.
+   - The maximum height in the matrix is maximized.
+2. We use a BFS approach starting from all water cells to assign heights incrementally.
+3. Initialize a `height` matrix with `-1` to represent unassigned heights.
+4. Enqueue all water cells and set their height to 0.
+5. Perform BFS: for each cell, assign its neighboring cells a height of the current cell's height + 1, ensuring the constraints are met.
+6. The BFS ensures that heights are assigned optimally, and the maximum height is maximized.
+
+Time Complexity: O(m * n)
+- We process each cell once during BFS traversal, resulting in O(m * n) time.
+
+Space Complexity: O(m * n)
+- We use a `height` matrix of size m * n and a queue that can store up to m * n cells.
+'''
