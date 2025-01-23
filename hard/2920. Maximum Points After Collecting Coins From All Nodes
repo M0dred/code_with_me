@@ -1,0 +1,50 @@
+from functools import cache
+from typing import List
+
+class Solution:
+    def maximumPoints(self, edges: List[List[int]], coins: List[int], k: int) -> int:
+        # Build the tree using an adjacency list
+        g = [[] for _ in coins]
+        for x, y in edges:
+            g[x].append(y)
+            g[y].append(x)
+        
+        @cache  # Memoization to avoid redundant calculations
+        def dfs(i: int, j: int, fa: int) -> int:
+            # Option 1: Collect coins without halving
+            res1 = (coins[i] >> j) - k
+            # Option 2: Collect coins with halving
+            res2 = coins[i] >> (j + 1)
+            
+            # Traverse all children
+            for ch in g[i]:
+                if ch != fa:
+                    res1 += dfs(ch, j, i)  # No halving for children
+                    if j < 13:  # Avoid unnecessary recursion when j >= 14
+                        res2 += dfs(ch, j + 1, i)  # Halving for children
+            
+            # Return the maximum of the two options
+            return max(res1, res2)
+        
+        # Start DFS from the root (node 0), with initial shift j = 0 and no parent (fa = -1)
+        return dfs(0, 0, -1)
+
+'''
+Approach:
+1. The problem involves maximizing points collected from a tree where each node has a certain number of coins.
+2. Points can be collected in two ways:
+   - Collect all coins at a node, gaining `(coins[i] >> j) - k` points.
+   - Collect all coins at a node, gaining `coins[i] >> (j + 1)` points, but this reduces the coins in the subtree to `coins[j] >> (j + 1)` for all descendants.
+3. We use a dynamic programming (DP) approach with DFS to compute the maximum points for each node and state.
+4. The state `j` represents the number of times the coins have been halved (right-shifted).
+5. For each node, we consider both options (collecting with or without halving) and propagate the state to its children.
+6. The result is the maximum points collected from the root node (node 0) considering both states.
+
+Time Complexity: O(n * 14)
+- We process each node once for each possible state `j` (up to 14, since `coins[i] >> 14` is effectively 0).
+- The DFS traversal ensures that each node is processed efficiently.
+
+Space Complexity: O(n * 14)
+- We use memoization to store the results of DFS calls for each node and state.
+- The recursion stack can grow up to O(n) in the worst case.
+'''
