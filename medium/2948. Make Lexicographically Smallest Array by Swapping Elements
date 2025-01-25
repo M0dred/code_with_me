@@ -1,0 +1,45 @@
+class Solution:
+    def lexicographicallySmallestArray(self, nums: List[int], limit: int) -> List[int]:
+        n = len(nums)
+        # Pair each number with its original index
+        indexed_nums = [(nums[i], i) for i in range(n)]
+        # Sort based on the number value
+        indexed_nums.sort()
+        
+        result = [0] * n
+        i = 0
+        while i < n:
+            # Start a new group
+            group = []
+            group.append(indexed_nums[i])
+            j = i + 1
+            # Add elements to the group if they are within the limit
+            while j < n and indexed_nums[j][0] - indexed_nums[j-1][0] <= limit:
+                group.append(indexed_nums[j])
+                j += 1
+            # Extract the indices and values of the group
+            indices = [x[1] for x in group]
+            values = [x[0] for x in group]
+            # Sort the values
+            values.sort()
+            # Assign the sorted values back to their original positions
+            for idx, pos in enumerate(sorted(indices)):
+                result[pos] = values[idx]
+            # Move to the next group
+            i = j
+        return result
+
+'''
+Approach:
+1. The problem requires finding the lexicographically smallest array by performing swaps between elements that differ by at most `limit`.
+2. We group elements that can be swapped with each other by sorting the array and grouping elements that are within `limit` of each other.
+3. Within each group, we sort the values to achieve the smallest possible order.
+4. We then place the sorted values back into their original positions to form the final array.
+
+Time Complexity: O(n log n)
+- Sorting the array takes O(n log n) time.
+- Grouping and sorting within groups also takes O(n log n) time in the worst case.
+
+Space Complexity: O(n)
+- We use additional space to store the indexed numbers and the result array.
+'''
