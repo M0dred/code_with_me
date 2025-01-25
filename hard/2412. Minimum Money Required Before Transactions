@@ -1,0 +1,25 @@
+class Solution:
+    def minimumMoney(self, transactions: List[List[int]]) -> int:
+        total_lose = 0
+        mx = 0
+        for cost, cashback in transactions:
+            total_lose += max(cost - cashback, 0)  # Total loss from loss transactions
+            mx = max(mx, min(cost, cashback))  # Maximum cost among gain transactions
+        return total_lose + mx
+
+'''
+Approach:
+1. The problem requires determining the minimum amount of money needed to complete all transactions in any order.
+2. We separate transactions into two categories:
+   - **Loss Transactions**: Transactions where `cost > cashback`. These reduce the overall money.
+   - **Gain Transactions**: Transactions where `cost <= cashback`. These do not reduce the overall money.
+3. For loss transactions, we calculate the total loss, which is the sum of `(cost - cashback)` for all such transactions.
+4. For gain transactions, we determine the maximum cost among all such transactions using `min(cost, cashback)`.
+5. The required initial money is the sum of the total loss and the maximum cost of gain transactions.
+
+Time Complexity: O(n)
+- We iterate through the list of transactions once, performing constant-time operations for each transaction.
+
+Space Complexity: O(1)
+- We use a constant amount of extra space to store the total loss and the maximum cost.
+'''
