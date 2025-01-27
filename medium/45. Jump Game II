@@ -1,0 +1,40 @@
+class Solution:
+    def jump(self, nums: List[int]) -> int:
+        n = len(nums)
+        if n == 1:
+            return 0
+
+        jumps = 0
+        current_end = 0
+        farthest = 0
+
+        for i in range(n - 1):
+            farthest = max(farthest, i + nums[i])
+            if i == current_end:
+                jumps += 1
+                current_end = farthest
+                if current_end >= n - 1:
+                    break
+
+        return jumps
+
+'''
+Approach:
+1. **Greedy Algorithm:**
+   - Track the farthest point that can be reached at each step.
+   - Increment the jump count when the current range (current_end) is exceeded.
+
+2. **Variables Used:**
+   - `jumps`: Counts the number of jumps made.
+   - `current_end`: Tracks the farthest point that can be reached in the current jump.
+   - `farthest`: Tracks the farthest point that can be reached overall.
+
+3. **Early Termination:**
+   - Break the loop if the current range exceeds or reaches the last index.
+
+Time Complexity:
+- O(n), where `n` is the length of the array, as we iterate through the array once.
+
+Space Complexity:
+- O(1), as no additional data structures are used.
+'''
