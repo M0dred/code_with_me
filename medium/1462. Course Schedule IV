@@ -1,0 +1,37 @@
+class Solution:
+    def checkIfPrerequisite(self, numCourses: int, prerequisites: List[List[int]], queries: List[List[int]]) -> List[bool]:
+        # Create a reachability matrix initialized to False
+        reach = [[False] * numCourses for _ in range(numCourses)]
+
+        # Set direct prerequisites in the reachability matrix
+        for pre, course in prerequisites:
+            reach[pre][course] = True
+
+        # Apply Floyd-Warshall Algorithm to find all transitive prerequisites
+        for k in range(numCourses):
+            for i in range(numCourses):
+                for j in range(numCourses):
+                    reach[i][j] = reach[i][j] or (reach[i][k] and reach[k][j])
+
+        # Answer the queries based on the reachability matrix
+        return [reach[u][v] for u, v in queries]
+
+'''
+Approach:
+1. **Initialize Reachability Matrix:**
+   - Create a matrix `reach` of size `numCourses x numCourses` and initialize all values to `False`.
+   - For each pair `[ai, bi]` in `prerequisites`, set `reach[ai][bi] = True`.
+
+2. **Floyd-Warshall Algorithm:**
+   - Use the Floyd-Warshall algorithm to compute transitive closure.
+   - Update `reach[i][j]` to `True` if there exists an intermediate course `k` such that `reach[i][k]` and `reach[k][j]` are both `True`.
+
+3. **Answer Queries:**
+   - For each query `[u, v]` in `queries`, return `reach[u][v]`.
+
+Time Complexity:
+- O(numCourses^3 + len(queries)), where `numCourses^3` is the cost of the Floyd-Warshall algorithm.
+
+Space Complexity:
+- O(numCourses^2), for the reachability matrix.
+'''
