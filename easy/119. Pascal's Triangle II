@@ -1,0 +1,31 @@
+class Solution:
+    def getRow(self, rowIndex: int) -> List[int]:
+        # Initialize the first row
+        row = [1]
+
+        # Generate rows up to rowIndex
+        for _ in range(rowIndex):
+            # Calculate the next row based on the current row
+            row = [1] + [row[i] + row[i + 1] for i in range(len(row) - 1)] + [1]
+
+        return row
+
+'''
+Approach:
+1. **Initialization:**
+   - Start with the first row of Pascal's triangle: `[1]`.
+
+2. **Iterative Row Construction:**
+   - For each row up to `rowIndex`:
+     - Construct the next row by taking the sum of adjacent elements in the current row.
+     - Add `1` at the beginning and end of the row.
+
+3. **Return Result:**
+   - Return the row corresponding to `rowIndex`.
+
+Time Complexity:
+- O(rowIndex^2), as each row computation involves summing pairs of elements.
+
+Space Complexity:
+- O(rowIndex), as only the current row is stored at any time.
+'''
