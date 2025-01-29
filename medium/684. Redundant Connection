@@ -1,0 +1,56 @@
+public class Solution {
+    public int[] FindRedundantConnection(int[][] edges) {
+        int n = edges.Length;
+        int[] parent = new int[n + 1];
+        for (int i = 1; i <= n; i++) {
+            parent[i] = i;
+        }
+
+        int[] result = new int[2];
+
+        foreach (int[] edge in edges) {
+            int u = edge[0];
+            int v = edge[1];
+
+            if (!Union(parent, u, v)) {
+                result = edge;
+            }
+        }
+
+        return result;
+    }
+
+    private int Find(int[] parent, int x) {
+        if (parent[x] != x) {
+            parent[x] = Find(parent, parent[x]); // Path compression
+        }
+        return parent[x];
+    }
+
+    private bool Union(int[] parent, int x, int y) {
+        int px = Find(parent, x);
+        int py = Find(parent, y);
+
+        if (px == py) {
+            return false; // Cycle detected
+        }
+
+        parent[px] = py; // Union
+        return true;
+    }
+
+    /*
+    Approach:
+    1. The problem requires identifying the edge that, when removed, results in a tree with n nodes.
+    2. We use a Union-Find (Disjoint Set Union, DSU) data structure to detect the edge that forms a cycle.
+    3. We initialize a parent array where each node is its own parent.
+    4. We iterate through the given edges and perform a union operation for each edge.
+    5. The Union operation checks if the nodes of the current edge are in the same set (indicating a cycle).
+    6. If a cycle is detected, the current edge is stored as the result.
+    7. Path compression is used in the Find operation to optimize future find operations.
+    8. The time complexity is O(n * α(n)), where α(n) is the inverse Ackermann function, which is effectively constant for practical values of n.
+    9. The space complexity is O(n) for the parent array.
+
+    This approach efficiently identifies the last edge that forms a cycle, which, when removed, results in a tree with n nodes.
+    */
+}
