@@ -1,0 +1,52 @@
+from typing import List
+
+class Solution:
+    def largestIsland(self, grid: List[List[int]]) -> int:
+        n = len(grid)
+        island_id = 2
+        island_sizes = {0: 0}  # 0 represents no island
+
+        def dfs(i: int, j: int, id: int) -> int:
+            if i < 0 or i >= n or j < 0 or j >= n or grid[i][j] != 1:
+                return 0
+            grid[i][j] = id
+            return 1 + dfs(i+1, j, id) + dfs(i-1, j, id) + dfs(i, j+1, id) + dfs(i, j-1, id)
+
+        # Label islands and calculate their sizes
+        for i in range(n):
+            for j in range(n):
+                if grid[i][j] == 1:
+                    island_sizes[island_id] = dfs(i, j, island_id)
+                    island_id += 1
+
+        # Find the largest island after changing one 0 to 1
+        max_island_size = max(island_sizes.values())
+        for i in range(n):
+            for j in range(n):
+                if grid[i][j] == 0:
+                    neighbors = set()
+                    for di, dj in [(0, 1), (1, 0), (0, -1), (-1, 0)]:
+                        ni, nj = i + di, j + dj
+                        if 0 <= ni < n and 0 <= nj < n and grid[ni][nj] > 1:
+                            neighbors.add(grid[ni][nj])
+                    potential_size = 1 + sum(island_sizes[id] for id in neighbors)
+                    max_island_size = max(max_island_size, potential_size)
+
+        return max_island_size
+
+'''
+Approach:
+1. The problem requires finding the size of the largest island after changing at most one 0 to 1 in the grid.
+2. We first identify and label all existing islands using DFS, calculating the size of each island.
+3. We store the size of each island in a dictionary with the island's label as the key.
+4. We then iterate through all 0s in the grid, considering what would happen if we changed each 0 to 1.
+5. For each 0, we calculate the potential new island size by summing the sizes of all adjacent islands.
+6. We keep track of the maximum island size found, including both the original islands and the potential new islands after changing a 0 to 1.
+
+Time Complexity: O(n^2), where n is the size of the grid.
+- We iterate through the grid once to label islands and once to check potential changes, both taking O(n^2) time.
+- The DFS for each island takes O(n^2) time in the worst case, but the total time remains O(n^2) as each cell is visited at most once.
+
+Space Complexity: O(n^2)
+- We use additional space to store the island sizes and the modified grid, which can be at most O(n^2).
+'''
