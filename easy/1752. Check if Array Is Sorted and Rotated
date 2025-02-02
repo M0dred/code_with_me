@@ -1,0 +1,25 @@
+class Solution:
+    def check(self, nums: List[int]) -> bool:
+        count = 0
+        n = len(nums)
+        
+        for i in range(n):
+            if nums[i] > nums[(i + 1) % n]:
+                count += 1
+        
+        return count <= 1
+
+'''
+Approach:
+1. The problem requires checking if the given array can be sorted in non-decreasing order after being rotated some number of positions.
+2. We iterate through the array and compare each element with the next element, considering the array as circular (using modulo to wrap around to the start).
+3. If we find an element that is greater than the next element, we increment a counter.
+4. A valid rotated sorted array will have at most one such break in the order.
+5. If the counter is less than or equal to 1, the array is a valid rotated sorted array.
+
+Time Complexity: O(n), where n is the length of the array.
+- We iterate through the array once, performing constant-time operations for each element.
+
+Space Complexity: O(1)
+- We use a constant amount of extra space to store the counter and length.
+'''
