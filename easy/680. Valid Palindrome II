@@ -1,0 +1,36 @@
+class Solution:
+    def validPalindrome(self, s: str) -> bool:
+        def is_palindrome(left: int, right: int) -> bool:
+            while left < right:
+                if s[left] != s[right]:
+                    return False
+                left += 1
+                right -= 1
+            return True
+        
+        left, right = 0, len(s) - 1
+        while left < right:
+            if s[left] != s[right]:
+                # Try deleting one character from either the left or right side
+                return is_palindrome(left + 1, right) or is_palindrome(left, right - 1)
+            left += 1
+            right -= 1
+        
+        return True  # The string is already a palindrome
+
+'''
+Approach:
+1. The problem requires checking if the given string can be made into a palindrome by deleting at most one character.
+2. We first check if the string is already a palindrome. If so, return True.
+3. We then iterate through the string from both ends until we find the first pair of characters that do not match.
+4. When a mismatch is found, we try two possibilities:
+   - Delete the character on the left side of the mismatch and check if the remaining string is a palindrome.
+   - Delete the character on the right side of the mismatch and check if the remaining string is a palindrome.
+5. If either of these checks results in a palindrome, we return True. Otherwise, we return False.
+
+Time Complexity: O(n), where n is the length of the string.
+- We iterate through the string at most twice (once to find the mismatch and once to check if the remaining string is a palindrome).
+
+Space Complexity: O(1)
+- We use a constant amount of extra space for the pointers and the helper function.
+'''
