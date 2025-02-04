@@ -1,0 +1,33 @@
+class Solution:
+    def sortArrayByParityII(self, nums: List[int]) -> List[int]:
+        # Separate even and odd numbers
+        evens = [num for num in nums if num % 2 == 0]
+        odds = [num for num in nums if num % 2 != 0]
+        
+        # Reconstruct the array
+        result = [0] * len(nums)
+        even_index, odd_index = 0, 0
+        
+        for i in range(len(nums)):
+            if i % 2 == 0:  # Even index
+                result[i] = evens[even_index]
+                even_index += 1
+            else:  # Odd index
+                result[i] = odds[odd_index]
+                odd_index += 1
+        
+        return result
+
+'''
+Approach:
+1. The problem requires sorting the array so that even numbers are at even indices and odd numbers are at odd indices.
+2. We separate the even and odd numbers into two lists.
+3. We then reconstruct the array by iterating through it and placing even numbers at even indices and odd numbers at odd indices using the separated lists.
+4. This approach ensures that the condition is satisfied for any valid input array.
+
+Time Complexity: O(n), where n is the length of the array.
+- We iterate through the array twice: once to separate the numbers and once to reconstruct the array.
+
+Space Complexity: O(n)
+- We use additional space to store the even and odd lists, and the result array, which can grow up to n/2 in size each.
+'''
