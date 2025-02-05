@@ -1,0 +1,35 @@
+class Solution:
+    def subsetsWithDup(self, nums: List[int]) -> List[List[int]]:
+        nums.sort()  # Sort the array to group duplicates together
+        result = []
+        
+        def backtrack(start, path):
+            result.append(path[:])  # Add the current subset to the result
+            
+            for i in range(start, len(nums)):
+                if i > start and nums[i] == nums[i-1]:  # Skip duplicates
+                    continue
+                
+                path.append(nums[i])
+                backtrack(i + 1, path)
+                path.pop()  # Backtrack
+        
+        backtrack(0, [])
+        return result
+
+'''
+Approach:
+1. The problem requires generating all possible subsets of the given array without duplicate subsets.
+2. We first sort the array to group duplicate elements together.
+3. We use a backtracking approach to generate all subsets.
+4. We start with an empty subset and iteratively add elements to it.
+5. To avoid duplicate subsets, we skip over duplicate elements in the sorted array.
+6. We define a recursive function that explores both including and excluding the current element.
+7. We add each unique subset to the result list.
+
+Time Complexity: O(2^n), where n is the length of the array.
+- In the worst case, we explore all possible subsets of the array.
+
+Space Complexity: O(2^n)
+- The space required to store all subsets and the recursion stack can grow up to O(2^n).
+'''
