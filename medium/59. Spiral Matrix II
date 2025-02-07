@@ -1,0 +1,61 @@
+from typing import List
+
+class Solution:
+    def generateMatrix(self, n: int) -> List[List[int]]:
+        matrix = [[0] * n for _ in range(n)]
+        top_row, bottom_row = 0, n - 1
+        left_col, right_col = 0, n - 1
+        num = 1
+
+        while num <= n * n:
+            # Rightward fill (top row)
+            for j in range(left_col, right_col + 1):
+                matrix[top_row][j] = num
+                num += 1
+            top_row += 1
+
+            # Downward fill (right column)
+            for i in range(top_row, bottom_row + 1):
+                matrix[i][right_col] = num
+                num += 1
+            right_col -= 1
+
+            # Leftward fill (bottom row)
+            if top_row <= bottom_row: # Check to prevent duplicate row filling if n is odd
+                for j in range(right_col, left_col - 1, -1):
+                    matrix[bottom_row][j] = num
+                    num += 1
+                bottom_row -= 1
+
+            # Upward fill (left column)
+            if left_col <= right_col: # Check to prevent duplicate column filling if n is odd
+                for i in range(bottom_row, top_row - 1, -1):
+                    matrix[i][left_col] = num
+                    num += 1
+                left_col += 1
+
+        return matrix
+
+'''
+Approach:
+1. Initialize an n x n matrix with 0s.
+2. Initialize boundary variables: `top_row`, `bottom_row`, `left_col`, `right_col` to define the current spiral layer.
+3. Initialize a counter `num` to 1 to fill the matrix with numbers from 1 to n^2.
+4. Iterate in a while loop as long as `num <= n * n`.
+5. In each iteration, perform the following spiral filling steps:
+   - Fill from left to right in the `top_row`.
+   - Move `top_row` down by 1.
+   - Fill from top to bottom in the `right_col`.
+   - Move `right_col` left by 1.
+   - Fill from right to left in the `bottom_row` (only if `top_row <= bottom_row` to prevent duplicate filling in odd n cases).
+   - Move `bottom_row` up by 1.
+   - Fill from bottom to top in the `left_col` (only if `left_col <= right_col` to prevent duplicate filling in odd n cases).
+   - Move `left_col` right by 1.
+6. Return the filled matrix.
+
+Time Complexity: O(n^2)
+- We visit each cell in the n x n matrix exactly once.
+
+Space Complexity: O(n^2)
+- We create an n x n matrix to store the result.
+'''
