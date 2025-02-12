@@ -1,0 +1,41 @@
+class Solution:
+    def maximumSum(self, nums: List[int]) -> int:
+        def digitSum(num):
+            """Compute sum of digits of a number"""
+            return sum(int(d) for d in str(num))
+
+        max_sum = -1
+        digit_sum_map = {}  # Stores the largest number for each digit sum
+
+        for num in nums:
+            ds = digitSum(num)  # Get sum of digits
+            if ds in digit_sum_map:
+                max_sum = max(max_sum, digit_sum_map[ds] + num)  # Compare with existing max sum
+                digit_sum_map[ds] = max(digit_sum_map[ds], num)  # Update with the max value
+            else:
+                digit_sum_map[ds] = num  # Store first occurrence
+
+        return max_sum
+
+'''
+Approach:
+1. **Digit Sum Calculation**:
+   - We define a helper function `digitSum(num)` to compute the sum of digits for a number.
+   - Example: `digitSum(18) = 1 + 8 = 9`.
+
+2. **Using a Hash Map (`digit_sum_map`)**:
+   - We store the **largest number encountered** for each **unique digit sum**.
+   - If another number has the **same digit sum**, we compute the sum and update the max sum.
+
+3. **Iterate through the array**:
+   - Compute the **digit sum** for each number.
+   - Check if the digit sum exists in `digit_sum_map`:
+     - If **exists**, compute the max sum using the stored value.
+     - If **not exists**, store the number as the first occurrence.
+
+4. **Return the maximum sum found**:
+   - If no valid pairs exist, return `-1`.
+
+- **Time Complexity**: **O(N)** → We iterate over `nums` once and perform O(1) operations.
+- **Space Complexity**: **O(N)** → Hash map stores at most `N` entries (in the worst case, each number has a unique digit sum).
+'''
