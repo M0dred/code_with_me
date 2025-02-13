@@ -1,0 +1,33 @@
+from collections import defaultdict
+
+class Solution:
+    def countBalls(self, lowLimit: int, highLimit: int) -> int:
+        # Function to compute the sum of digits of a number
+        def digitSum(n: int) -> int:
+            return sum(int(d) for d in str(n))
+
+        # Dictionary to store the count of balls in each box
+        box_count = defaultdict(int)
+        
+        # Iterate through each ball number from lowLimit to highLimit
+        for ball in range(lowLimit, highLimit + 1):
+            box_index = digitSum(ball)  # Compute the box index (sum of digits)
+            box_count[box_index] += 1  # Increment the count for the respective box
+
+        # Return the maximum number of balls in any single box
+        return max(box_count.values())
+
+'''
+Approach:
+1. **Compute Digit Sum**: Calculate the sum of digits for each ball number to determine its box.
+2. **Count Balls in Boxes**: Use a dictionary to track the number of balls in each box.
+3. **Find Maximum Count**: Retrieve the maximum value from the dictionary.
+
+### Complexity Analysis:
+- **Time Complexity**: O(N * d) 
+  - N = number of balls (highLimit - lowLimit + 1)
+  - d = number of digits (at most 5 for given constraints)
+- **Space Complexity**: O(45) 
+  - The sum of digits ranges from 1 to 45, so at most 45 keys in the dictionary.
+
+'''
