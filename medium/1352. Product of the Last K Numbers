@@ -1,0 +1,41 @@
+class ProductOfNumbers:
+
+    def __init__(self):
+        self.prefix_products = [1]  # Store prefix products
+        self.has_zero = False # Flag to check if we've encountered zero
+
+    def add(self, num: int) -> None:
+        if num == 0:
+            self.prefix_products = [1]
+            self.has_zero = True
+        else:
+            self.prefix_products.append(self.prefix_products[-1] * num)
+            
+
+    def getProduct(self, k: int) -> int:
+        if self.has_zero and k >= len(self.prefix_products):
+            return 0
+        if k >= len(self.prefix_products):
+            return 0
+        return self.prefix_products[-1] // self.prefix_products[-k - 1]
+
+
+# Your ProductOfNumbers object will be instantiated and called as such:
+# obj = ProductOfNumbers()
+# obj.add(num)
+# param_2 = obj.getProduct(k)
+
+'''
+Approach:
+1.  Prefix Products: Maintain a list of prefix products. The i-th element of this list represents the product of all numbers from the beginning of the stream up to the i-th number.
+
+2.  Zero Handling: Special handling is needed when encountering 0. If a 0 is added, reset the prefix product list to [1] and set a flag has_zero to True. This is because any product including 0 will be 0, and we need to restart the product calculation from the next number. The has_zero flag is useful to handle edge cases that might happen.
+
+3.  Calculating Product: To get the product of the last k numbers, divide the last prefix product by the prefix product k positions before the end. That is, product = prefix_products[-1] / prefix_products[-k-1].  Check if there is a zero between the product range by checking that list of numbers added does not have zero in it
+
+Time Complexity:
+*   add(num): O(1) - Appending to the prefix product list takes constant time.
+*   getProduct(k): O(1) - Division and accessing list elements takes constant time.
+
+Space Complexity: O(N), where N is the number of elements added to the stream. The prefix_products list stores the prefix products for all added numbers.
+'''
