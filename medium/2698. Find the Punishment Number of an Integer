@@ -1,0 +1,48 @@
+class Solution:
+    def punishmentNumber(self, n: int) -> int:
+        def is_valid_partition(sq_str, target, idx=0, curr_sum=0):
+            """
+            Recursive function to check if the squared number can be partitioned
+            into contiguous substrings whose sum equals the original number.
+            """
+            if idx == len(sq_str):
+                return curr_sum == target  # Check if partition sum matches the target
+            
+            for j in range(idx, len(sq_str)):
+                part = int(sq_str[idx:j+1])  # Convert substring to an integer
+                if curr_sum + part > target:  # If sum exceeds target, no need to continue
+                    break
+                if is_valid_partition(sq_str, target, j+1, curr_sum + part):
+                    return True
+            
+            return False  # If no valid partition is found
+
+        punishment_sum = 0
+
+        for i in range(1, n + 1):
+            squared_str = str(i * i)  # Compute square and convert to string
+            if is_valid_partition(squared_str, i):
+                punishment_sum += i * i  # Add to the punishment number sum
+
+        return punishment_sum
+
+'''
+### Approach:
+1. **Define a helper function `is_valid_partition`**:
+   - Uses recursion to check if the square of `i` can be partitioned into substrings
+   - The sum of those substrings must equal `i`.
+   
+2. **Iterate from `1` to `n`**:
+   - Compute `i * i` and convert it to a string.
+   - Use the helper function to verify if the square can be partitioned properly.
+   - If valid, add `i * i` to the punishment number sum.
+
+3. **Return the final sum**.
+
+### Complexity Analysis:
+- **Time Complexity**: **O(n * d!)**, where `d` is the number of digits in `i²`.
+  - Checking partitions has an exponential worst case.
+  - However, `n ≤ 1000`, making it feasible.
+- **Space Complexity**: **O(d)** for recursion depth.
+
+'''
