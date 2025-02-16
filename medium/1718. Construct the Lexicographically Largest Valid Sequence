@@ -1,0 +1,56 @@
+from typing import List
+
+class Solution:
+    def constructDistancedSequence(self, n: int) -> List[int]:
+        size = 2 * n - 1  # The sequence length
+        sequence = [0] * size  # Initialize the sequence with zeros
+        used = [False] * (n + 1)  # Track used numbers
+
+        def backtrack(index):
+            if index == size:  # If we filled all positions, return True
+                return True
+            
+            if sequence[index] != 0:  # Skip already filled positions
+                return backtrack(index + 1)
+            
+            for num in range(n, 0, -1):  # Start from the largest number
+                if used[num]:  # If already used, skip
+                    continue
+                
+                if num == 1:  # The number 1 only appears once
+                    sequence[index] = 1
+                    used[num] = True
+                    if backtrack(index + 1):  # Continue with the next position
+                        return True
+                    sequence[index] = 0  # Backtrack
+                    used[num] = False
+                else:
+                    second_index = index + num
+                    if second_index < size and sequence[second_index] == 0:  # Check if we can place num
+                        sequence[index] = sequence[second_index] = num
+                        used[num] = True
+                        if backtrack(index + 1):  # Continue with the next position
+                            return True
+                        sequence[index] = sequence[second_index] = 0  # Backtrack
+                        used[num] = False
+            return False
+
+        backtrack(0)  # Start backtracking from index 0
+        return sequence
+
+"""
+Approach:
+1. **Sequence Length Calculation**: The sequence has a length of `2 * n - 1` because each number (except 1) appears twice at a fixed distance.
+2. **Backtracking with Lexicographical Order**:
+   - Start filling the sequence from index `0`, placing numbers from `n` down to `1` to ensure the largest lexicographical order.
+   - If a number `num > 1` is placed at index `i`, its second occurrence must be at index `i + num`.
+   - If we successfully place all numbers, return the sequence.
+3. **Base Case**:
+   - If `index == size`, the sequence is complete, return `True`.
+4. **Backtracking Strategy**:
+   - Try placing each number in descending order.
+   - If a number cannot be placed, backtrack and try the next possibility.
+5. **Complexity**:
+   - **Time Complexity**: \(O(2^n)\) in the worst case due to backtracking.
+   - **Space Complexity**: \(O(n)\) for the `used` array and recursion stack.
+"""
