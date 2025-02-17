@@ -1,0 +1,53 @@
+from typing import List
+from collections import Counter
+
+class Solution:
+    def numTilePossibilities(self, tiles: str) -> int:
+        # Count the frequency of each tile
+        tile_counts = Counter(tiles)
+        total = 0  # Initialize total sequences count
+
+        def backtrack(counter):
+            nonlocal total
+            for tile in counter:
+                if counter[tile] > 0:
+                    # Choose the current tile
+                    total += 1  # Increment the count as we've formed a new sequence
+                    counter[tile] -= 1  # Decrement the count of the chosen tile
+
+                    backtrack(counter)  # Recurse with the remaining tiles
+
+                    counter[tile] += 1  # Backtrack: restore the count
+
+        backtrack(tile_counts)
+        return total
+
+'''
+Approach:
+1. Count Frequencies:
+   - Use a Counter to store the frequency of each unique tile in the input string 'tiles'. This helps in handling duplicate tiles efficiently.
+
+2. Initialize Total Count:
+   - Initialize a variable 'total' to keep track of the number of possible sequences.
+
+3. Backtracking Function:
+   - Define a nested function 'backtrack' that takes the current state of tile counts.
+   - Iterate over each unique tile in the counter.
+     - If the count of the current tile is greater than 0, it means the tile can be used in a sequence.
+     - Increment 'total' by 1 as choosing this tile forms a new unique sequence.
+     - Decrement the count of the chosen tile to mark it as used.
+     - Recursively call 'backtrack' to continue forming sequences with the remaining tiles.
+     - After recursion, increment the count of the tile to backtrack and explore other possibilities.
+
+4. Start Backtracking:
+   - Call the 'backtrack' function with the initial tile counts to begin the process.
+
+5. Return the Result:
+   - After exploring all possible sequences, return the 'total' count.
+
+Time Complexity: O(n!)
+We generate all possible sequences by exploring every permutation of the tiles. In the worst case where all tiles are unique, there are n! possible sequences.
+
+Space Complexity: O(n)
+The recursion stack can go as deep as the number of tiles, and the Counter stores up to n unique tiles.
+'''
