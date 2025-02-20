@@ -1,0 +1,33 @@
+class Solution:
+    def evenOddBit(self, n: int) -> List[int]:
+        even_count = 0
+        odd_count = 0
+        index = 0
+        
+        while n > 0:
+            if n & 1:  # Check if the current bit is 1
+                if index % 2 == 0:
+                    even_count += 1
+                else:
+                    odd_count += 1
+            n >>= 1  # Right shift n to get the next bit
+            index += 1
+        
+        return [even_count, odd_count]
+
+'''
+Approach:
+1. Initialize counters for even and odd indices with 1s.
+2. Iterate through each bit of the number `n` using a while loop.
+3. Inside the loop, use bitwise AND (`n & 1`) to check if the current bit is 1.
+4. If it is 1, increment the appropriate counter based on the current index (even or odd).
+5. Right shift `n` by 1 to discard the current bit and move to the next bit.
+6. Increment the index to keep track of the bit position.
+7. After the loop, return the counters as a list.
+
+Time Complexity: O(log n)
+   - The loop iterates through each bit of `n`, which takes O(log n) time.
+
+Space Complexity: O(1)
+   - We use a constant amount of space for the counters and index.
+'''
