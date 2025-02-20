@@ -1,0 +1,35 @@
+from typing import List
+
+class Solution:
+    def findDifferentBinaryString(self, nums: List[str]) -> str:
+        n = len(nums)
+        num_set = set(nums)
+        for i in range(2 ** n):
+            # Convert integer to binary string with leading zeros to match length n
+            s = bin(i)[2:].zfill(n)
+            if s not in num_set:
+                return s
+        return ""
+
+'''
+Approach:
+1. Objective:
+   - Find a binary string of length n that does not appear in the given list nums.
+2. Conversion to Set:
+   - Convert the list nums into a set num_set for O(1) look-up times, allowing efficient checks for the existence of binary strings.
+3. Iterate Through All Possible Binary Strings:
+   - Iterate through all integers from 0 to 2^n - 1.
+   - Convert each integer to a binary string s of length n with leading zeros.
+   - Check if this binary string s is not present in num_set.
+     - If s is not in num_set, return it as the answer immediately.
+4. Return Statement:
+   - If all possible binary strings of length n are present in nums, return an empty string "".
+   - According to problem constraints, n == len(nums) and 1 <= n <= 16, so there's at least one missing string.
+
+Time Complexity: O(2^n)
+- We iterate through all possible binary strings of length n, which is 2^n.
+- Each membership check in the set num_set is O(1).
+
+Space Complexity: O(n)
+- Convert nums to a set, which takes O(n) space where n is the number of strings in the list.
+'''
