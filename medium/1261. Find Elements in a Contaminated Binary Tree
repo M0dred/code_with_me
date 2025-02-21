@@ -1,0 +1,65 @@
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+
+class FindElements:
+
+    def __init__(self, root: Optional[TreeNode]):
+        """
+        Initializes the object by recovering the binary tree.
+        Uses DFS to restore the values of the nodes according to the given rules.
+        """
+        self.values = set()  # Store all valid values for O(1) search
+        if root:
+            root.val = 0  # Restore the root value
+            self._recover_tree(root)  # Start DFS to recover tree
+
+    def _recover_tree(self, node: Optional[TreeNode]):
+        """ Helper function to restore the tree using DFS. """
+        if not node:
+            return
+        self.values.add(node.val)  # Store the current node's value
+        
+        # Recover the left child value and recurse
+        if node.left:
+            node.left.val = 2 * node.val + 1
+            self._recover_tree(node.left)
+
+        # Recover the right child value and recurse
+        if node.right:
+            node.right.val = 2 * node.val + 2
+            self._recover_tree(node.right)
+
+    def find(self, target: int) -> bool:
+        """
+        Checks if the given target exists in the recovered tree.
+        Since all values are stored in a set, lookup is O(1).
+        """
+        return target in self.values
+
+# Your FindElements object will be instantiated and called as such:
+# obj = FindElements(root)
+# param_1 = obj.find(target)
+
+'''
+Approach:
+1. Tree Recovery:
+   - Use a DFS (Depth-First Search) approach to restore the original values in the tree.
+   - The root is assigned 0.
+   - The left child of a node with value x is assigned 2 * x + 1, and the right child is assigned 2 * x + 2.
+   - Store all valid values in a hash set (self.values) for quick lookup.
+
+2. Finding an Element:
+   - Since we store all valid node values in a set, checking if a value exists takes O(1) time.
+
+Time Complexity:
+- Tree Recovery (DFS Traversal): O(n), where n is the number of nodes.
+- Find Operation: O(1) per query.
+
+Space Complexity:
+- O(n) for storing node values in a set.
+- O(h) recursive call stack for DFS recovery, where h is at most 20 (tree height).
+''' 
