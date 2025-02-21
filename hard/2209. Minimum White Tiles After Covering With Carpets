@@ -1,0 +1,38 @@
+class Solution:
+    def minimumWhiteTiles(self, floor: str, numCarpets: int, carpetLen: int) -> int:
+        n = len(floor)
+        # dp[i][j] represents the minimum number of white tiles visible in the first i tiles using j carpets.
+        dp = [[0] * (numCarpets + 1) for _ in range(n + 1)]
+
+        # Iterate through each tile in the floor
+        for i in range(1, n + 1):
+            for j in range(numCarpets + 1):  # Iterate through the number of carpets available
+                
+                # Case 1: Do not use a carpet, just inherit from the previous tile
+                # If floor[i-1] is '1', add 1 to the previous count
+                dp[i][j] = dp[i - 1][j] + (floor[i - 1] == '1')
+
+                # Case 2: Use a carpet, if we have carpets available
+                if j > 0:
+                    # Cover up to carpetLen tiles back and use one carpet
+                    # We take the minimum of the current value and the value from (i - carpetLen) with one less carpet
+                    dp[i][j] = min(dp[i][j], dp[max(0, i - carpetLen)][j - 1])
+
+        # The final answer is the minimum white tiles visible after considering all tiles and all carpets
+        return dp[n][numCarpets]
+
+'''
+Approach:
+1. Dynamic Programming (DP): We define dp[i][j] as the minimum number of visible white tiles in the first i tiles using j carpets.
+2. Base Case: If we have zero tiles, the visible white count is 0.
+3. State Transition:
+   - If we don’t use a carpet at position i, we inherit the previous state and add 1 if it's a white tile ('1').
+   - If we use a carpet, we take the minimum of not using the carpet and using a carpet that covers carpetLen tiles.
+4. Final Computation: After processing all tiles, dp[n][numCarpets] gives the answer.
+
+Time Complexity: O(n * numCarpets)  
+- We iterate over n tiles and for each tile, we compute values for numCarpets, leading to O(n * numCarpets).
+
+Space Complexity: O(n * numCarpets)  
+- We use a 2D DP table of size (n+1) x (numCarpets+1), leading to O(n * numCarpets) space.
+''' 
