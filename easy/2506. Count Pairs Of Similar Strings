@@ -1,0 +1,34 @@
+class Solution:
+    def similarPairs(self, words: List[str]) -> int:
+        """
+        Returns the number of pairs (i, j) where words[i] and words[j] are similar.
+        """
+        count = 0
+        n = len(words)
+        
+        # Convert each word to a set of unique characters
+        char_sets = [frozenset(word) for word in words]
+        
+        # Compare each pair (i, j)
+        for i in range(n):
+            for j in range(i + 1, n):
+                if char_sets[i] == char_sets[j]:  # Check if two sets are equal
+                    count += 1
+        
+        return count
+
+'''
+Approach:
+1. Convert each word into a set of unique characters using `frozenset`, which ensures that order does not matter.
+2. Use a nested loop to iterate through all pairs of words.
+3. Check if two words have identical character sets.
+4. If they are similar, increment the count.
+5. Return the total count of such pairs.
+
+Time Complexity: O(n^2 * m), where n is the number of words and m is the average length of a word.
+- Constructing a set takes O(m).
+- Comparing two sets takes O(m) in the worst case.
+- The double loop runs in O(n^2).
+
+Space Complexity: O(n * m), as we store a character set for each word.
+'''
