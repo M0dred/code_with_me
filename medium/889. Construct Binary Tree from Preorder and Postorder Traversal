@@ -1,0 +1,46 @@
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+
+class Solution:
+    def constructFromPrePost(self, preorder: List[int], postorder: List[int]) -> Optional[TreeNode]:
+        """
+        Reconstructs a binary tree from its preorder and postorder traversals.
+        """
+        if not preorder or not postorder:
+            return None
+        
+        # Create the root node from the first element in preorder
+        root = TreeNode(preorder[0])
+        
+        # If there's only one node, return it as the root
+        if len(preorder) == 1:
+            return root
+
+        # Find the left subtree root in postorder
+        left_subtree_root = preorder[1]
+        left_subtree_size = postorder.index(left_subtree_root) + 1  # Get size of left subtree
+
+        # Recursively construct left and right subtrees
+        root.left = self.constructFromPrePost(preorder[1:left_subtree_size+1], postorder[:left_subtree_size])
+        root.right = self.constructFromPrePost(preorder[left_subtree_size+1:], postorder[left_subtree_size:-1])
+
+        return root
+
+'''
+Approach:
+1. The first element of preorder is always the root.
+2. The second element in preorder is the root of the left subtree.
+3. Find this left subtree root in postorder to determine the size of the left subtree.
+4. Recursively construct left and right subtrees using appropriate slices of preorder and postorder.
+5. Return the constructed root node.
+
+Time Complexity: O(n^2)
+- Finding the left subtree root in postorder takes O(n), and we do this recursively.
+
+Space Complexity: O(n)
+- The recursion stack takes O(n) in the worst case.
+''' 
