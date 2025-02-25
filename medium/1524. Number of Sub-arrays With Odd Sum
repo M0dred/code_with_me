@@ -1,0 +1,46 @@
+class Solution:
+    def numOfSubarrays(self, arr: List[int]) -> int:
+        """
+        Returns the number of subarrays with an odd sum modulo 10^9 + 7.
+        """
+        MOD = 10**9 + 7
+        odd_count = 0  # Number of subarrays with odd sum
+        even_count = 1  # Number of subarrays with even sum (including empty prefix)
+        prefix_sum = 0
+        result = 0
+
+        for num in arr:
+            prefix_sum += num  # Update prefix sum
+            
+            if prefix_sum % 2 == 0:
+                result = (result + odd_count) % MOD  # Append to odd subarrays
+                even_count += 1
+            else:
+                result = (result + even_count) % MOD  # Append to even subarrays
+                odd_count += 1
+        
+        return result
+
+# Example Usage:
+# obj = Solution()
+# result = obj.numOfSubarrays([1,3,5])  # Output: 4
+# print(result)
+
+'''
+Approach:
+1. Use a prefix sum to track cumulative sum while iterating through the array.
+2. Maintain two counters:
+   - `odd_count`: Number of prefix sums that are odd.
+   - `even_count`: Number of prefix sums that are even (initialized to 1 to account for the empty prefix).
+3. As we iterate:
+   - If the prefix sum is even, it means extending previous odd subarrays will keep them odd.
+   - If the prefix sum is odd, it means extending previous even subarrays will make them odd.
+4. Add the corresponding count to `result` in each step.
+5. Return the final count modulo `10^9 + 7`.
+
+Time Complexity: O(n)
+- We iterate through the array once.
+
+Space Complexity: O(1)
+- We only use a few extra variables.
+'''
