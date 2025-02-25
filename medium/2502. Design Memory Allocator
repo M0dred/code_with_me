@@ -1,0 +1,71 @@
+class Allocator:
+
+    def __init__(self, n: int):
+        """
+        Initializes an Allocator object with a memory array of size n.
+        """
+        self.memory = [-1] * n  # Memory array, initialized as free (-1)
+        self.n = n  # Size of memory
+
+    def allocate(self, size: int, mID: int) -> int:
+        """
+        Finds the leftmost block of 'size' consecutive free memory units and allocates it with 'mID'.
+        Returns the starting index if allocation is successful, otherwise returns -1.
+        """
+        free_count = 0
+        start_index = -1
+        
+        # Scan memory to find the first available block of 'size'
+        for i in range(self.n):
+            if self.memory[i] == -1:
+                if free_count == 0:
+                    start_index = i  # Mark the start of a possible free block
+                free_count += 1
+                if free_count == size:  # Found a suitable block
+                    for j in range(start_index, start_index + size):
+                        self.memory[j] = mID  # Allocate memory
+                    return start_index
+            else:
+                free_count = 0  # Reset if encountering an occupied space
+
+        return -1  # No suitable block found
+
+    def freeMemory(self, mID: int) -> int:
+        """
+        Frees all memory units allocated to 'mID'.
+        Returns the number of memory units freed.
+        """
+        freed_count = 0
+        for i in range(self.n):
+            if self.memory[i] == mID:
+                self.memory[i] = -1  # Mark as free
+                freed_count += 1
+        
+        return freed_count
+
+# Your Allocator object will be instantiated and called as such:
+# obj = Allocator(n)
+# param_1 = obj.allocate(size, mID)
+# param_2 = obj.freeMemory(mID)
+
+'''
+Approach:
+1. Initialization:
+   - Create an array memory of size n, initialized to -1 indicating all units are free.
+
+2. Allocation (allocate):
+   - Scan the memory array to find the first sequence of size consecutive free slots.
+   - If found, mark those slots with mID and return the starting index.
+   - If not found, return -1.
+
+3. Deallocation (freeMemory):
+   - Traverse the memory array and reset all occurrences of mID to -1.
+   - Count and return the number of freed units.
+
+Time Complexity:
+- allocate: O(n) in the worst case (scans memory once).
+- freeMemory: O(n) (scans memory once).
+
+Space Complexity:
+- O(n) (stores memory allocation in an array).
+''' 
