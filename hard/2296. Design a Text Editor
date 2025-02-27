@@ -1,0 +1,79 @@
+class TextEditor:
+
+    def __init__(self):
+        """
+        Initializes the text editor with an empty text and cursor at position 0.
+        """
+        self.left_stack = []  # Stores characters to the left of the cursor
+        self.right_stack = []  # Stores characters to the right of the cursor
+
+    def addText(self, text: str) -> None:
+        """
+        Appends text to where the cursor is. The cursor ends to the right of text.
+        """
+        for char in text:
+            self.left_stack.append(char)  # Append characters to the left of the cursor
+
+    def deleteText(self, k: int) -> int:
+        """
+        Deletes k characters to the left of the cursor. Returns the number of characters actually deleted.
+        """
+        count = min(k, len(self.left_stack))  # Number of characters that can be deleted
+        for _ in range(count):
+            self.left_stack.pop()  # Remove characters from the left stack
+        return count
+
+    def cursorLeft(self, k: int) -> str:
+        """
+        Moves the cursor to the left k times and returns the last min(10, len) characters to the left of the cursor.
+        """
+        for _ in range(min(k, len(self.left_stack))):
+            self.right_stack.append(self.left_stack.pop())  # Move character to right stack
+        
+        return "".join(self.left_stack[max(0, len(self.left_stack) - 10):])  # Return last 10 chars on left
+
+    def cursorRight(self, k: int) -> str:
+        """
+        Moves the cursor to the right k times and returns the last min(10, len) characters to the left of the cursor.
+        """
+        for _ in range(min(k, len(self.right_stack))):
+            self.left_stack.append(self.right_stack.pop())  # Move character back to left stack
+        
+        return "".join(self.left_stack[max(0, len(self.left_stack) - 10):])  # Return last 10 chars on left
+
+# Your TextEditor object will be instantiated and called as such:
+# obj = TextEditor()
+# obj.addText(text)
+# param_2 = obj.deleteText(k)
+# param_3 = obj.cursorLeft(k)
+# param_4 = obj.cursorRight(k)
+
+'''
+Approach:
+1. Use two stacks:
+   - `left_stack`: Stores text to the left of the cursor.
+   - `right_stack`: Stores text to the right of the cursor.
+   
+2. `addText(text)`:
+   - Append characters to `left_stack`.
+
+3. `deleteText(k)`:
+   - Remove up to `k` characters from `left_stack`.
+
+4. `cursorLeft(k)`:
+   - Move up to `k` characters from `left_stack` to `right_stack`.
+   - Return the last up to 10 characters from `left_stack`.
+
+5. `cursorRight(k)`:
+   - Move up to `k` characters from `right_stack` back to `left_stack`.
+   - Return the last up to 10 characters from `left_stack`.
+
+Time Complexity:
+- `addText`: O(m), where m is the length of text.
+- `deleteText`: O(k), where k is the number of deletions.
+- `cursorLeft`: O(k), where k is the number of cursor moves.
+- `cursorRight`: O(k), where k is the number of cursor moves.
+
+Space Complexity:
+- O(n), where n is the total text stored in the editor.
+'''
