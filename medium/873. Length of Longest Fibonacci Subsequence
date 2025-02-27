@@ -1,0 +1,40 @@
+from typing import List
+
+class Solution:
+    def lenLongestFibSubseq(self, arr: List[int]) -> int:
+        """
+        Returns the length of the longest Fibonacci-like subsequence in arr.
+        """
+        index_map = {num: i for i, num in enumerate(arr)}  # Map value to index
+        dp = {}  # Dictionary to store (i, j) -> length of Fibonacci-like sequence
+        max_length = 0
+
+        for k in range(len(arr)):
+            for j in range(k):
+                x = arr[k] - arr[j]  # Compute potential previous value
+                if x in index_map and index_map[x] < j:  # Check if it's valid
+                    i = index_map[x]
+                    dp[(j, k)] = dp.get((i, j), 2) + 1  # Extend existing sequence
+                    max_length = max(max_length, dp[(j, k)])
+
+        return max_length if max_length >= 3 else 0
+
+# Example Usage:
+# obj = Solution()
+# result = obj.lenLongestFibSubseq([1,2,3,4,5,6,7,8])  # Output: 5
+# print(result)
+
+'''
+Approach:
+1. Use a dictionary `index_map` to store each number's index for quick lookup.
+2. Use a dictionary `dp` where (j, k) stores the length of the Fibonacci-like sequence ending at arr[j] and arr[k].
+3. Iterate over all pairs (j, k) and check if `arr[k] - arr[j]` exists before index j.
+4. If valid, update dp[(j, k)] by extending an existing sequence or initializing a new one.
+5. Track the maximum length encountered.
+
+Time Complexity: O(n^2)
+- We check all pairs (j, k), and look up previous indices in O(1).
+
+Space Complexity: O(n^2)
+- We store Fibonacci-like sequence lengths for each pair in a dictionary.
+'''
