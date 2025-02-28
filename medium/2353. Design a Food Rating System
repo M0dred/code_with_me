@@ -1,0 +1,67 @@
+from typing import List
+from sortedcontainers import SortedSet
+
+class FoodRatings:
+
+    def __init__(self, foods: List[str], cuisines: List[str], ratings: List[int]):
+        """
+        Initializes the system with given food items, their cuisines, and initial ratings.
+        """
+        self.food_to_rating = {}  # Stores food -> rating
+        self.food_to_cuisine = {}  # Stores food -> cuisine
+        self.cuisine_to_foods = {}  # Stores cuisine -> sorted set of (negative rating, name)
+
+        for food, cuisine, rating in zip(foods, cuisines, ratings):
+            self.food_to_rating[food] = rating
+            self.food_to_cuisine[food] = cuisine
+            if cuisine not in self.cuisine_to_foods:
+                self.cuisine_to_foods[cuisine] = SortedSet()
+            self.cuisine_to_foods[cuisine].add((-rating, food))  # Use negative rating to sort in descending order
+
+    def changeRating(self, food: str, newRating: int) -> None:
+        """
+        Changes the rating of a food item and updates the system accordingly.
+        """
+        cuisine = self.food_to_cuisine[food]
+        oldRating = self.food_to_rating[food]
+
+        # Remove the old entry
+        self.cuisine_to_foods[cuisine].remove((-oldRating, food))
+
+        # Update rating
+        self.food_to_rating[food] = newRating
+
+        # Add the updated entry
+        self.cuisine_to_foods[cuisine].add((-newRating, food))
+
+    def highestRated(self, cuisine: str) -> str:
+        """
+        Returns the highest-rated food for a given cuisine.
+        """
+        return self.cuisine_to_foods[cuisine][0][1]  # Return food name with highest rating
+
+# Your FoodRatings object will be instantiated and called as such:
+# obj = FoodRatings(foods, cuisines, ratings)
+# obj.changeRating(food, newRating)
+# param_2 = obj.highestRated(cuisine)
+
+'''
+Approach:
+1. Store food details in `food_to_rating` (food -> rating) and `food_to_cuisine` (food -> cuisine).
+2. Use a `SortedSet` from `sortedcontainers` to store `(negative rating, food name)` per cuisine.
+   - This ensures that the highest-rated food is always at index 0.
+   - If there is a tie, lexicographical order is automatically handled.
+3. `changeRating(food, newRating)`:
+   - Remove the old rating entry from `SortedSet`.
+   - Update the rating.
+   - Insert the new rating entry back into `SortedSet`.
+4. `highestRated(cuisine)`:
+   - Return the first element in the sorted set for that cuisine.
+
+Time Complexity:
+- Initialization: O(n log n) (sorting each cuisine's food items)
+- `changeRating`: O(log n) (removing and inserting into the sorted set)
+- `highestRated`: O(1) (fetching first element)
+
+Space Complexity: O(n) (storing food and cuisine mappings)
+'''
