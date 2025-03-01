@@ -1,0 +1,45 @@
+from typing import List
+
+class Solution:
+    def partition(self, s: str) -> List[List[str]]:
+        """
+        Returns all possible palindrome partitioning of s.
+        """
+        result = []
+
+        def is_palindrome(sub: str) -> bool:
+            return sub == sub[::-1]
+
+        def backtrack(start: int, path: List[str]):
+            if start == len(s):  # If we reach the end of the string, add the partition to result
+                result.append(path[:])
+                return
+            
+            for end in range(start, len(s)):
+                substring = s[start:end+1]
+                if is_palindrome(substring):  # Only proceed if the substring is a palindrome
+                    path.append(substring)
+                    backtrack(end + 1, path)
+                    path.pop()  # Backtrack and remove the last added substring
+
+        backtrack(0, [])
+        return result
+
+# Example Usage:
+# obj = Solution()
+# result = obj.partition("aab")  # Output: [["a","a","b"],["aa","b"]]
+# print(result)
+
+'''
+Approach:
+1. Use backtracking to explore all possible partitions.
+2. At each step, check if the current substring is a palindrome.
+3. If it is, add it to the current partition path and recurse for the remaining string.
+4. If the end of the string is reached, add the partition to the result list.
+5. Use backtracking to remove the last added partition and explore other possibilities.
+
+Time Complexity: O(2^n * n)
+- There are at most 2^n possible partitions, and checking if a substring is a palindrome takes O(n).
+
+Space Complexity: O(n) (for recursion stack depth).
+'''
