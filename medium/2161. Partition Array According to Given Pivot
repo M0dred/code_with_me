@@ -1,0 +1,46 @@
+from typing import List
+
+class Solution:
+    def pivotArray(self, nums: List[int], pivot: int) -> List[int]:
+        """
+        Rearranges nums such that:
+        - Elements less than pivot appear first.
+        - Elements equal to pivot appear in the middle.
+        - Elements greater than pivot appear last.
+        - The relative order of elements is maintained.
+        """
+        less = []
+        equal = []
+        greater = []
+
+        # Partition the elements into three lists
+        for num in nums:
+            if num < pivot:
+                less.append(num)
+            elif num == pivot:
+                equal.append(num)
+            else:
+                greater.append(num)
+
+        # Concatenate the partitions
+        return less + equal + greater
+
+# Example Usage:
+# obj = Solution()
+# result = obj.pivotArray([9,12,5,10,14,3,10], 10)  # Output: [9,5,3,10,10,12,14]
+# print(result)
+
+'''
+Approach:
+1. Traverse the array once and classify elements into three separate lists:
+   - `less`: Elements smaller than the pivot.
+   - `equal`: Elements equal to the pivot.
+   - `greater`: Elements greater than the pivot.
+2. Concatenate these lists in the required order and return the result.
+
+Time Complexity: O(n)
+- We iterate through the array once to classify elements and once to concatenate, making it O(n).
+
+Space Complexity: O(n)
+- We use three extra lists, each storing a portion of the elements.
+'''
