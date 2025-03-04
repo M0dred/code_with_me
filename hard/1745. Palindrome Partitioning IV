@@ -1,0 +1,47 @@
+class Solution:
+    def checkPartitioning(self, s: str) -> bool:
+        """
+        Returns True if s can be partitioned into three non-empty palindromic substrings, otherwise False.
+        """
+        n = len(s)
+        
+        # Step 1: Precompute palindrome table using dynamic programming
+        is_palindrome = [[False] * n for _ in range(n)]
+        
+        for right in range(n):
+            for left in range(right + 1):
+                if s[left] == s[right] and (right - left <= 2 or is_palindrome[left + 1][right - 1]):
+                    is_palindrome[left][right] = True
+
+        # Step 2: Check if we can partition into three palindromes
+        for i in range(1, n - 1):  # First partition point
+            if not is_palindrome[0][i - 1]:
+                continue
+            for j in range(i, n - 1):  # Second partition point
+                if is_palindrome[i][j] and is_palindrome[j + 1][n - 1]:
+                    return True
+
+        return False
+
+# Example Usage:
+# obj = Solution()
+# result = obj.checkPartitioning("abcbdd")  # Output: True
+# print(result)
+
+'''
+Approach:
+1. Precompute a table `is_palindrome[left][right]` using dynamic programming:
+   - If `s[left] == s[right]` and `s[left+1:right-1]` is a palindrome, then `s[left:right+1]` is a palindrome.
+   - This table allows checking palindrome status in O(1).
+
+2. Iterate through possible partition points `i` and `j`:
+   - Ensure `s[0:i]`, `s[i:j+1]`, and `s[j+1:n]` are palindromes using the precomputed table.
+   - If a valid partition is found, return `True`.
+
+Time Complexity: O(n^2)
+- Precomputing the palindrome table takes O(n^2).
+- The partition checking step runs in O(n^2).
+
+Space Complexity: O(n^2)
+- The `is_palindrome` table stores O(n^2) values.
+'''
