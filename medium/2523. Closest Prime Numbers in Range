@@ -1,0 +1,55 @@
+from typing import List
+
+class Solution:
+    def closestPrimes(self, left: int, right: int) -> List[int]:
+        """
+        Returns the pair of closest prime numbers within the given range [left, right].
+        If no such pair exists, return [-1, -1].
+        """
+        # Step 1: Generate primes up to right using the Sieve of Eratosthenes
+        limit = right + 1
+        is_prime = [True] * limit
+        is_prime[0] = is_prime[1] = False  # 0 and 1 are not prime
+
+        for i in range(2, int(limit ** 0.5) + 1):
+            if is_prime[i]:
+                for j in range(i * i, limit, i):
+                    is_prime[j] = False
+
+        # Step 2: Collect primes in the range [left, right]
+        primes = [num for num in range(left, right + 1) if is_prime[num]]
+
+        # Step 3: Find the closest prime pair
+        if len(primes) < 2:
+            return [-1, -1]
+
+        min_gap = float('inf')
+        closest_pair = [-1, -1]
+
+        for i in range(len(primes) - 1):
+            gap = primes[i + 1] - primes[i]
+            if gap < min_gap:
+                min_gap = gap
+                closest_pair = [primes[i], primes[i + 1]]
+
+        return closest_pair
+
+# Example Usage:
+# obj = Solution()
+# result = obj.closestPrimes(10, 19)  # Output: [11,13]
+# print(result)
+
+'''
+Approach:
+1. Use the Sieve of Eratosthenes to find all prime numbers up to right.
+2. Collect all prime numbers within the range [left, right].
+3. Iterate through the collected primes and find the pair with the smallest difference.
+4. If there are no two primes in the range, return [-1, -1].
+
+Time Complexity: O(n log log n)
+- The Sieve of Eratosthenes runs in O(n log log n).
+- Collecting primes and finding the closest pair takes O(n).
+
+Space Complexity: O(n)
+- The sieve array stores primality information up to right.
+''' 
