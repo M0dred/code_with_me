@@ -1,0 +1,66 @@
+from typing import List
+
+class Solution:
+    def maximumBeauty(self, flowers: List[int], newFlowers: int, target: int, full: int, partial: int) -> int:
+        """
+        Returns the maximum total beauty that Alice can obtain after planting at most newFlowers.
+        """
+        n = len(flowers)
+        flowers = sorted([min(x, target) for x in flowers], reverse=True)  # Limit values to target and sort descending
+        total = sum(flowers)
+        max_beauty = 0
+        
+        # Case 1: If we can complete all gardens, return the max full garden beauty
+        if target * n - total <= newFlowers:
+            max_beauty = full * n
+        
+        pre = ptr = 0  # `pre` maintains prefix sum for completed gardens, `ptr` tracks incomplete gardens
+        
+        for i in range(n):
+            if i != 0:
+                pre += flowers[i - 1]  # Accumulate sum of completed gardens
+            
+            if flowers[i] == target:
+                continue  # Skip gardens already at target
+            
+            remaining_flowers = newFlowers - (target * i - pre)  # Compute remaining flowers after completing i gardens
+            
+            if remaining_flowers < 0:
+                break  # Not enough flowers to complete i gardens
+            
+            # Find the maximum possible minimum flower count for incomplete gardens
+            while not (ptr >= i and flowers[ptr] * (n - ptr) - total <= remaining_flowers):
+                total -= flowers[ptr]
+                ptr += 1
+            
+            remaining_flowers -= flowers[ptr] * (n - ptr) - total  # Adjust for newly allocated flowers
+            min_incomplete = min(flowers[ptr] + remaining_flowers // (n - ptr), target - 1)
+            
+            # Compute maximum beauty
+            max_beauty = max(max_beauty, full * i + partial * min_incomplete)
+    
+        return max_beauty
+
+# Example Usage:
+# obj = Solution()
+# result = obj.maximumBeauty([1,3,1,1], 7, 6, 12, 1)  # Output: 14
+# print(result)
+
+'''
+Approach:
+1. Sort and Limit Gardens: Sort flowers in descending order while ensuring no garden exceeds target.
+2. Compute Initial Total: Sum up the flowers to quickly determine feasibility.
+3. Check for Fully Completed Gardens: If we can complete all gardens with newFlowers, return full garden beauty.
+4. Iterate Over Possible Completed Gardens:
+   - Maintain a prefix sum (pre) of already completed gardens.
+   - Compute the remaining flowers available after making some gardens full.
+   - Adjust ptr to track the best possible partial garden flower count.
+   - Compute the max possible beauty.
+
+Time Complexity: O(n log n)
+Sorting takes O(n log n).
+The main loop iterates O(n), with an amortized O(n) adjustment for ptr.
+
+Space Complexity: O(1)
+Only a few integer variables are used.
+''' 
