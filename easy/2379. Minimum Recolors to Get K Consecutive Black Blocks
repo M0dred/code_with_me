@@ -1,0 +1,44 @@
+class Solution:
+    def minimumRecolors(self, blocks: str, k: int) -> int:
+        """
+        Returns the minimum number of operations needed to get at least one occurrence of k consecutive black blocks.
+        """
+        n = len(blocks)
+        min_operations = float('inf')
+        
+        # Sliding window approach: Check every substring of length k
+        white_count = blocks[:k].count('W')  # Initial count of 'W' in the first window
+        min_operations = white_count  # Set initial minimum
+
+        for i in range(k, n):
+            # Slide the window: Remove leftmost character and add the next character
+            if blocks[i - k] == 'W':
+                white_count -= 1
+            if blocks[i] == 'W':
+                white_count += 1
+
+            min_operations = min(min_operations, white_count)
+
+        return min_operations
+
+# Example Usage:
+# obj = Solution()
+# result = obj.minimumRecolors("WBBWWBBWBW", 7)  # Output: 3
+# print(result)
+
+'''
+Approach:
+1. Use a sliding window of size k to track the number of 'W' (white blocks).
+2. Initialize the count of 'W' in the first k-length substring.
+3. Slide the window across the string:
+   - Remove the leftmost character from the window.
+   - Add the new character at the right end.
+   - Update the count of 'W' in the window.
+4. Track the minimum number of recoloring operations needed.
+
+Time Complexity: O(n)
+- The sliding window approach iterates through the string once.
+
+Space Complexity: O(1)
+- Only a few integer variables are used.
+'''
