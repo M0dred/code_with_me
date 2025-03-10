@@ -1,0 +1,40 @@
+class Solution:
+    def divisorSubstrings(self, num: int, k: int) -> int:
+        """
+        Returns the k-beauty of num.
+        """
+        num_str = str(num)
+        n = len(num_str)
+        count = 0
+
+        for i in range(n - k + 1):
+            sub_str = num_str[i:i + k]
+            sub_num = int(sub_str)
+
+            # Check if sub_num is not zero and divides num
+            if sub_num != 0 and num % sub_num == 0:
+                count += 1
+
+        return count
+
+# Example Usage:
+# obj = Solution()
+# result = obj.divisorSubstrings(240, 2)  # Output: 2
+# print(result)
+
+'''
+Approach:
+1. Convert num to string to easily extract substrings.
+2. Iterate over all substrings of length k.
+3. Convert each substring back to an integer.
+4. Skip if the number is zero (since zero can't be a divisor).
+5. Check if it divides num, and if so, increment the count.
+6. Return the total count.
+
+Time Complexity: O(n * k)
+- We check each substring of length k (n - k + 1 substrings).
+- Each substring conversion and divisibility check is O(k) in the worst case.
+
+Space Complexity: O(1)
+- Only a few integer variables are used.
+'''
