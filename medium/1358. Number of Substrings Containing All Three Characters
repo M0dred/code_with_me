@@ -1,0 +1,40 @@
+class Solution:
+    def numberOfSubstrings(self, s: str) -> int:
+        # Last seen positions of 'a', 'b', and 'c'
+        last_pos = [-1, -1, -1]
+        result = 0
+        
+        for i, char in enumerate(s):
+            # Update the last seen position of the character
+            if char == 'a':
+                last_pos[0] = i
+            elif char == 'b':
+                last_pos[1] = i
+            else:  # char == 'c'
+                last_pos[2] = i
+            
+            # Minimum index of the three characters tells us how far back we can go
+            min_last_pos = min(last_pos)
+            
+            # If the minimum index isn't -1, we have at least one of each a, b, and c
+            if min_last_pos != -1:
+                # Add the count of valid substrings ending at index i
+                result += min_last_pos + 1
+        
+        return result
+
+'''
+Approach:
+1. Iterate through the string s and track the last seen indices of 'a', 'b', and 'c'.
+2. For each position i in s:
+   - Compute the minimum of the last seen positions of the three characters.
+   - This minimum tells us that all substrings ending at i and starting from 0 to min_last_pos are valid.
+   - Add min_last_pos + 1 to the result.
+3. Return the total count of valid substrings.
+
+Time Complexity: O(n)
+- We traverse the string once, and each operation inside the loop is constant time.
+
+Space Complexity: O(1)
+- We only track three indices, so the space is constant.
+'''
