@@ -1,0 +1,26 @@
+from bisect import bisect_left, bisect_right
+from typing import List
+
+class Solution:
+    def maximumCount(self, nums: List[int]) -> int:
+        # Number of negatives: index of first zero
+        num_negatives = bisect_left(nums, 0)
+        
+        # Number of positives: elements strictly greater than zero
+        num_positives = len(nums) - bisect_right(nums, 0)
+        
+        # Return the maximum of negatives and positives
+        return max(num_negatives, num_positives)
+
+'''
+Approach:
+1. Use bisect_left to find the index of the first zero (or first element >= 0). This index is the count of negatives.
+2. Use bisect_right to find the index after the last zero. From there to the end are the positives.
+3. Return the maximum between num_negatives and num_positives.
+
+Time Complexity: O(log n)
+- bisect_left and bisect_right both run in O(log n).
+
+Space Complexity: O(1)
+- We only store a few counters.
+'''
