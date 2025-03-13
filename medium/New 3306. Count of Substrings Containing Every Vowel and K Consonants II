@@ -1,0 +1,80 @@
+class Solution:
+    def countOfSubstrings(self, word: str, k: int) -> int:
+        def isVowel(c):
+            return c in 'aeiou'
+        
+        n = len(word)
+        
+        # Precompute next consonant index to speed up counting substrings
+        next_consonant = [0] * n
+        next_consonant_index = n
+        
+        for i in range(n - 1, -1, -1):
+            next_consonant[i] = next_consonant_index
+            if not isVowel(word[i]):
+                next_consonant_index = i
+        
+        start = 0
+        end = 0
+        num_valid_substrings = 0
+        vowel_count = {}
+        consonant_count = 0
+        
+        while end < n:
+            ch = word[end]
+            
+            # Expand the window by adding word[end]
+            if isVowel(ch):
+                vowel_count[ch] = vowel_count.get(ch, 0) + 1
+            else:
+                consonant_count += 1
+            
+            # Shrink window from the left if too many consonants
+            while consonant_count > k:
+                ch_left = word[start]
+                if isVowel(ch_left):
+                    vowel_count[ch_left] -= 1
+                    if vowel_count[ch_left] == 0:
+                        del vowel_count[ch_left]
+                else:
+                    consonant_count -= 1
+                start += 1
+            
+            # If window is valid, count substrings starting from start to end
+            while start <= end and len(vowel_count) == 5 and consonant_count == k:
+                # We can extend end to next_consonant[end] - 1
+                num_valid_substrings += next_consonant[end] - end
+                
+                ch_left = word[start]
+                if isVowel(ch_left):
+                    vowel_count[ch_left] -= 1
+                    if vowel_count[ch_left] == 0:
+                        del vowel_count[ch_left]
+                else:
+                    consonant_count -= 1
+                start += 1
+            
+            end += 1
+        
+        return num_valid_substrings
+
+'''
+Approach:
+1. Two pointers sliding window (`start` and `end`).
+2. Track:
+   - `vowel_count`: dictionary of vowels in the current window.
+   - `consonant_count`: number of consonants in the current window.
+3. Precompute `next_consonant` array:
+   - For each position `i`, the index of the next consonant.
+   - Helps count all substrings that can extend from current `end` without adding more consonants.
+4. Expand `end`, shrink `start` to maintain exactly `k` consonants and all vowels at least once.
+5. If valid, count substrings by how far `end` can extend before another consonant.
+
+Time Complexity: O(n)
+- Each pointer (`start` and `end`) moves at most `n` times.
+- `next_consonant` preprocessing is O(n).
+
+Space Complexity: O(n)
+- `next_consonant` array of size `n`.
+- `vowel_count` dictionary stores at most 5 entries.
+'''
