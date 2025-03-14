@@ -1,0 +1,30 @@
+class Solution:
+    def isBalanced(self, num: str) -> bool:
+        even_sum = 0
+        odd_sum = 0
+        
+        for index, digit in enumerate(num):
+            val = int(digit)
+            
+            if index % 2 == 0:
+                even_sum += val
+            else:
+                odd_sum += val
+        
+        return even_sum == odd_sum
+        
+
+'''
+Approach:
+1. Iterate through each character in the string `num` using its index.
+2. Convert each character to an integer.
+3. If the index is even, add its value to `even_sum`.
+4. If the index is odd, add its value to `odd_sum`.
+5. Finally, compare the two sums and return True if they are equal, otherwise False.
+
+Time Complexity: O(n)
+- We iterate through the string once.
+
+Space Complexity: O(1)
+- Only constant extra space is used for the sums.
+'''
