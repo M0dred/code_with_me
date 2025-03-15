@@ -1,0 +1,49 @@
+from typing import List
+
+class Solution:
+    def minCapability(self, nums: List[int], k: int) -> int:
+        
+        # Helper function to check if we can rob at least k houses with a max capability of 'cap'
+        def canRob(cap):
+            count = 0
+            i = 0
+            while i < len(nums):
+                if nums[i] <= cap:
+                    count += 1
+                    i += 1  # Skip adjacent house
+                i += 1  # Move to the next house
+            return count >= k
+        
+        # Binary search for the minimum possible capability
+        left, right = min(nums), max(nums)
+        result = right
+        
+        while left <= right:
+            mid = (left + right) // 2
+            if canRob(mid):
+                result = mid
+                right = mid - 1  # Try to minimize capability
+            else:
+                left = mid + 1
+        
+        return result
+
+'''
+Approach:
+1. Binary Search on Capability:
+   - We search for the smallest cap (max house value in a valid robbery sequence).
+2. Greedy Selection:
+   - Traverse nums, picking the first house ≤ cap and skipping the next (to satisfy the "no adjacent" rule).
+   - Count how many houses can be robbed under cap.
+   - If count ≥ k, it's a valid capability.
+3. Binary Search Adjustment:
+   - If valid, try a lower cap.
+   - If invalid, increase cap.
+
+Time Complexity: O(n log(max(nums)))
+- O(log(max(nums))) for binary search.
+- O(n) for canRob(cap) function.
+
+Space Complexity: O(1)
+- Only a few integer variables used.
+'''
