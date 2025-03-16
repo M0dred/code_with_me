@@ -1,0 +1,59 @@
+class Solution:
+    def largestVariance(self, s: str) -> int:
+        from collections import Counter
+        
+        freq = Counter(s)
+        max_variance = 0
+        
+        for a in freq:
+            for b in freq:
+                if a == b:
+                    continue
+
+                # Forward Kadane
+                max_variance = max(max_variance, self.kadane_variant(s, a, b))
+                # Backward Kadane (reverse string)
+                max_variance = max(max_variance, self.kadane_variant(s[::-1], a, b))
+
+        return max_variance
+
+    def kadane_variant(self, s, a, b):
+        max_var = 0
+        count_a = 0
+        count_b = 0
+        has_b = False
+        
+        for c in s:
+            if c != a and c != b:
+                continue
+            if c == a:
+                count_a += 1
+            if c == b:
+                count_b += 1
+                has_b = True
+            
+            if has_b:
+                max_var = max(max_var, count_a - count_b)
+            
+            # If count_b > count_a, reset and allow future substrings
+            if count_b > count_a:
+                count_a = 0
+                count_b = 0
+                has_b = False
+        
+        return max_var
+
+'''
+Approach:
+1. Enumerate all pairs of distinct characters a and b.
+2. For each pair, run a modified Kadane algorithm twice:
+   - Forward traversal.
+   - Reverse traversal (to handle cases where b appears after a in the substring).
+3. Track counts of a and b.
+   - a counts as +1, b counts as -1.
+   - If count_b > count_a, reset counts.
+4. Update the maximum variance where count_b is at least 1.
+
+Time Complexity: O(26 * 26 * n)
+Space Complexity: O(1)
+'''
