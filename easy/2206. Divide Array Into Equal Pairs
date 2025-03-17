@@ -1,0 +1,28 @@
+from typing import List
+from collections import Counter
+
+class Solution:
+    def divideArray(self, nums: List[int]) -> bool:
+        # Count the occurrences of each number
+        count = Counter(nums)
+
+        # Check if each number occurs an even number of times
+        for freq in count.values():
+            if freq % 2 != 0:
+                return False
+        
+        return True
+
+'''
+Approach:
+1. Count the frequency of each number using Counter.
+2. For a number to be completely paired, its count must be divisible by 2.
+3. If any number has an odd frequency, it's impossible to form valid pairs, so return False.
+4. If all counts are even, return True.
+
+Time Complexity: O(n)
+- We iterate over the nums list once to count frequencies and once to validate frequencies.
+
+Space Complexity: O(n)
+- We use a Counter (hash map) to store frequencies.
+'''
