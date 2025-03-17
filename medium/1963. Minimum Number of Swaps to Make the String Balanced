@@ -1,0 +1,36 @@
+class Solution:
+    def minSwaps(self, s: str) -> int:
+        balance = 0
+        max_imbalance = 0
+        
+        # Iterate through the string to track balance
+        for c in s:
+            if c == '[':
+                balance += 1
+            else:  # c == ']'
+                balance -= 1
+            
+            # Track the most negative balance (maximum imbalance)
+            if balance < max_imbalance:
+                max_imbalance = balance
+        
+        # Number of swaps needed is ceil of (-max_imbalance / 2)
+        # Because each swap fixes 2 units of imbalance
+        return (-max_imbalance + 1) // 2
+
+'''
+Approach:
+1. Iterate through the string and calculate the balance of brackets.
+   - Increment balance when encountering '['.
+   - Decrement balance when encountering ']'.
+2. Track the maximum imbalance (the lowest point of balance).
+3. The number of swaps needed is (-max_imbalance + 1) // 2 because:
+   - Each swap fixes 2 units of imbalance (one '[' and one ']').
+   - We take the ceiling division to cover odd imbalances.
+
+Time Complexity: O(n)
+- We only iterate through the string once.
+
+Space Complexity: O(1)
+- Only a few integer variables are used.
+'''
