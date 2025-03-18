@@ -1,0 +1,39 @@
+from typing import List
+
+class Solution:
+    def longestNiceSubarray(self, nums: List[int]) -> int:
+        n = len(nums)
+        left = 0
+        used_bits = 0
+        max_len = 0
+        
+        for right in range(n):
+            # If current number shares any set bit with the current window, shrink from left
+            while (nums[right] & used_bits) != 0:
+                # Remove nums[left]'s bits from used_bits
+                used_bits ^= nums[left]
+                left += 1
+            
+            # Include nums[right] in the window
+            used_bits |= nums[right]
+            
+            # Update the max_len
+            max_len = max(max_len, right - left + 1)
+        
+        return max_len
+
+'''
+Approach:
+1. Use a sliding window defined by pointers `left` and `right`.
+2. Maintain a variable `used_bits` which keeps track of all bits in the current window.
+3. For each `right` index, check if `nums[right]` conflicts with `used_bits`.
+   - If it conflicts (i.e., nums[right] & used_bits != 0), move the `left` pointer to the right while removing bits from `used_bits`.
+4. Expand the window by adding nums[right] to `used_bits` and update max_len.
+   
+Time Complexity: O(n)
+- We iterate through nums once with the `right` pointer.
+- The `left` pointer moves at most n times, so the total work is O(n).
+
+Space Complexity: O(1)
+- We only use a few integer variables (`used_bits`, `left`, `right`, `max_len`).
+'''
