@@ -1,0 +1,36 @@
+from collections import Counter
+from typing import List
+
+class Solution:
+    def findMatrix(self, nums: List[int]) -> List[List[int]]:
+        # Count the occurrences of each number in nums
+        count = Counter(nums)
+        
+        # The number of rows needed is equal to the maximum frequency of any number
+        max_freq = max(count.values())
+        
+        # Initialize an empty 2D array with 'max_freq' rows
+        res = [[] for _ in range(max_freq)]
+        
+        # Fill the rows one by one by reducing the frequency of each number
+        for num, freq in count.items():
+            for i in range(freq):
+                res[i].append(num)
+        
+        return res
+
+'''
+Approach:
+1. Count how many times each number appears in `nums` using Counter.
+2. The maximum frequency of any number determines the minimum number of rows needed.
+3. Initialize an empty 2D array with `max_freq` rows.
+4. For each number and its frequency, append it to the first `freq` rows.
+   - This ensures each row has distinct numbers.
+5. Return the resulting 2D array.
+
+Time Complexity: O(n)
+- Counting frequencies and filling rows both take O(n) time, where n is the length of nums.
+
+Space Complexity: O(n)
+- The space is used for the result array and the frequency counter.
+'''
