@@ -1,0 +1,65 @@
+class Solution:
+    def countCompleteComponents(self, n: int, edges: List[List[int]]) -> int:
+        from collections import defaultdict, deque
+
+        # Build the adjacency list of the graph
+        graph = defaultdict(list)
+        for u, v in edges:
+            graph[u].append(v)
+            graph[v].append(u)
+
+        visited = [False] * n
+        complete_components = 0
+
+        # Helper function to perform BFS and check completeness
+        def bfs(node):
+            queue = deque([node])
+            visited[node] = True
+            nodes = [node]
+            
+            while queue:
+                curr = queue.popleft()
+                for neighbor in graph[curr]:
+                    if not visited[neighbor]:
+                        visited[neighbor] = True
+                        queue.append(neighbor)
+                        nodes.append(neighbor)
+            return nodes
+
+        for i in range(n):
+            if not visited[i]:
+                # Get all nodes in this connected component
+                component_nodes = bfs(i)
+                size = len(component_nodes)
+                edge_count = 0
+
+                # Count the number of edges inside this component
+                for node in component_nodes:
+                    edge_count += len(graph[node])
+
+                # Each edge is counted twice, so divide by 2
+                edge_count //= 2
+
+                # In a complete graph with size nodes, there should be size * (size - 1) / 2 edges
+                if edge_count == size * (size - 1) // 2:
+                    complete_components += 1
+
+        return complete_components
+
+'''
+Approach:
+1. Build the adjacency list of the graph.
+2. Traverse each connected component using BFS (or DFS).
+3. For each connected component:
+   - Count the number of nodes and edges.
+   - If the number of edges equals size * (size - 1) / 2, it's a complete component.
+4. Return the count of complete components.
+
+Time Complexity: O(n + e)
+- n = number of nodes
+- e = number of edges
+
+Space Complexity: O(n + e)
+- For the adjacency list and visited array
+
+'''
