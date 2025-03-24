@@ -1,0 +1,39 @@
+from typing import List
+
+class Solution:
+    def countDays(self, days: int, meetings: List[List[int]]) -> int:
+        if not meetings:
+            return days
+        
+        # Sort meetings by start day
+        meetings.sort()
+        
+        merged_meetings = []
+        
+        # Merge overlapping meetings
+        for start, end in meetings:
+            if not merged_meetings or merged_meetings[-1][1] < start - 1:
+                merged_meetings.append([start, end])
+            else:
+                merged_meetings[-1][1] = max(merged_meetings[-1][1], end)
+        
+        # Calculate total busy days
+        busy_days = 0
+        for start, end in merged_meetings:
+            busy_days += end - start + 1
+        
+        # Available days = total days - busy days
+        return days - busy_days
+
+'''
+Approach:
+1. Sort the meetings by their start day to handle overlaps efficiently.
+2. Merge overlapping or adjacent meeting intervals:
+   a. If the current interval starts after the last merged interval ends, add it as a new interval.
+   b. Otherwise, merge them by extending the end of the last merged interval if needed.
+3. Calculate the total number of busy days by summing the lengths of the merged intervals.
+4. Subtract the total busy days from the total days to get the count of available days without meetings.
+
+Time Complexity: O(n log n) due to sorting, where n is the number of meetings.
+Space Complexity: O(n) for storing merged intervals.
+'''
