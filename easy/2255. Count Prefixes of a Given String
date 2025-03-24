@@ -1,0 +1,21 @@
+from typing import List
+
+class Solution:
+    def countPrefixes(self, words: List[str], s: str) -> int:
+        count = 0
+        for word in words:
+            if s.startswith(word):
+                count += 1
+        return count
+
+'''
+Approach:
+1. Initialize a counter `count` to track how many words are prefixes of `s`.
+2. Iterate over each `word` in the `words` array.
+3. For each `word`, check if it is a prefix of `s` by using the built-in `startswith()` method.
+4. If it is a prefix, increment the counter.
+5. After iterating through all words, return the counter.
+
+Time Complexity: O(n * m), where n is the number of words and m is the maximum length of a word. The `startswith()` check runs in O(m) time for each word.
+Space Complexity: O(1), since we only use a constant amount of extra space for the counter.
+'''
