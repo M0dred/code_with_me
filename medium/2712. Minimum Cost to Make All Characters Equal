@@ -1,0 +1,27 @@
+class Solution:
+    def minimumCost(self, s: str) -> int:
+        n = len(s)
+        cost = 0
+        
+        # Traverse the string to calculate the cost
+        for i in range(n - 1):
+            if s[i] != s[i + 1]:  # If there's a transition (0->1 or 1->0)
+                cost += min(i + 1, n - i - 1)  # Choose the cheaper inversion
+
+        return cost
+
+'''
+Approach:
+1. Identify positions where consecutive characters change (`s[i] != s[i + 1]`).
+2. Each change in characters represents a boundary where we may need an inversion.
+3. At each transition, determine the minimal cost:
+   - Either flipping the first `i+1` characters.
+   - Or flipping the last `n-i-1` characters.
+4. Accumulate the minimal cost across all transitions.
+
+Time Complexity: O(n)
+- We traverse the string once to count transitions.
+
+Space Complexity: O(1)
+- Only integer variables are used.
+'''
