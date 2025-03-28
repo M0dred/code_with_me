@@ -1,0 +1,18 @@
+class Solution:
+    def minimizedStringLength(self, s: str) -> int:
+        return len(set(s))
+
+'''
+Approach:
+1. The goal is to minimize the length of the string by removing duplicate characters closest to each other.
+2. Since the operations allow deleting the closest left or right duplicate of any character, every character will appear at most once in the minimized string.
+3. The minimized string consists of only unique characters from the original string.
+4. The number of unique characters in the string can be found using a set, which automatically removes duplicates.
+5. The final answer is simply the size of the set.
+
+Time Complexity: O(n)
+- Constructing a set takes O(n), where n is the length of the input string.
+
+Space Complexity: O(1)
+- Since there are only 26 lowercase English letters, the set can have at most 26 elements.
+'''
