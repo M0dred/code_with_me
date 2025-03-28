@@ -1,0 +1,50 @@
+from heapq import heappush, heappop
+
+class Solution:
+    def maxPoints(self, grid: List[List[int]], queries: List[int]) -> List[int]:
+        m, n = len(grid), len(grid[0])
+        k = len(queries)
+        answer = [0] * k
+        sorted_queries = sorted(enumerate(queries), key=lambda x: x[1])  # Sort queries with their indices
+        visited = [[False] * n for _ in range(m)]
+        
+        min_heap = [(grid[0][0], 0, 0)]  # Min heap storing (value, row, col)
+        visited[0][0] = True
+        points = 0
+        direction = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+
+        for index, query in sorted_queries:
+            while min_heap and min_heap[0][0] < query:
+                value, r, c = heappop(min_heap)
+                points += 1  # First time visiting, count points
+                for dr, dc in direction:
+                    nr, nc = r + dr, c + dc
+                    if 0 <= nr < m and 0 <= nc < n and not visited[nr][nc]:
+                        heappush(min_heap, (grid[nr][nc], nr, nc))
+                        visited[nr][nc] = True  # Mark as visited
+
+            answer[index] = points  # Store result in original order
+        
+        return answer
+
+'''
+Approach:
+1. Sort Queries: Sort the queries in increasing order while keeping their original indices.
+2. Use a Min-Heap for BFS-like Expansion:
+   - Start from the top-left cell (0,0).
+   - Use a min-heap to always expand the smallest cell first.
+   - Only expand to adjacent cells if they haven't been visited.
+3. Process Each Query:
+   - For each query, pop elements from the heap until the current cell value is no longer less than the query.
+   - Count the number of distinct cells visited.
+4. Store Results in Original Order:
+   - Store the result at its respective index from the sorted query list.
+
+Time Complexity: O((m * n + k) log (m * n)) 
+- Sorting queries takes O(k log k).
+- The heap operations take O((m * n) log (m * n)) in the worst case.
+
+Space Complexity: O(m * n + k)
+- The heap and visited grid take O(m * n) space.
+- The answer array takes O(k) space.
+'''
