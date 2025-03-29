@@ -1,0 +1,73 @@
+import heapq
+import math
+
+class Solution:
+    MOD = 10**9 + 7
+
+    def maximumScore(self, nums, k):
+        n = len(nums)
+        prime_scores = [0] * n
+
+        # Compute prime scores for each number in nums
+        for index in range(n):
+            num = nums[index]
+
+            # Check for prime factors from 2 to sqrt(num)
+            for factor in range(2, int(math.sqrt(num)) + 1):
+                if num % factor == 0:
+                    prime_scores[index] += 1
+                    while num % factor == 0:
+                        num //= factor
+
+            # If num is still greater than or equal to 2, it's a prime factor
+            if num >= 2:
+                prime_scores[index] += 1
+
+        # Next and Previous dominant index arrays
+        next_dominant = [n] * n
+        prev_dominant = [-1] * n
+        decreasing_stack = []
+
+        # Compute next and previous dominant indices
+        for index in range(n):
+            while decreasing_stack and prime_scores[decreasing_stack[-1]] < prime_scores[index]:
+                top_index = decreasing_stack.pop()
+                next_dominant[top_index] = index
+
+            if decreasing_stack:
+                prev_dominant[index] = decreasing_stack[-1]
+
+            decreasing_stack.append(index)
+
+        # Compute number of subarrays where each element is dominant
+        num_of_subarrays = [0] * n
+        for index in range(n):
+            num_of_subarrays[index] = (next_dominant[index] - index) * (index - prev_dominant[index])
+
+        # Max heap to process elements in decreasing order of value
+        max_heap = []
+        for index in range(n):
+            heapq.heappush(max_heap, (-nums[index], index))
+
+        score = 1
+
+        # Fast modular exponentiation
+        def _power(base, exponent):
+            res = 1
+            while exponent > 0:
+                if exponent % 2 == 1:
+                    res = (res * base) % self.MOD
+                base = (base * base) % self.MOD
+                exponent //= 2
+            return res
+
+        # Process elements while operations remain
+        while k > 0:
+            num, index = heapq.heappop(max_heap)
+            num = -num
+
+            operations = min(k, num_of_subarrays[index])
+            score = (score * _power(num, operations)) % self.MOD
+            k -= operations
+
+        return score
