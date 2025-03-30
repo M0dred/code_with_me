@@ -1,0 +1,23 @@
+class Solution:
+    def addSpaces(self, s: str, spaces: List[int]) -> str:
+        res = []
+        space_set = set(spaces)  # Convert list to set for O(1) lookup
+        for i in range(len(s)):
+            if i in space_set:
+                res.append(" ")
+            res.append(s[i])
+        return "".join(res)
+
+'''
+Approach:
+1. Convert `spaces` list to a set for O(1) lookup.
+2. Iterate through the original string `s`.
+3. If the current index `i` is in `spaces`, insert a space before appending the character.
+4. Append all characters and spaces to a list and finally join to form the result string.
+
+Time Complexity: O(n)
+- Where n is the length of the string `s`, as each character is processed once.
+
+Space Complexity: O(n)
+- We build a new list of characters including spaces, which in the worst case can be 2n in length.
+'''
