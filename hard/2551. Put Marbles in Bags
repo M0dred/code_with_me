@@ -1,0 +1,36 @@
+class Solution:
+    def putMarbles(self, weights: List[int], k: int) -> int:
+        if k == 1 or k == len(weights):
+            return 0
+
+        # Calculate the pairwise sums of adjacent marbles
+        pair_sums = [weights[i] + weights[i + 1] for i in range(len(weights) - 1)]
+
+        # Sort the pair_sums to easily pick the smallest and largest (k-1) segments
+        pair_sums.sort()
+
+        # Maximum score: sum of k-1 largest pairwise segments
+        max_score = sum(pair_sums[-(k - 1):])
+
+        # Minimum score: sum of k-1 smallest pairwise segments
+        min_score = sum(pair_sums[:k - 1])
+
+        return max_score - min_score
+
+'''
+Approach:
+1. Every cut between marbles splits them into different bags.
+2. The cost of each bag is weights[i] + weights[j], where i is the first index and j is the last index in the segment.
+3. The total score includes the sum of first and last elements of each segment.
+   Only the weights at the edges of segments matter, so we look at adjacent pair sums to simulate cutting.
+4. There are (n - 1) positions to cut. We select (k - 1) cuts.
+5. To maximize the score, we select the (k - 1) largest pair sums.
+6. To minimize the score, we select the (k - 1) smallest pair sums.
+
+Time Complexity: O(n log n)
+- Computing pair_sums takes O(n)
+- Sorting the pair_sums takes O(n log n)
+
+Space Complexity: O(n)
+- We store the pair_sums array.
+'''
