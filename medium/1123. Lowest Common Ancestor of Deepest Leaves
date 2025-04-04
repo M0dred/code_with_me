@@ -1,0 +1,34 @@
+class Solution:
+    def lcaDeepestLeaves(self, root: Optional[TreeNode]) -> Optional[TreeNode]:
+        def dfs(node):
+            if not node:
+                return (0, None)  # (depth, LCA)
+
+            left_depth, left_lca = dfs(node.left)
+            right_depth, right_lca = dfs(node.right)
+
+            if left_depth > right_depth:
+                return (left_depth + 1, left_lca)
+            elif right_depth > left_depth:
+                return (right_depth + 1, right_lca)
+            else:
+                return (left_depth + 1, node)
+
+        return dfs(root)[1]
+
+'''
+Approach:
+1. We use a Depth-First Search (DFS) function that returns two values:
+   - The maximum depth from the current node.
+   - The lowest common ancestor (LCA) of the deepest leaves in its subtree.
+2. At each node, we recurse left and right to get the depth and LCA from both subtrees.
+3. If both left and right subtrees have the same depth, this node is the LCA of deepest leaves.
+4. Otherwise, we return the LCA from the deeper subtree.
+5. The final result is the LCA of the deepest leaves.
+
+Time Complexity: O(n)
+- We visit each node once.
+
+Space Complexity: O(h)
+- h is the height of the tree, due to recursion stack (O(log n) for balanced tree, O(n) for skewed).
+'''
