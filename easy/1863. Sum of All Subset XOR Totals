@@ -1,0 +1,25 @@
+class Solution:
+    def subsetXORSum(self, nums: List[int]) -> int:
+        def dfs(index, current_xor):
+            if index == len(nums):
+                return current_xor
+            # Include nums[index]
+            with_curr = dfs(index + 1, current_xor ^ nums[index])
+            # Exclude nums[index]
+            without_curr = dfs(index + 1, current_xor)
+            return with_curr + without_curr
+        
+        return dfs(0, 0)
+
+'''
+Approach:
+1. Use Depth-First Search (DFS) to generate all subsets.
+2. At each step, we either include the current number in the XOR or exclude it.
+3. Recursively compute the XOR total for all subsets and return the sum.
+
+Time Complexity: O(2^n)
+- For each element, we make two choices (include or exclude), leading to 2^n subsets.
+
+Space Complexity: O(n)
+- Recursive call stack can go up to n levels deep.
+'''
