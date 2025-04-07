@@ -1,0 +1,30 @@
+class Solution:
+    def minimumOperations(self, nums: List[int]) -> int:
+        # If array length is <= 3, we can make it distinct in at most 1 operation
+        if len(nums) <= 3:
+            return 0 if len(set(nums)) == len(nums) else 1
+            
+        # Keep track of minimum operations needed
+        min_ops = float('inf')
+        
+        # Try removing 0 to len(nums)//3 groups of 3 elements from start
+        for i in range((len(nums) // 3) + 1):
+            # Get remaining array after removing i groups of 3
+            remaining = nums[i * 3:]
+            # If remaining array has all distinct elements
+            if len(set(remaining)) == len(remaining):
+                min_ops = min(min_ops, i)
+                
+        return min_ops if min_ops != float('inf') else (len(nums) + 2) // 3
+
+'''
+Approach: 
+The solution uses a greedy approach by trying different numbers of operations from the start. For each possible number of removals (0 to len(nums)//3), we:
+1. Remove that many groups of 3 elements from the beginning
+2. Check if remaining elements are distinct using set comparison
+3. Track minimum operations needed to achieve distinct elements
+For arrays <= 3 length, we can handle them in at most 1 operation
+If no solution found, return ceiling of length/3 as worst case
+Time complexity: O(n^2) where n is length of nums
+Space complexity: O(n) for creating sets
+'''
