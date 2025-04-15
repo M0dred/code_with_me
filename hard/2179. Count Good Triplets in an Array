@@ -1,0 +1,75 @@
+class FenwickTree:
+    def __init__(self, size):
+        # Initialize Fenwick Tree with size + 1 for 1-based indexing
+        self.tree = [0] * (size + 1)
+    
+    def update(self, index, delta):
+        # Update tree at index with delta
+        index += 1  # Convert to 1-based
+        while index <= len(self.tree) - 1:
+            self.tree[index] += delta
+            index += index & -index  # Move to next relevant index
+    
+    def query(self, index):
+        # Query sum from index 0 to index (inclusive)
+        index += 1  # Convert to 1-based
+        res = 0
+        while index > 0:
+            res += self.tree[index]
+            index -= index & -index  # Move to parent index
+        return res
+
+class Solution:
+    def goodTriplets(self, nums1: List[int], nums2: List[int]) -> int:
+        n = len(nums1)
+        # pos2[v] stores the index of value v in nums2
+        pos2 = [0] * n
+        # reversedIndexMapping[i] stores the index in nums1 of the value at index i in nums2
+        reversedIndexMapping = [0] * n
+        
+        # Populate pos2: index of each value in nums2
+        for i, num2 in enumerate(nums2):
+            pos2[num2] = i
+        
+        # Populate reversedIndexMapping: for each index in nums2, find corresponding index in nums1
+        for i, num1 in enumerate(nums1):
+            reversedIndexMapping[pos2[num1]] = i
+        
+        # Initialize Fenwick Tree
+        tree = FenwickTree(n)
+        res = 0
+        
+        # Process each value in order
+        for value in range(n):
+            # pos is the index of current value in nums1
+            pos = reversedIndexMapping[value]
+            # Count values x < value with pos1[x] < pos (i.e., to the left in nums1)
+            left = tree.query(pos)
+            # Mark this position as processed
+            tree.update(pos, 1)
+            # Count values z > value with pos1[z] > pos
+            # Total values processed = value, so right = (remaining values) - (values to left)
+            right = (n - 1 - pos) - (value - left)
+            # Add number of triplets (x, value, z) to result
+            res += left * right
+        
+        return res
+
+'''
+Approach:
+1. Create mappings:
+   - pos2[v]: index of value v in nums2.
+   - reversedIndexMapping[i]: index in nums1 of the value at index i in nums2.
+2. Use a Fenwick Tree to track positions in nums1 as we process values in order (0 to n-1).
+3. For each value:
+   - Get its position in nums1 (pos = reversedIndexMapping[value]).
+   - Query the Fenwick Tree to find how many previous values (x < value) have pos1[x] < pos (left count).
+   - Update the tree to include the current position.
+   - Calculate right count (z > value with pos1[z] > pos):
+     - Total positions after pos: n-1-pos.
+     - Subtract values already processed with pos1[x] <= pos: value - left.
+   - Number of triplets with current value as y: left * right.
+4. Sum all triplet counts to get the total number of good triplets.
+Time Complexity: O(n log n) - n iterations with O(log n) for Fenwick Tree operations.
+Space Complexity: O(n) - for pos2, reversedIndexMapping, and Fenwick Tree.
+'''
