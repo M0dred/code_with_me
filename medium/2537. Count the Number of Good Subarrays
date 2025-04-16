@@ -1,0 +1,46 @@
+from collections import Counter
+
+class Solution:
+    def countGood(self, nums: List[int], k: int) -> int:
+        # Initialize variables
+        count = Counter()  # Tracks frequency of each number
+        curr_pairs = 0     # Current number of pairs in window
+        result = 0         # Total good subarrays
+        left = 0           # Left pointer of sliding window
+        
+        # Iterate through array with right pointer
+        for right in range(len(nums)):
+            # Add nums[right] to counter and update pairs
+            count[nums[right]] += 1
+            # New pairs = (current frequency - 1) for this number
+            curr_pairs += count[nums[right]] - 1
+            
+            # Shrink window while we have at least k pairs
+            while curr_pairs >= k and left <= right:
+                # All subarrays from left to right are good
+                result += len(nums) - right
+                # Remove nums[left] and update pairs
+                count[nums[left]] -= 1
+                # Subtract pairs lost due to removing nums[left]
+                curr_pairs -= count[nums[left]]
+                left += 1
+        
+        return result
+
+'''
+Approach:
+1. Use a sliding window with two pointers (left, right) to consider subarrays.
+2. Maintain a Counter to track frequency of each number in the current window.
+3. For each right pointer:
+   - Increment frequency of nums[right].
+   - Add new pairs: if frequency becomes f, add (f-1) new pairs (as it pairs with f-1 previous occurrences).
+4. When number of pairs >= k:
+   - All subarrays from current left to right are good.
+   - Add (len(nums) - right) to result (number of subarrays ending at right or beyond).
+   - Shrink window by moving left pointer:
+     - Decrease frequency of nums[left].
+     - Subtract pairs lost (equal to remaining frequency of nums[left]).
+5. Return total count of good subarrays.
+Time Complexity: O(n) - single pass with constant-time Counter operations.
+Space Complexity: O(n) - for the Counter storing at most n unique elements.
+'''
