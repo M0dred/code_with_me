@@ -1,0 +1,35 @@
+from collections import Counter
+
+class Solution:
+    def countPairs(self, nums: List[int], k: int) -> int:
+        # Initialize counter for frequency of each number
+        freq = Counter()
+        count = 0
+        
+        # Iterate through each index and number
+        for i in range(len(nums)):
+            num = nums[i]
+            
+            # For each previous occurrence of num at index j < i
+            for j in range(i):
+                if nums[j] == num:
+                    # Check if i * j is divisible by k
+                    if (i * j) % k == 0:
+                        count += 1
+            
+            # Increment frequency of current number
+            freq[num] += 1
+        
+        return count
+
+'''
+Approach:
+1. Use a Counter to track the frequency of each number (though here we directly check equality).
+2. Iterate through each index i and number nums[i].
+3. For each i, check all previous indices j < i where nums[j] == nums[i].
+4. For each such pair (i, j), check if i * j is divisible by k.
+5. If divisible, increment the count of valid pairs.
+6. Return the total count.
+Time Complexity: O(n^2) in worst case, where n is the length of nums.
+Space Complexity: O(n) for the Counter, though it could be O(1) if we skip Counter.
+'''
