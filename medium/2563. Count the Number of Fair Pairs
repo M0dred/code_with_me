@@ -1,0 +1,32 @@
+from bisect import bisect_left, bisect_right
+
+class Solution:
+    def countFairPairs(self, nums: List[int], lower: int, upper: int) -> int:
+        # Sort the array to enable binary search
+        nums.sort()
+        n = len(nums)
+        count = 0
+        
+        # For each nums[i], find valid nums[j] where j > i
+        for i in range(n):
+            # We need lower <= nums[i] + nums[j] <= upper
+            # So: lower - nums[i] <= nums[j] <= upper - nums[i]
+            left = bisect_left(nums, lower - nums[i], i + 1)
+            right = bisect_right(nums, upper - nums[i], i + 1)
+            # Number of valid j where i < j and sum is in [lower, upper]
+            count += right - left
+        
+        return count
+
+'''
+Approach:
+1. Sort the array to allow binary search for valid pair sums.
+2. For each index i:
+   - Compute target range for nums[j]: [lower - nums[i], upper - nums[i]].
+   - Use binary search (bisect_left and bisect_right) to find the range of indices j > i
+     where nums[j] falls within [lower - nums[i], upper - nums[i]].
+   - Add the count of such j to the result (right - left).
+3. Return total count of fair pairs.
+Time Complexity: O(n log n) - sorting takes O(n log n), and each of n iterations uses O(log n) binary search.
+Space Complexity: O(1) - assuming in-place sorting; otherwise O(n) for sorting in Python.
+'''
