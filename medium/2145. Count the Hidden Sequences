@@ -1,0 +1,43 @@
+class Solution:
+    def numberOfArrays(self, differences: List[int], lower: int, upper: int) -> int:
+        # Initialize prefix sum to track cumulative differences
+        prefix_sum = 0
+        # Track minimum and maximum prefix sums
+        min_sum = 0
+        max_sum = 0
+        
+        # Compute prefix sums to find range of possible values
+        for diff in differences:
+            prefix_sum += diff
+            min_sum = min(min_sum, prefix_sum)
+            max_sum = max(max_sum, prefix_sum)
+        
+        # Range of possible starting values (hidden[0])
+        # For any hidden[0] = x, sequence values are x + prefix_sum
+        # All values must be in [lower, upper]
+        # So: lower <= x + min_sum <= x + max_sum <= upper
+        # => lower - min_sum <= x <= upper - max_sum
+        left = lower - min_sum
+        right = upper - max_sum
+        
+        # Number of valid starting values
+        # If left > right, no valid sequences exist
+        return max(0, right - left + 1)
+
+'''
+Approach:
+1. Compute prefix sums of differences to determine the sequence relative to hidden[0]:
+   - prefix_sum[i] = sum(differences[0:i]) = hidden[i+1] - hidden[0].
+2. Track minimum and maximum prefix sums to find the range of sequence values:
+   - min_sum = minimum prefix sum.
+   - max_sum = maximum prefix sum.
+3. For a starting value hidden[0] = x:
+   - Sequence values are x + prefix_sum[i].
+   - All must satisfy lower <= x + prefix_sum[i] <= upper.
+   - Thus: lower <= x + min_sum and x + max_sum <= upper.
+   - Solve: lower - min_sum <= x <= upper - max_sum.
+4. Count valid x values: max(0, (upper - max_sum) - (lower - min_sum) + 1).
+5. Return 0 if no valid x exists (i.e., left > right).
+Time Complexity: O(n) - single pass through differences array.
+Space Complexity: O(1) - only use a few variables.
+'''
