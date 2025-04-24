@@ -1,0 +1,29 @@
+class Solution:
+    def countCompleteSubarrays(self, nums: List[int]) -> int:
+        from collections import Counter
+
+        total = 0
+        n = len(nums)
+        total_distinct = len(set(nums))  # Total distinct elements in the entire array
+
+        for left in range(n):
+            seen = set()
+            for right in range(left, n):
+                seen.add(nums[right])
+                if len(seen) == total_distinct:
+                    total += 1
+
+        return total
+
+'''
+Approach:
+1. First, count the number of distinct elements in the entire array using `set(nums)`.
+2. Use two nested loops to iterate over all possible subarrays.
+   - The outer loop fixes the starting index `left`.
+   - The inner loop extends the subarray to `right`, maintaining a `set` of seen elements.
+3. For each subarray starting at `left`, add to the total if the number of distinct elements in it equals the total distinct elements of the whole array.
+4. Return the total count of such complete subarrays.
+
+Time Complexity: O(n^2), where n is the length of nums.
+Space Complexity: O(d), where d is the number of distinct elements in the worst case.
+'''
