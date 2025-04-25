@@ -28,3 +28,30 @@ If no solution found, return ceiling of length/3 as worst case
 Time complexity: O(n^2) where n is length of nums
 Space complexity: O(n) for creating sets
 '''
+
+'''
+class Solution:
+    def minimumOperations(self, nums: List[int]) -> int:
+        n = len(nums)
+        min_ops = float('inf')
+
+        for ops in range(0, (n + 2) // 3 + 1):
+            remaining = nums[3 * ops:]
+            if len(set(remaining)) == len(remaining):
+                min_ops = ops
+                break
+
+        return min_ops if min_ops != float('inf') else (n + 2) // 3
+
+
+Approach:
+1. Iterate through possible operation counts from 0 to maximum number of 3-element removals.
+2. For each count, simulate removing the first 3 * ops elements.
+3. Check if the remaining elements are all distinct using a set.
+4. If yes, update minimum operations and break early since we want the smallest possible number of operations.
+5. Return the minimum number of operations found.
+
+Time Complexity: O(n^2) in worst case due to set comparison in a loop up to n/3.
+Space Complexity: O(n) due to use of a set to check uniqueness.
+'''
+
