@@ -1,0 +1,28 @@
+class Solution:
+    def countSubarrays(self, nums: List[int], minK: int, maxK: int) -> int:
+        answer = 0
+        min_position = max_position = invalid_position = -1
+        
+        for i, num in enumerate(nums):
+            if not (minK <= num <= maxK):
+                invalid_position = i
+            if num == minK:
+                min_position = i
+            if num == maxK:
+                max_position = i
+            answer += max(0, min(min_position, max_position) - invalid_position)
+        
+        return answer
+
+'''
+Approach:
+1. Traverse the array while keeping track of:
+   - `min_position`: the latest index where `minK` appeared
+   - `max_position`: the latest index where `maxK` appeared
+   - `invalid_position`: the latest index where a value outside [minK, maxK] appeared
+2. At each index, the number of fixed-bound subarrays ending at this index is determined by how far back the earliest valid `minK` and `maxK` occur without encountering an invalid element.
+3. Add the valid counts to the answer at each step.
+
+Time Complexity: O(n), where n is the length of nums
+Space Complexity: O(1), only a few integer variables are used
+'''
