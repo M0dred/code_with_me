@@ -1,0 +1,32 @@
+class Solution:
+    def countSubarrays(self, nums: List[int], k: int) -> int:
+        max_val = max(nums)
+        n = len(nums)
+        left = 0
+        count = 0
+        ans = 0
+        
+        for right in range(n):
+            if nums[right] == max_val:
+                count += 1
+            while count >= k:
+                if nums[left] == max_val:
+                    count -= 1
+                left += 1
+            ans += left
+        
+        return ans
+
+'''
+Approach:
+1. Find the maximum element in the array first.
+2. Use a sliding window with two pointers (left and right).
+3. Move the right pointer and count how many times the maximum element appears.
+4. Whenever the count of maximum elements becomes at least k, 
+   shrink the window from the left until the count becomes less than k.
+5. For each right pointer position, add the number of valid subarrays ending at right (which is left).
+6. Finally, return the total count.
+
+Time Complexity: O(n), where n is the length of nums
+Space Complexity: O(1), only a few integer variables are used
+'''
