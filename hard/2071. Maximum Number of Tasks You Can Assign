@@ -1,0 +1,82 @@
+from sortedcontainers import SortedList
+
+class Solution:
+    def maxTaskAssign(
+        self, tasks: List[int], workers: List[int], pills: int, strength: int
+    ) -> int:
+        # Get lengths of tasks and workers lists
+        n, m = len(tasks), len(workers)
+        # Sort tasks and workers in ascending order
+        tasks.sort()
+        workers.sort()
+
+        def check(mid: int) -> bool:
+            # Initialize available pills
+            p = pills
+            # Create a sorted list of the strongest 'mid' workers
+            ws = SortedList(workers[m - mid :])
+            # Iterate through the 'mid' hardest tasks from largest to smallest
+            for i in range(mid - 1, -1, -1):
+                # Check if the strongest available worker can handle the task
+                if ws[-1] >= tasks[i]:
+                    # Remove the used worker
+                    ws.pop()
+                else:
+                    # If no pills are left, task cannot be assigned
+                    if p == 0:
+                        return False
+                    # Find the weakest worker who can handle the task with a pill
+                    rep = ws.bisect_left(tasks[i] - strength)
+                    # If no such worker exists, task cannot be assigned
+                    if rep == len(ws):
+                        return False
+                    # Use a pill and remove the worker
+                    p -= 1
+                    ws.pop(rep)
+            # All tasks were assigned successfully
+            return True
+
+        # Binary search for the maximum number of assignable tasks
+        left, right, ans = 1, min(m, n), 0
+        while left <= right:
+            # Calculate the middle point
+            mid = (left + right) // 2
+            # Check if 'mid' tasks can be assigned
+            if check(mid):
+                # If possible, update answer and try for more tasks
+                ans = mid
+                left = mid + 1
+            else:
+                # If not possible, try fewer tasks
+                right = mid - 1
+
+        # Return the maximum number of assignable tasks
+        return ans
+
+'''
+Approach:
+1. Sort tasks and workers in ascending order for efficient processing.
+2. Use binary search to find the maximum number of tasks that can be assigned.
+3. For each potential number of tasks (mid), check if it's possible to assign 'mid' tasks:
+   - Take the 'mid' strongest workers and 'mid' hardest tasks.
+   - Use a SortedList to maintain workers in sorted order for quick access.
+   - Iterate through tasks from hardest to easiest.
+   - For each task, assign the strongest worker if possible, or use a pill to boost a weaker worker.
+   - If a task cannot be assigned (no suitable worker or no pills), return False.
+4. If 'mid' tasks can be assigned, try a larger number; otherwise, try a smaller number.
+5. Return the maximum number of tasks that can be successfully assigned.
+
+Time Complexity: O((N + M) * log(min(N, M)) * log(M)), where N is the number of tasks and M is the number of workers.
+   - Sorting tasks and workers takes O(N log N + M log M).
+   - Binary search iterates O(log(min(N, M))) times.
+   - For each binary search iteration, the check function:
+     - Creates a SortedList of up to M workers, which takes O(M).
+     - Iterates through 'mid' tasks, performing O(log M) operations (bisect_left and pop) on the SortedList for each task.
+     - Total for check: O(M + mid * log M) = O(M log M).
+   - Overall: O((N log N + M log M) + log(min(N, M)) * M log M) ≈ O((N + M) * log(min(N, M)) * log(M)).
+
+Space Complexity: O(M), where M is the number of workers.
+   - The SortedList stores up to M workers.
+   - Additional variables use O(1) space.
+   - Sorting is typically in-place, so no extra space is counted for that.
+'''
