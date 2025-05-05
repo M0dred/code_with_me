@@ -1,0 +1,65 @@
+class Solution:
+    def numTilings(self, n: int) -> int:
+        # Define modulo constant
+        MOD = 10**9 + 7
+        
+        # Handle base case
+        if n == 1:
+            return 1
+        
+        # Initialize dp arrays:
+        # full[i] = ways to fully tile a 2xi board
+        # partial[i] = ways to tile a 2xi board with top row protruding
+        full = [0] * (n + 1)
+        partial = [0] * (n + 1)
+        
+        # Base cases
+        full[1] = 1  # One way to tile 2x1 (vertical domino)
+        full[2] = 2  # Two ways to tile 2x2 (two vertical or two horizontal dominoes)
+        partial[2] = 1  # One way to tile 2x2 with top protruding (tromino)
+        
+        # Fill dp arrays for i from 3 to n
+        for i in range(3, n + 1):
+            # Ways to fully tile 2xi board:
+            # 1. Add vertical domino to 2x(i-1) fully tiled board
+            # 2. Add two horizontal dominoes to 2x(i-2) fully tiled board
+            # 3. Add tromino to 2x(i-1) partially tiled board (top or bottom protruding)
+            full[i] = (full[i-1] + full[i-2] + 2 * partial[i-1]) % MOD
+            
+            # Ways to tile 2xi board with top row protruding:
+            # 1. Add horizontal domino to 2x(i-1) fully tiled board
+            # 2. Add tromino to 2x(i-2) fully tiled board
+            partial[i] = (full[i-2] + partial[i-1]) % MOD
+        
+        # Return the number of ways to fully tile 2xn board
+        return full[n]
+
+'''
+Approach:
+1. Use dynamic programming to count the number of ways to tile a 2xn board.
+2. Define two states:
+   - full[i]: number of ways to fully tile a 2xi board (both rows covered).
+   - partial[i]: number of ways to tile a 2xi board with the top row protruding (bottom row covered up to column i, top row up to i-1).
+3. Set base cases:
+   - full[1] = 1 (one vertical domino).
+   - full[2] = 2 (two vertical dominoes or two horizontal dominoes).
+   - partial[2] = 1 (one tromino covering bottom row and part of top row).
+4. For each i from 3 to n:
+   - Compute full[i]:
+     - Add a vertical domino to full[i-1].
+     - Add two horizontal dominoes to full[i-2].
+     - Add a tromino to partial[i-1] (two ways: top or bottom protruding).
+   - Compute partial[i]:
+     - Add a horizontal domino to full[i-2] (covers bottom row fully, top row partially).
+     - Add a tromino to partial[i-1] (extends the protruding top row).
+5. Apply modulo 10^9 + 7 to all calculations to handle large numbers.
+6. Return full[n] as the number of ways to fully tile the 2xn board.
+
+Time Complexity: O(N), where N is the input integer.
+   - Iterate from 3 to N to fill the dp arrays, with O(1) operations per iteration.
+   - Total: O(N).
+
+Space Complexity: O(N).
+   - Use two arrays (full and partial) of size N+1.
+   - Additional variables use O(1) space.
+'''
