@@ -1,0 +1,25 @@
+class Solution:
+    def threeConsecutiveOdds(self, arr: List[int]) -> bool:
+        # If array length is less than 3, cannot have three consecutive odds
+        if len(arr) < 3:
+            return False
+        
+        # Check each set of three consecutive elements
+        for i in range(len(arr) - 2):
+            # If all three are odd, return True
+            if arr[i] % 2 == 1 and arr[i + 1] % 2 == 1 and arr[i + 2] % 2 == 1:
+                return True
+        
+        # No three consecutive odds found
+        return False
+
+'''
+Approach:
+1. Check if array length is at least 3; if not, return False.
+2. Iterate through the array up to index len(arr) - 2.
+3. For each index i, check if arr[i], arr[i+1], and arr[i+2] are all odd (using modulo 2 == 1).
+4. If any set of three consecutive numbers are odd, return True.
+5. If no such set is found, return False.
+Time Complexity: O(n) - single pass through the array, where n is the length of arr.
+Space Complexity: O(1) - uses only a constant amount of extra space.
+'''
