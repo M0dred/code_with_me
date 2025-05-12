@@ -1,0 +1,29 @@
+from collections import Counter
+
+class Solution:
+    def findEvenNumbers(self, digits: List[int]) -> List[int]:
+        count = Counter(digits)
+        result = set()
+
+        # Check all 3-digit numbers from 100 to 999
+        for num in range(100, 1000):
+            if num % 2 != 0:
+                continue  # Skip odd numbers
+            num_digits = [int(d) for d in str(num)]
+            needed = Counter(num_digits)
+            if all(count[d] >= needed[d] for d in needed):
+                result.add(num)
+
+        return sorted(result)
+
+'''
+Approach:
+1. Use a `Counter` to count the available digits.
+2. Loop through all valid 3-digit even numbers (from 100 to 998).
+3. For each number, check if it can be formed from the digits by comparing its digit count to the available digits.
+4. Add valid numbers to a set to avoid duplicates.
+5. Return the sorted list of results.
+
+Time Complexity: O(900 * k), where k is the number of unique digits (<= 10), effectively constant.
+Space Complexity: O(1) extra space for counters and the result set (max 900 valid 3-digit numbers).
+'''
