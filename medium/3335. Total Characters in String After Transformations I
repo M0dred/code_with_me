@@ -1,0 +1,37 @@
+class Solution:
+    def lengthAfterTransformations(self, s: str, t: int) -> int:
+        MOD = 10**9 + 7
+        
+        # Count frequency of each character in s
+        count = [0] * 26
+        for c in s:
+            count[ord(c) - ord('a')] += 1
+        
+        # For each transformation, update counts
+        for _ in range(t):
+            new_count = [0] * 26
+            # For each character a to y, shift to next (a->b, b->c, ..., y->z)
+            for i in range(25):
+                new_count[i + 1] = count[i]
+            # For z, it becomes ab, so add to counts of a and b
+            new_count[0] += count[25]  # z -> a
+            new_count[1] += count[25]  # z -> b
+            count = new_count
+        
+        # Compute total length (sum of all counts)
+        total_length = sum(count) % MOD
+        return total_length
+
+'''
+Approach:
+1. Initialize a count array to store the frequency of each character (a to z) in the input string.
+2. For each of the t transformations:
+   - Create a new count array.
+   - For characters a to y (indices 0 to 24), shift their counts to the next character (a->b, b->c, ..., y->z).
+   - For z (index 25), it transforms to "ab", so add its count to both a (index 0) and b (index 1).
+   - Update the count array for the next iteration.
+3. Sum the final counts to get the total length of the string.
+4. Return the result modulo 10^9 + 7 to handle large values.
+Time Complexity: O(n + t * 26) - O(n) for initial counting, O(t * 26) for t transformations processing 26 characters.
+Space Complexity: O(1) - uses a fixed-size array of 26 elements for counts.
+'''
