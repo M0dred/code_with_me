@@ -1,0 +1,30 @@
+class Solution:
+    def isZeroArray(self, nums: List[int], queries: List[List[int]]) -> bool:
+        n = len(nums)
+        count = [0] * (n + 1)  # Use difference array technique
+
+        for l, r in queries:
+            count[l] += 1
+            if r + 1 < n:
+                count[r + 1] -= 1
+
+        # Accumulate to get actual count at each index
+        for i in range(1, n):
+            count[i] += count[i - 1]
+
+        # Check if each nums[i] can be reduced to 0
+        for i in range(n):
+            if nums[i] > count[i]:
+                return False
+        return True
+
+'''
+Approach:
+1. Track how many times each index is included in queries using a difference array.
+2. Accumulate the difference array to get how many times each index can be decremented.
+3. If any nums[i] is greater than the number of times it can be decremented, return False.
+4. If all elements can be covered, return True.
+
+Time Complexity: O(n + q)
+Space Complexity: O(n)
+'''
