@@ -1,0 +1,23 @@
+class Solution:
+    def findWordsContaining(self, words: List[str], x: str) -> List[int]:
+        # Initialize result list to store indices
+        result = []
+        
+        # Iterate through words with index
+        for i in range(len(words)):
+            # Check if x is in the current word
+            if x in words[i]:
+                result.append(i)
+        
+        return result
+
+'''
+Approach:
+1. Create an empty list result to store indices of words containing x.
+2. Iterate through the words array using index i (0 to len(words)-1).
+3. For each word, check if x is present using the in operator.
+4. If x is found in words[i], append i to result.
+5. Return the result list (empty if no words contain x).
+Time Complexity: O(n * m) - where n is len(words), m is average length of words.
+Space Complexity: O(k) - where k is number of words containing x (for result list).
+'''
