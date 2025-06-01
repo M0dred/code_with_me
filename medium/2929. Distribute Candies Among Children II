@@ -1,0 +1,38 @@
+class Solution:
+    def distributeCandies(self, n: int, limit: int) -> int:
+        def count_valid_combinations(total, max_val):
+            if total < 0:
+                return 0
+            # Number of ways to distribute 'total' candies to two children, each <= max_val
+            min_val = max(0, total - max_val)
+            max_val = min(total, max_val)
+            return max_val - min_val + 1
+        
+        result = 0
+        # Iterate over candies for the first child
+        for i in range(min(n, limit) + 1):
+            # Remaining candies for second and third child
+            remaining = n - i
+            # If remaining is too large for two children, skip
+            if remaining > 2 * limit:
+                continue
+            # Count valid ways to distribute remaining candies to second and third child
+            result += count_valid_combinations(remaining, limit)
+        
+        return result
+
+'''
+Approach:
+1. For each possible number of candies i (0 to min(n, limit)) given to the first child:
+   - Calculate remaining candies: remaining = n - i.
+   - If remaining > 2 * limit, skip as it's impossible to distribute to two children.
+   - Use count_valid_combinations to calculate ways to distribute remaining candies to the second and third child.
+2. count_valid_combinations calculates valid distributions for two children:
+   - If total candies < 0, return 0 (invalid).
+   - For the second child, candies range from max(0, total - limit) to min(total, limit).
+   - Number of valid values for the second child is max_val - min_val + 1.
+3. Sum all valid combinations to get the total number of ways.
+
+Time Complexity: O(min(n, limit)), as we iterate over possible candies for the first child, which is at most min(n, limit).
+Space Complexity: O(1), as we only use a constant amount of extra space for variables.
+'''
