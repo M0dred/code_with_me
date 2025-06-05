@@ -1,0 +1,44 @@
+class Solution:
+    def smallestEquivalentString(self, s1: str, s2: str, baseStr: str) -> str:
+        # Initialize parent array for union-find
+        parent = list(range(26))
+        
+        def find(x: int) -> int:
+            # Find root parent with path compression
+            if parent[x] != x:
+                parent[x] = find(parent[x])
+            return parent[x]
+        
+        def union(x: int, y: int):
+            # Union by choosing lexicographically smaller character
+            px, py = find(x), find(y)
+            if px < py:
+                parent[py] = px
+            else:
+                parent[px] = py
+        
+        # Build equivalence classes using union-find
+        for c1, c2 in zip(s1, s2):
+            union(ord(c1) - ord('a'), ord(c2) - ord('a'))
+        
+        # Construct result by mapping each character to smallest equivalent
+        result = []
+        for c in baseStr:
+            smallest_char = chr(find(ord(c) - ord('a')) + ord('a'))
+            result.append(smallest_char)
+        
+        return ''.join(result)
+
+'''
+Approach:
+1. Use a union-find data structure to group equivalent characters from s1 and s2.
+2. Initialize parent array where each character (0 to 25, representing 'a' to 'z') is its own parent.
+3. Implement find with path compression to get the root parent of a character.
+4. Implement union to merge two characters' groups, always choosing the lexicographically smaller character as the parent.
+5. For each pair of characters (c1, c2) in s1 and s2, perform union on their indices (ord(c1) - ord('a'), ord(c2) - ord('a')).
+6. For each character in baseStr, find its smallest equivalent character using find and append it to the result.
+7. Join the result list into a string and return it.
+
+Time Complexity: O(n * α(26) + m), where n is the length of s1 and s2, m is the length of baseStr, and α is the inverse Ackermann function (nearly constant for practical inputs). Union-find operations are near O(1) amortized, and we process n pairs and m characters.
+Space Complexity: O(1) since the parent array is fixed at size 26 (for lowercase English letters), and the result string is not counted as extra space in standard analysis.
+'''
