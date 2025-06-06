@@ -1,0 +1,45 @@
+class Solution:
+    def robotWithString(self, s: str) -> str:
+        # Frequency array to track remaining characters
+        freq = [0] * 26
+        for c in s:
+            freq[ord(c) - ord('a')] += 1
+        
+        result = []
+        stack = []
+        smallest = 0  # Smallest character index still in s (0 to 25)
+        
+        for c in s:
+            # Push current character to stack (t)
+            stack.append(c)
+            freq[ord(c) - ord('a')] -= 1
+            
+            # Update smallest character still remaining in s
+            while smallest < 26 and freq[smallest] == 0:
+                smallest += 1
+            
+            # Pop from stack to result if top is <= smallest remaining char
+            while stack and (smallest == 26 or ord(stack[-1]) - ord('a') <= smallest):
+                result.append(stack.pop())
+        
+        # Append any remaining characters in stack to result
+        while stack:
+            result.append(stack.pop())
+        
+        return ''.join(result)
+
+'''
+Approach:
+1. Use a frequency array to track the count of each character in s, helping identify the smallest character still remaining.
+2. Initialize an empty result list (p) for the paper and a stack (t) for the robot's string.
+3. Maintain smallest as the index (0 to 25) of the smallest character still in s.
+4. For each character c in s:
+   - Append c to stack (move to t) and decrement its frequency.
+   - Update smallest by advancing past characters with zero frequency.
+   - While stack is not empty and its top character is lexicographically <= smallest (or no characters remain in s), pop from stack and append to result.
+5. After processing s, append any remaining stack characters to result (in reverse order due to stack).
+6. Join result into a string and return it.
+
+Time Complexity: O(n), where n is the length of s. We process each character once, update frequencies, and perform stack operations, all in O(1) per character.
+Space Complexity: O(n) for the frequency array (fixed at 26), stack, and result list, which can store up to n characters.
+'''
