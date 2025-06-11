@@ -1,0 +1,50 @@
+class Solution:
+    def maxDifference(self, s: str, k: int) -> int:
+        def getStatus(cnt_a: int, cnt_b: int) -> int:
+            return ((cnt_a & 1) << 1) | (cnt_b & 1)
+        
+        n = len(s)
+        ans = float("-inf")
+        for a in ["0", "1", "2", "3", "4"]:
+            for b in ["0", "1", "2", "3", "4"]:
+                if a == b:
+                    continue
+                
+                best = [float("inf")] * 4
+                cnt_a = cnt_b = 0
+                prev_a = prev_b = 0
+                left = -1
+                for right in range(n):
+                    cnt_a += (s[right] == a)
+                    cnt_b += (s[right] == b)
+                    while right - left >= k and cnt_b - prev_b >= 2:
+                        left_status = getStatus(prev_a, prev_b)
+                        best[left_status] = min(best[left_status], prev_a - prev_b)
+                        left += 1
+                        prev_a += (s[left] == a)
+                        prev_b += (s[left] == b)
+                    
+                    right_status = getStatus(cnt_a, cnt_b)
+                    if best[right_status ^ 0b10] != float("inf"):
+                        ans = max(ans, cnt_a - cnt_b - best[right_status ^ 0b10])
+
+        return ans
+
+'''
+Approach:
+1. Define getStatus(cnt_a, cnt_b) to encode the parity of counts as a 2-bit integer: bit 1 for cnt_a (odd/even), bit 0 for cnt_b (odd/even).
+2. Initialize ans to negative infinity to track the maximum difference.
+3. For each pair of distinct digits a and b from '0' to '4':
+   - Initialize best array to store minimum freq[a] - freq[b] for each parity state (00, 01, 10, 11).
+   - Use a sliding window with left and right pointers:
+     - Increment cnt_a and cnt_b for s[right] if it matches a or b.
+     - While window length (right - left) >= k and cnt_b - prev_b >= 2 (ensuring even frequency change):
+       - Compute left_status for prev_a, prev_b and update best[left_status] with min(prev_a - prev_b).
+       - Shrink window by incrementing left, updating prev_a and prev_b.
+     - Compute right_status for cnt_a, cnt_b.
+     - If best[right_status ^ 0b10] (opposite parity for a) is finite, update ans with max(cnt_a - cnt_b - best[right_status ^ 0b10]).
+4. Return ans, the maximum difference where a has odd frequency and b has even frequency.
+
+Time Complexity: O(n * 5 * 4), where n is the length of s. We iterate over 5 * 4 pairs of digits (a, b), and for each pair, we process the string in O(n) using a sliding window. Since 5 * 4 = 20 is constant, this is effectively O(n).
+Space Complexity: O(1), as best array is fixed at size 4, and cnt_a, cnt_b, prev_a, prev_b, and other variables use constant space.
+'''
