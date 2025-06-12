@@ -1,0 +1,26 @@
+class Solution:
+    def maxAdjacentDistance(self, nums: List[int]) -> int:
+        n = len(nums)
+        max_diff = 0
+        
+        # Check absolute differences between adjacent elements
+        for i in range(n - 1):
+            max_diff = max(max_diff, abs(nums[i] - nums[i + 1]))
+        
+        # Check absolute difference between first and last elements (circular)
+        max_diff = max(max_diff, abs(nums[0] - nums[n - 1]))
+        
+        return max_diff
+
+'''
+Approach:
+1. Initialize max_diff to 0 to track the maximum absolute difference.
+2. Iterate through indices 0 to n-2 to compute the absolute difference between adjacent elements nums[i] and nums[i+1].
+3. Update max_diff with the maximum of current max_diff and abs(nums[i] - nums[i+1]).
+4. Account for the circular nature by computing the absolute difference between the first (nums[0]) and last (nums[n-1]) elements.
+5. Update max_diff with the maximum of current max_diff and abs(nums[0] - nums[n-1]).
+6. Return max_diff as the maximum absolute difference between any adjacent elements.
+
+Time Complexity: O(n), where n is the length of nums, as we iterate through the array once.
+Space Complexity: O(1), as we only use a single variable (max_diff) for extra space.
+'''
