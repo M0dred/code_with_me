@@ -1,0 +1,27 @@
+class Solution:
+    def maximumDifference(self, nums: List[int]) -> int:
+        max_diff = -1
+        min_element = nums[0]
+        
+        # Iterate through array starting from second element
+        for i in range(1, len(nums)):
+            # If current element is greater than min_element
+            if nums[i] > min_element:
+                # Update max_diff if difference is larger
+                max_diff = max(max_diff, nums[i] - min_element)
+            # Update min_element if current element is smaller
+            min_element = min(min_element, nums[i])
+        
+        return max_diff
+
+'''
+Approach:
+1. Initialize max_diff to -1 to track the maximum difference and min_element to nums[0].
+2. Iterate through nums starting from index 1:
+   - If nums[i] > min_element, compute the difference nums[i] - min_element and update max_diff if larger.
+   - Update min_element to the minimum of min_element and nums[i].
+3. Return max_diff, which remains -1 if no valid pair (i, j) with i < j and nums[i] < nums[j] is found.
+
+Time Complexity: O(n), where n is the length of nums, as we make a single pass through the array.
+Space Complexity: O(1), as we only use two variables (max_diff and min_element) for extra space.
+'''
