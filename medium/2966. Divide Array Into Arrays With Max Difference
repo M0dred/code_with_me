@@ -1,0 +1,31 @@
+class Solution:
+    def divideArray(self, nums: List[int], k: int) -> List[List[int]]:
+        # Sort the array to group close values together
+        nums.sort()
+        n = len(nums)
+        result = []
+        
+        # Process array in groups of 3
+        for i in range(0, n, 3):
+            # Check if we can form a valid group of 3
+            if i + 2 < n and nums[i + 2] - nums[i] <= k:
+                result.append([nums[i], nums[i + 1], nums[i + 2]])
+            else:
+                # If any group cannot satisfy the condition, return empty array
+                return []
+        
+        return result
+
+'''
+Approach:
+1. Sort nums in ascending order to ensure that elements with minimal differences are adjacent, facilitating grouping.
+2. Initialize an empty result list to store the groups of 3 elements.
+3. Iterate through nums in steps of 3 (i = 0, 3, 6, ...):
+   - For each index i, check if i + 2 is within bounds and the difference between nums[i + 2] and nums[i] is <= k.
+   - If valid, append the group [nums[i], nums[i + 1], nums[i + 2]] to result.
+   - If not valid (either out of bounds or difference > k), return an empty array, as no valid division is possible.
+4. Return result containing the n/3 arrays, each satisfying the condition that the difference between any two elements is <= k.
+
+Time Complexity: O(n log n), where n is the length of nums. Sorting takes O(n log n), and the subsequent iteration over n/3 groups is O(n).
+Space Complexity: O(1), excluding the output array, as sorting is in-place and only a constant amount of extra space is used for variables.
+'''
