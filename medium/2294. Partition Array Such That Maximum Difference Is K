@@ -1,0 +1,31 @@
+class Solution:
+    def partitionArray(self, nums: List[int], k: int) -> int:
+        # Sort the array to group elements with minimal differences
+        nums.sort()
+        count = 1  # Initialize count of subsequences
+        min_val = nums[0]  # Track minimum value in current subsequence
+        
+        # Iterate through sorted array
+        for num in nums[1:]:
+            # If difference with min_val exceeds k, start new subsequence
+            if num - min_val > k:
+                count += 1
+                min_val = num  # Reset min_val for new subsequence
+            # Otherwise, include num in current subsequence
+        
+        return count
+
+'''
+Approach:
+1. Sort nums in ascending order to ensure elements with minimal differences are adjacent, optimizing subsequence formation.
+2. Initialize count to 1 for the first subsequence and min_val to nums[0] as the minimum value of the current subsequence.
+3. Iterate through nums starting from the second element:
+   - If the difference between the current number num and min_val exceeds k, start a new subsequence:
+     - Increment count to account for the new subsequence.
+     - Update min_val to num, as it becomes the minimum of the new subsequence.
+   - If the difference is <= k, include num in the current subsequence (no update needed).
+4. Return count, which represents the minimum number of subsequences needed.
+
+Time Complexity: O(n log n), where n is the length of nums. Sorting takes O(n log n), and the subsequent iteration is O(n).
+Space Complexity: O(1), excluding the input array, as sorting is in-place (or O(log n) for recursion stack in some sorting implementations) and only a constant amount of extra space is used for variables.
+'''
