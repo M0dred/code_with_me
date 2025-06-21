@@ -1,0 +1,52 @@
+class Solution:
+    def minimumDeletions(self, word: str, k: int) -> int:
+        # Count frequency of each character
+        freq = [0] * 26
+        for c in word:
+            freq[ord(c) - ord('a')] += 1
+        
+        # Filter out zero frequencies and sort
+        freq = sorted(f for f in freq if f > 0)
+        if not freq:
+            return 0
+        
+        min_deletions = float('inf')
+        n = len(freq)
+        
+        # Try each frequency as the minimum frequency
+        for i in range(n):
+            deletions = 0
+            target_min = freq[i]
+            # Compute deletions needed for each frequency
+            for j in range(n):
+                if i == j:
+                    continue
+                if freq[j] < target_min:
+                    # Delete all occurrences of this character
+                    deletions += freq[j]
+                elif freq[j] > target_min + k:
+                    # Delete excess occurrences to make freq[j] <= target_min + k
+                    deletions += freq[j] - (target_min + k)
+            min_deletions = min(min_deletions, deletions)
+        
+        return min_deletions
+
+'''
+Approach:
+1. Create a frequency array freq of size 26 to count occurrences of each lowercase letter in word.
+2. Iterate through word, incrementing freq[ord(c) - ord('a')] for each character c.
+3. Filter out zero frequencies and sort the non-zero frequencies in ascending order to process them efficiently.
+4. If freq is empty, return 0 as no deletions are needed.
+5. Initialize min_deletions to infinity to track the minimum number of deletions required.
+6. For each frequency freq[i] as the potential minimum frequency (target_min):
+   - Initialize deletions to 0 for the current configuration.
+   - For each frequency freq[j]:
+     - If j == i, skip (current frequency is the target minimum).
+     - If freq[j] < target_min, delete all occurrences of that character (add freq[j] to deletions).
+     - If freq[j] > target_min + k, delete excess occurrences to reduce freq[j] to target_min + k (add freq[j] - (target_min + k)).
+   - Update min_deletions with the minimum of current min_deletions and deletions.
+7. Return min_deletions as the minimum number of characters to delete to make word k-special.
+
+Time Complexity: O(n + m log m), where n is the length of word and m is the number of distinct characters (at most 26). Counting frequencies is O(n), sorting frequencies is O(m log m), and processing pairs is O(m^2), but m ≤ 26 makes it effectively O(n).
+Space Complexity: O(1), as the freq array and sorted frequency list are fixed at size 26 or less, using constant extra space.
+'''
