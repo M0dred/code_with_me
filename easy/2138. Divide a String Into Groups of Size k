@@ -1,0 +1,29 @@
+class Solution:
+    def divideString(self, s: str, k: int, fill: str) -> List[str]:
+        # Pad the string with fill character if needed
+        n = len(s)
+        if n % k != 0:
+            s += fill * (k - n % k)
+        
+        # Initialize result list for groups
+        result = []
+        
+        # Divide string into groups of size k
+        for i in range(0, len(s), k):
+            result.append(s[i:i + k])
+        
+        return result
+
+'''
+Approach:
+1. Compute the length n of the input string s.
+2. If n is not divisible by k, pad s with the fill character to make its length a multiple of k:
+   - Append fill * (k - n % k) to s, where n % k is the remainder of n divided by k.
+3. Initialize an empty result list to store the groups.
+4. Iterate through the padded string in steps of k (from i = 0 to len(s) with step k):
+   - Slice s[i:i + k] to extract a group of k characters and append it to result.
+5. Return result, containing the groups of k characters each, with the last group possibly including fill characters.
+
+Time Complexity: O(n), where n is the length of s. Padding the string is O(k - n % k), and slicing/iterating is O(n).
+Space Complexity: O(n), for the padded string and the result list, which stores n characters across all groups.
+'''
