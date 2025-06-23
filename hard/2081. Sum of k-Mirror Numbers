@@ -1,0 +1,60 @@
+class Solution:
+    def kMirror(self, k: int, n: int) -> int:
+        def isPalindrome(x: int) -> bool:
+            # Convert number to base-k digits and check if palindromic
+            digit = []
+            while x:
+                digit.append(x % k)
+                x //= k
+            return digit == digit[::-1]
+
+        # Initialize variables: left for range start, cnt for k-mirror count, ans for sum
+        left, cnt, ans = 1, 0, 0
+        # Continue until we find n k-mirror numbers
+        while cnt < n:
+            # Set right to next power of 10 for range of first half
+            right = left * 10
+            # op = 0 for odd-length palindromes, op = 1 for even-length
+            for op in [0, 1]:
+                # Iterate through first half of palindrome
+                for i in range(left, right):
+                    # Stop if we have enough k-mirror numbers
+                    if cnt == n:
+                        break
+                    
+                    # Start with i as the first half
+                    combined = i
+                    # Use i//10 for odd length to skip middle digit, i for even
+                    x = (i // 10 if op == 0 else i)
+                    # Mirror digits to construct palindrome
+                    while x:
+                        combined = combined * 10 + x % 10
+                        x //= 10
+                    # Check if the number is palindromic in base-k
+                    if isPalindrome(combined):
+                        cnt += 1
+                        ans += combined
+            # Move to next range (e.g., 1->10, 10->100)
+            left = right
+        
+        # Return sum of n smallest k-mirror numbers
+        return ans
+
+'''
+Approach:
+1. Define isPalindrome to check if a number is palindromic in base-k by converting it to base-k digits.
+2. Initialize left=1, count=0, and answer=0 to track the palindrome generation range, count of k-mirror numbers, and their sum.
+3. While count is less than n:
+   - Set right = left * 10 to define the range for the first half of palindromes.
+   - For each op (0 for odd-length, 1 for even-length palindromes):
+     - Iterate i from left to right to generate the first half.
+     - Construct a base-10 palindrome by mirroring digits (for odd: use i//10, for even: use i).
+     - Check if the constructed number is palindromic in base-k using isPalindrome.
+     - If true, increment count and add the number to the answer.
+   - Update left to right for the next range.
+4. Return the sum of the first n k-mirror numbers.
+
+Time Complexity: O(M * log M), where M is the maximum k-mirror number considered. For each length l, we generate O(10^(l/2)) base-10 palindromes, and for each, we check palindromes in base-k (O(log M) for digit conversion). The number of digits l grows logarithmically with M, and we stop after finding n numbers.
+
+Space Complexity: O(log M) for storing digits in isPalindrome, proportional to the number of digits in the maximum number M.
+'''
