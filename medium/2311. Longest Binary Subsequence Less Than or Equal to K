@@ -1,0 +1,41 @@
+class Solution:
+    def longestSubsequence(self, s: str, k: int) -> int:
+        # Initialize result to count subsequence length
+        result = 0
+        # Current value of the subsequence number
+        value = 0
+        # Position from right (0-based, for powers of 2)
+        pos = 0
+        
+        # Iterate over string from right to left
+        for i in range(len(s) - 1, -1, -1):
+            # If current bit is 0, always include it
+            if s[i] == '0':
+                result += 1
+            # If current bit is 1, check if adding it keeps value <= k
+            elif s[i] == '1':
+                # Only consider bits that could keep value <= k
+                if pos < 30 and (value + (1 << pos)) <= k:
+                    value += 1 << pos
+                    result += 1
+            # Increment position for next bit (power of 2)
+            pos += 1
+        
+        # Return length of longest valid subsequence
+        return result
+
+'''
+Approach:
+1. Initialize result to track subsequence length, value to track the current number, and pos for bit position.
+2. Iterate over the binary string s from right to left:
+   - If the current bit is '0', include it in the subsequence (increases length, value unchanged).
+   - If the current bit is '1', check if adding 2^pos keeps the number <= k:
+     - Only consider positions < 30, as k <= 10^9 < 2^30.
+     - If value + 2^pos <= k, include the '1' and update value.
+   - Increment pos for the next bit’s power of 2.
+3. Return the result, which is the length of the longest subsequence with value <= k.
+
+Time Complexity: O(n), where n is the length of s. We iterate through s once.
+
+Space Complexity: O(1), using only constant extra space for variables.
+'''
