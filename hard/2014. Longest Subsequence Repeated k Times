@@ -1,0 +1,63 @@
+class Solution:
+    def longestSubsequenceRepeatedK(self, s: str, k: int) -> str:
+        # Count frequency of each character in s
+        freq = [0] * 26
+        for c in s:
+            freq[ord(c) - ord('a')] += 1
+        
+        # Get valid characters (appear at least k times)
+        valid_chars = []
+        for i in range(25, -1, -1):  # Reverse order for lexicographic preference
+            if freq[i] >= k:
+                valid_chars.append(chr(i + ord('a')))
+        
+        # Check if seq * k is a subsequence of s
+        def is_subsequence(seq: str) -> bool:
+            target = seq * k
+            i = 0  # Pointer for target
+            for c in s:
+                if i < len(target) and c == target[i]:
+                    i += 1
+            return i == len(target)
+        
+        # Try lengths from max possible down to 1
+        max_len = len(s) // k
+        for length in range(max_len, 0, -1):
+            # Generate subsequences of current length
+            def generate_seq(curr: str, remaining: int, chars: list):
+                if remaining == 0:
+                    if is_subsequence(curr):
+                        return curr
+                    return ""
+                for c in chars:
+                    # Only include if we have enough occurrences
+                    if freq[ord(c) - ord('a')] >= k * (curr.count(c) + 1):
+                        result = generate_seq(curr + c, remaining - 1, chars)
+                        if result:
+                            return result
+                return ""
+            
+            # Try to find a valid subsequence of current length
+            result = generate_seq("", length, valid_chars)
+            if result:
+                return result
+        
+        # No valid subsequence found
+        return ""
+
+'''
+Approach:
+1. Count frequency of each character in s to identify valid characters (those appearing ≥ k times).
+2. Store valid characters in lexicographically decreasing order (z to a) for preference.
+3. Define is_subsequence(seq) to check if seq * k is a subsequence of s by greedily matching characters.
+4. Compute maximum possible length (n // k) and try lengths from max to 1:
+   - For each length, generate subsequences using valid characters with backtracking.
+   - Generate in lexicographically decreasing order by using sorted valid_chars.
+   - Only include characters with enough frequency (≥ k * occurrences in subsequence).
+   - Check if each subsequence * k is a subsequence of s.
+5. Return the first valid subsequence found (longest and lexicographically largest), or "" if none.
+
+Time Complexity: O(n * 2^m * k), where n is len(s) and m is the number of valid characters. Generating subsequences is O(2^m) in worst case, and checking each subsequence takes O(n * k). Since m is small (≤ 26, and typically much less due to n < k * 8), this is manageable.
+
+Space Complexity: O(n) for the frequency array and recursion stack, plus O(n) for storing the subsequence.
+'''
