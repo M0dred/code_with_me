@@ -1,0 +1,30 @@
+class Solution:
+    def maxSubsequence(self, nums: List[int], k: int) -> List[int]:
+        # Create list of (value, index) pairs
+        indexed_nums = [(val, idx) for idx, val in enumerate(nums)]
+        
+        # Sort by value in descending order and take top k
+        indexed_nums.sort(reverse=True)
+        top_k = indexed_nums[:k]
+        
+        # Extract indices and sort to maintain original order
+        indices = sorted(idx for _, idx in top_k)
+        
+        # Build result using sorted indices
+        result = [nums[i] for i in indices]
+        
+        # Return the subsequence
+        return result
+
+'''
+Approach:
+1. Create a list of (value, index) pairs to track each element's value and original index.
+2. Sort the pairs by value in descending order to get the k largest elements.
+3. Extract the indices of the top k elements and sort them in ascending order to maintain the original relative order.
+4. Use the sorted indices to select elements from nums, forming the subsequence.
+5. Return the resulting subsequence of length k.
+
+Time Complexity: O(n log n), where n is the length of nums. Sorting the pairs takes O(n log n), sorting k indices takes O(k log k), and building the result is O(k).
+
+Space Complexity: O(n) for storing the indexed_nums list and O(k) for the indices and result list.
+'''
