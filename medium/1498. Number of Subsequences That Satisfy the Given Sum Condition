@@ -1,0 +1,44 @@
+class Solution:
+    def numSubseq(self, nums: List[int], target: int) -> int:
+        MOD = 10**9 + 7
+        # Sort nums to simplify min/max condition
+        nums.sort()
+        n = len(nums)
+        # Precompute powers of 2 modulo MOD
+        power = [1] * n
+        for i in range(1, n):
+            power[i] = (power[i-1] * 2) % MOD
+        
+        # Initialize result
+        result = 0
+        left, right = 0, n - 1
+        
+        # Use two pointers to find valid subsequences
+        while left <= right:
+            # Check if min + max <= target
+            if nums[left] + nums[right] <= target:
+                # Count subsequences with nums[left] as min, nums[right] as max
+                result = (result + power[right - left]) % MOD
+                left += 1  # Try next min
+            else:
+                right -= 1  # Reduce max to satisfy condition
+        
+        # Return total count modulo MOD
+        return result
+
+'''
+Approach:
+1. Sort nums to ensure nums[i] <= nums[j] for i <= j, so nums[left] is min and nums[right] is max.
+2. Precompute powers of 2 modulo 10^9 + 7 for efficient counting.
+3. Use two pointers (left, right) to find valid subsequences:
+   - If nums[left] + nums[right] <= target, all subsequences including nums[left], nums[right], and any subset of elements between them are valid.
+   - Count 2^(right - left) subsequences (each element from left+1 to right can be included or excluded).
+   - Increment left to try a larger min.
+   - If nums[left] + nums[right] > target, decrement right to reduce the max.
+4. Sum counts modulo 10^9 + 7.
+5. Return the total number of valid subsequences.
+
+Time Complexity: O(n log n), where n is the length of nums. Sorting takes O(n log n), and the two-pointer traversal takes O(n).
+
+Space Complexity: O(n) for the power array and sorted nums array.
+'''
