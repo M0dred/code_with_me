@@ -1,0 +1,33 @@
+class Solution:
+    def findLHS(self, nums: List[int]) -> int:
+        # Create frequency map for numbers
+        freq = {}
+        for num in nums:
+            freq[num] = freq.get(num, 0) + 1
+        
+        # Initialize max length of harmonious subsequence
+        max_length = 0
+        
+        # Check each number and its consecutive number
+        for num in freq:
+            # If num + 1 exists, calculate subsequence length
+            if num + 1 in freq:
+                current_length = freq[num] + freq[num + 1]
+                max_length = max(max_length, current_length)
+        
+        # Return max length (0 if no harmonious subsequence)
+        return max_length
+
+'''
+Approach:
+1. Create a frequency map to count occurrences of each number in nums.
+2. Iterate through each number x in the frequency map.
+3. For each x, check if x+1 exists in the map.
+4. If x+1 exists, compute the length of the harmonious subsequence as freq[x] + freq[x+1].
+5. Track the maximum length across all valid (x, x+1) pairs.
+6. Return the maximum length, or 0 if no harmonious subsequence exists.
+
+Time Complexity: O(n), where n is the length of nums. Building the frequency map takes O(n), and iterating through the keys (at most n unique numbers) takes O(n).
+
+Space Complexity: O(n) for the frequency map, which stores at most n unique numbers.
+'''
