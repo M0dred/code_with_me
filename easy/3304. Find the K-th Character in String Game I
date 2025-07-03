@@ -1,0 +1,28 @@
+class Solution:
+    def kthCharacter(self, k: int) -> str:
+        # Convert to 0-based index
+        k = k - 1
+        # Count number of 1s in binary representation of k
+        shifts = 0
+        while k:
+            shifts += k & 1  # Add 1 if least significant bit is 1
+            k >>= 1  # Right shift to process next bit
+        
+        # Start with 'a' (0), apply shifts modulo 26
+        char_value = (0 + shifts) % 26
+        # Convert to character ('a' = 0, 'b' = 1, ..., 'z' = 25)
+        return chr(ord('a') + char_value)
+
+'''
+Approach:
+1. Convert k to 0-based index by subtracting 1 (kth character → index k-1).
+2. Compute the number of 1s in the binary representation of k-1 (Hamming weight):
+   - Each 1 bit indicates the position was in the second half during an operation, contributing a +1 shift in the alphabet.
+3. Start with 'a' (value 0), add the number of shifts modulo 26 to get the final character value.
+4. Convert the value to a character ('a' + value).
+5. Return the resulting character.
+
+Time Complexity: O(log k), where k <= 500. Counting 1s in k-1's binary representation takes O(log k) iterations.
+
+Space Complexity: O(1), using only constant extra space for variables.
+'''
