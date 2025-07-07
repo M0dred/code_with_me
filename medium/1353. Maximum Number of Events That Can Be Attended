@@ -1,0 +1,46 @@
+from heapq import heappush, heappop
+
+class Solution:
+    def maxEvents(self, events: List[List[int]]) -> int:
+        # Sort events by start day
+        events.sort()
+        # Initialize min-heap for end days of available events
+        heap = []
+        # Initialize count of attended events
+        count = 0
+        # Index to track current event
+        i = 0
+        # Process days from 1 to max end day
+        max_day = max(end for _, end in events)
+        
+        # Iterate through each possible day
+        for day in range(1, max_day + 1):
+            # Add all events starting on or before current day to heap
+            while i < len(events) and events[i][0] <= day:
+                heappush(heap, events[i][1])
+                i += 1
+            # Remove expired events (end day < current day)
+            while heap and heap[0] < day:
+                heappop(heap)
+            # If there are available events, attend one with earliest end day
+            if heap:
+                heappop(heap)
+                count += 1
+        
+        # Return maximum number of events attended
+        return count
+
+'''
+Approach:
+1. Sort events by start day to process them chronologically.
+2. Initialize a min-heap to store end days of events that can be attended on the current day.
+3. Iterate through days from 1 to the maximum end day:
+   - Add end days of all events with start day <= current day to the heap.
+   - Remove events from the heap whose end day is before the current day (expired).
+   - If the heap is not empty, attend the event with the earliest end day (pop from heap) and increment count.
+4. Return the total count of attended events.
+
+Time Complexity: O(n log n + d log n), where n is the number of events and d is the maximum end day (d <= 10^5). Sorting takes O(n log n), and for each day, heap operations (push/pop) take O(log n).
+
+Space Complexity: O(n) for the heap, which stores at most n end days.
+'''
