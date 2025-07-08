@@ -1,0 +1,53 @@
+from bisect import bisect_right
+
+class Solution:
+    def maxValue(self, events: List[List[int]], k: int) -> int:
+        # Sort events by start day
+        events.sort()
+        n = len(events)
+        
+        # Memoized DP: dp[i][j] = max value from index i with j events left
+        memo = {}
+        
+        def dp(i: int, j: int) -> int:
+            # Base cases: no more events or no more selections
+            if i >= n or j == 0:
+                return 0
+            # Check memoized result
+            if (i, j) in memo:
+                return memo[(i, j)]
+            
+            # Option 1: Skip current event
+            skip = dp(i + 1, j)
+            
+            # Option 2: Include current event
+            # Find first event that starts after current event's end day
+            next_idx = bisect_right(events, events[i][1], lo=i + 1, key=lambda x: x[0])
+            include = events[i][2] + dp(next_idx, j - 1)
+            
+            # Take maximum of skip and include
+            memo[(i, j)] = max(skip, include)
+            return memo[(i, j)]
+        
+        # Start DP with all events and k selections
+        return dp(0, k)
+
+'''
+Approach:
+1. Sort events by start day to process them chronologically.
+2. Use dynamic programming with memoization:
+   - Define dp[i][j] as the maximum value from events[i:] with up to j events.
+   - Base case: If i >= len(events) or j == 0, return 0.
+   - For each event i:
+     - Skip: Take dp[i+1][j].
+     - Include: Use binary search to find the first event that starts after events[i][1].
+     - Take value[i] + dp[next][j-1].
+   - Return max(skip, include).
+3. Memoize results to avoid recomputation.
+4. Start with dp[0][k] to consider all events with up to k selections.
+5. Return the maximum value achievable.
+
+Time Complexity: O(n log n + k * n log n), where n is the number of events. Sorting takes O(n log n), and DP has O(k * n) states, with each state using O(log n) for binary search.
+
+Space Complexity: O(k * n) for the memoization table, plus O(n) for sorting.
+'''
