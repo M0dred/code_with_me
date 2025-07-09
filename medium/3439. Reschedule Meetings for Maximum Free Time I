@@ -1,0 +1,43 @@
+class Solution:
+    def maxFreeTime(self, eventTime: int, k: int, startTime: List[int], endTime: List[int]) -> int:
+        n = len(startTime)
+        # Initialize array for gaps
+        free = [0] * (n + 1)
+        # Gap from 0 to first meeting
+        free[0] = startTime[0]
+        # Gaps between consecutive meetings
+        for i in range(1, n):
+            free[i] = startTime[i] - endTime[i - 1]
+        # Gap from last meeting to eventTime
+        free[n] = eventTime - endTime[-1]
+        
+        # Sliding window of size k+1 to find max sum of gaps
+        ans = s = 0
+        for i, f in enumerate(free):
+            s += f
+            if i < k:
+                continue
+            # Update max sum after window reaches size k+1
+            ans = max(ans, s)
+            # Remove oldest gap from window
+            s -= free[i - k]
+        
+        # Return maximum free time
+        return ans
+
+'''
+Approach:
+1. Compute gaps of free time:
+   - Gap from 0 to startTime[0].
+   - Gaps between meetings: startTime[i] - endTime[i-1] for i from 1 to n-1.
+   - Gap from endTime[n-1] to eventTime.
+2. Use a sliding window of size k+1 to find the maximum sum of k+1 consecutive gaps:
+   - Iterate through gaps, adding each to the window sum.
+   - After k gaps, update the maximum sum and remove the oldest gap.
+3. The maximum sum represents the largest free time achievable by moving up to k meetings to merge k+1 gaps.
+4. Return the maximum free time.
+
+Time Complexity: O(n), where n is the number of events. Computing gaps takes O(n), and the sliding window pass takes O(n).
+
+Space Complexity: O(n) for the free array storing n+1 gaps.
+'''
