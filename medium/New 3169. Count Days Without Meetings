@@ -1,0 +1,30 @@
+class Solution:
+    def countDays(self, days: int, meetings: List[List[int]]) -> int:
+        # Sort meetings by start time
+        meetings.sort()
+        
+        # Merge overlapping meetings
+        merged = []
+        for start, end in meetings:
+            if not merged or merged[-1][1] < start:
+                merged.append([start, end])
+            else:
+                merged[-1][1] = max(merged[-1][1], end)
+        
+        # Calculate total meeting days
+        total_meeting_days = sum(end - start + 1 for start, end in merged)
+        
+        # Return free days
+        return days - total_meeting_days
+
+'''
+Approach:
+1. Sort meetings by start time to process them in order.
+2. Merge overlapping meetings:
+   - If current meeting starts after the last merged meeting ends, add it as a new interval.
+   - Otherwise, extend the last merged meeting's end time if needed.
+3. Calculate total days covered by merged meetings (end - start + 1 for each interval).
+4. Subtract total meeting days from total days to get free days.
+5. Time Complexity: O(n log n) for sorting + O(n) for merging = O(n log n).
+6. Space Complexity: O(n) for storing merged meetings (or O(1) if we ignore output space).
+'''
