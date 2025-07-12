@@ -1,0 +1,114 @@
+from typing import List
+from functools import cache
+
+class Solution:
+    def earliestAndLatest(self, n: int, firstPlayer: int, secondPlayer: int) -> List[int]:
+        @cache
+        def dp(l: int, m: int, r: int) -> tuple[int, int]:
+            if l == r:
+                return 1, 1
+            # build types
+            types = ['L'] * l + ['A'] + ['M'] * m + ['B'] + ['R'] * r
+            s = len(types)
+            # counters
+            num_ll = num_lm = num_lr = num_mm = num_mr = num_rr = 0
+            for i in range(s // 2):
+                p1 = types[i]
+                p2 = types[s - 1 - i]
+                if p1 in 'AB' or p2 in 'AB':
+                    continue  # fixed, no add to counts
+                if p1 == p2:
+                    if p1 == 'L':
+                        num_ll += 1
+                    elif p1 == 'M':
+                        num_mm += 1
+                    elif p1 == 'R':
+                        num_rr += 1
+                else:
+                    if p1 == 'L' and p2 == 'M':
+                        num_lm += 1
+                    elif p1 == 'L' and p2 == 'R':
+                        num_lr += 1
+                    elif p1 == 'M' and p2 == 'R':
+                        num_mr += 1
+            # middle
+            mid_l = mid_m = mid_r = 0
+            if s % 2 == 1:
+                mid_type = types[s // 2]
+                if mid_type == 'L':
+                    mid_l = 1
+                elif mid_type == 'M':
+                    mid_m = 1
+                elif mid_type == 'R':
+                    mid_r = 1
+            # now, find min max
+            min_round = float('inf')
+            max_round = 0
+            for k1 in range(num_lm + 1):
+                for k2 in range(num_lr + 1):
+                    for k3 in range(num_mr + 1):
+                        next_l = num_ll + k1 + k2 + mid_l
+                        next_m = num_mm + (num_lm - k1) + k3 + mid_m
+                        next_r = num_rr + (num_lr - k2) + (num_mr - k3) + mid_r
+                        sub_min, sub_max = dp(next_l, next_m, next_r)
+                        min_round = min(min_round, 1 + sub_min)
+                        max_round = max(max_round, 1 + sub_max)
+            return min_round, max_round
+
+        l = firstPlayer - 1
+        m = secondPlayer - firstPlayer - 1
+        r = n - secondPlayer
+        min_r, max_r = dp(l, m, r)
+        return [min_r, max_r]
+
+'''
+Approach:
+This solution uses dynamic programming with memoization to find the earliest and latest rounds in which two specific players (firstPlayer and secondPlayer) can face each other in a tournament with n players. The players are paired from the outside in (1 vs n, 2 vs n-1, etc.), and winners advance to the next round. The goal is to determine the minimum and maximum number of rounds needed for the two players to meet.
+
+1. Problem Representation:
+   The players are represented as a sequence where players to the left of firstPlayer are labeled 'L', players between firstPlayer and secondPlayer are 'M', players to the right of secondPlayer are 'R', firstPlayer is 'A', and secondPlayer is 'B'.
+   The state is defined by (l, m, r), where l is the number of 'L' players, m is the number of 'M' players, and r is the number of 'R' players. The players 'A' and 'B' are always present.
+
+2. Dynamic Programming:
+   A recursive function dp(l, m, r) computes the minimum and maximum rounds needed for 'A' and 'B' to face each other, given l 'L' players, m 'M' players, and r 'R' players.
+   The function is memoized using @cache to avoid redundant computations.
+   Base case: If l == r, the players are positioned such that 'A' and 'B' face each other in the next round, so return (1, 1).
+
+3. State Transition:
+   Construct the sequence of players: ['L']*l + ['A'] + ['M']*m + ['B'] + ['R']*r.
+   Pair players from the outside in (index i vs s-1-i, where s is the sequence length).
+   Count the number of pairs of type LL, LM, LR, MM, MR, RR, excluding pairs involving 'A' or 'B' (as their outcomes are fixed).
+   If the sequence length is odd, handle the middle player, which could be 'L', 'M', or 'R', and increment the respective counter (mid_l, mid_m, mid_r).
+   Iterate over all possible outcomes for LM, LR, and MR pairs:
+     k1: Number of LM pairs where 'L' wins.
+     k2: Number of LR pairs where 'L' wins.
+     k3: Number of MR pairs where 'M' wins.
+   Compute the number of 'L', 'M', and 'R' players advancing to the next round:
+     next_l = num_ll + k1 + k2 + mid_l
+     next_m = num_mm + (num_lm - k1) + k3 + mid_m
+     next_r = num_rr + (num_lr - k2) + (num_mr - k3) + mid_r
+   Recursively call dp(next_l, next_m, next_r) to get the subproblem's minimum and maximum rounds.
+   Update the minimum rounds as min(1 + sub_min) and maximum rounds as max(1 + sub_max).
+
+4. Initialization:
+   Compute the initial counts: l = firstPlayer - 1, m = secondPlayer - firstPlayer - 1, r = n - secondPlayer.
+   Call dp(l, m, r) to get the minimum and maximum rounds.
+   Return [min_r, max_r] as the result.
+
+5. Optimization:
+   The use of @cache ensures that each unique (l, m, r) state is computed only once, reducing time complexity.
+   The solution handles all possible match outcomes to find the earliest and latest rounds where 'A' and 'B' can meet.
+
+6. Time Complexity:
+   The state space is defined by (l, m, r), where l + m + r <= n - 2 (since 'A' and 'B' are fixed). The number of possible states is bounded by O(n^3) in the worst case, as each of l, m, r can be up to n-2.
+   For each state, we iterate over k1, k2, k3, where each is bounded by the number of pairs, which is O(n) in the worst case. Thus, the work per state is O(n^3) (since k1, k2, k3 loops are nested).
+   Total time complexity: O(n^3 * n^3) = O(n^6).
+   However, memoization ensures that each state is computed only once, and the actual runtime is often better due to the constraints and pruning of invalid states.
+
+7. Space Complexity:
+   The space complexity is dominated by the memoization cache, which stores results for each (l, m, r) state. As there are O(n^3) possible states, the cache uses O(n^3) space.
+   The recursion depth is O(log n), as each round reduces the number of players by half, contributing O(log n) stack space.
+   Total space complexity: O(n^3) for the cache plus O(log n) for the recursion stack, which simplifies to O(n^3).
+
+This approach efficiently computes the required rounds by modeling the tournament as a sequence of player types and using dynamic programming to explore all possible match outcomes.
+'''
