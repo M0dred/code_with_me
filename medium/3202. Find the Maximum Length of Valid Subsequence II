@@ -1,0 +1,24 @@
+class Solution:
+    def maximumLength(self, nums: List[int], k: int) -> int:
+        dp = [[0] * k for _ in range(k)]
+        res = 0
+        for num in nums:
+            num %= k
+            for prev in range(k):
+                dp[prev][num] = dp[num][prev] + 1
+                res = max(res, dp[prev][num])
+        return res
+
+'''
+Approach:
+The problem requires finding the longest valid subsequence where the sum of consecutive pairs has the same remainder modulo k.
+1. Initialize a 2D DP array dp[prev][curr] to store the length of the longest subsequence ending with a number having remainder curr mod k, following a number with remainder prev mod k.
+2. For each number in nums:
+   - Compute its remainder mod k.
+   - For each possible previous remainder prev (0 to k-1), update dp[prev][curr] by extending the subsequence ending in curr that follows prev, using dp[num][prev] + 1.
+   - This works because dp[num][prev] represents the longest subsequence ending in num that follows prev, ensuring the pair sum (prev + num) % k is consistent.
+3. Track the maximum length found in dp[prev][curr] as the result.
+4. The final result is the longest valid subsequence length.
+Time Complexity: O(n * k), where n is the length of nums and k is the modulo value.
+Space Complexity: O(k^2) for the DP array.
+'''
