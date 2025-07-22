@@ -1,0 +1,67 @@
+class Solution:
+    def maximumUniqueSubarray(self, nums: List[int]) -> int:
+        seen = set()
+        max_sum = 0
+        curr_sum = 0
+        left = 0
+        
+        for right in range(len(nums)):
+            # While the current element is a duplicate, shrink the window
+            while nums[right] in seen:
+                seen.remove(nums[left])
+                curr_sum -= nums[left]
+                left += 1
+            # Add current element to the window
+            seen.add(nums[right])
+            curr_sum += nums[right]
+            # Update maximum sum
+            max_sum = max(max_sum, curr_sum)
+        
+        return max_sum
+
+'''
+Approach:
+The problem requires finding the maximum sum of a contiguous subarray with unique elements.
+1. Use a sliding window with two pointers (left and right) and a set to track unique elements.
+2. Initialize variables for the maximum sum (max_sum), current window sum (curr_sum), and a set (seen).
+3. Iterate with the right pointer:
+   - If nums[right] is in the set, shrink the window from the left until the duplicate is removed, updating curr_sum and the set.
+   - Add nums[right] to the set and update curr_sum.
+   - Update max_sum with the current window sum if larger.
+4. Return the maximum sum found.
+Time Complexity: O(n), where n is the length of nums, as each element is added and removed at most once.
+Space Complexity: O(n) for the set storing up to n elements in the worst case.
+'''class Solution:
+    def maximumUniqueSubarray(self, nums: List[int]) -> int:
+        seen = set()
+        max_sum = 0
+        curr_sum = 0
+        left = 0
+        
+        for right in range(len(nums)):
+            # While the current element is a duplicate, shrink the window
+            while nums[right] in seen:
+                seen.remove(nums[left])
+                curr_sum -= nums[left]
+                left += 1
+            # Add current element to the window
+            seen.add(nums[right])
+            curr_sum += nums[right]
+            # Update maximum sum
+            max_sum = max(max_sum, curr_sum)
+        
+        return max_sum
+
+'''
+Approach:
+The problem requires finding the maximum sum of a contiguous subarray with unique elements.
+1. Use a sliding window with two pointers (left and right) and a set to track unique elements.
+2. Initialize variables for the maximum sum (max_sum), current window sum (curr_sum), and a set (seen).
+3. Iterate with the right pointer:
+   - If nums[right] is in the set, shrink the window from the left until the duplicate is removed, updating curr_sum and the set.
+   - Add nums[right] to the set and update curr_sum.
+   - Update max_sum with the current window sum if larger.
+4. Return the maximum sum found.
+Time Complexity: O(n), where n is the length of nums, as each element is added and removed at most once.
+Space Complexity: O(n) for the set storing up to n elements in the worst case.
+'''
