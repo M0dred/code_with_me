@@ -1,0 +1,40 @@
+class Solution:
+    def maximumGain(self, s: str, x: int, y: int) -> int:
+        def remove_pairs(s: str, first: str, second: str, points: int) -> tuple[int, str]:
+            stack = []
+            score = 0
+            for char in s:
+                if stack and stack[-1] == first and char == second:
+                    stack.pop()
+                    score += points
+                else:
+                    stack.append(char)
+            return score, ''.join(stack)
+        
+        total_score = 0
+        if x >= y:
+            # Remove "ab" first, then "ba"
+            ab_score, remaining = remove_pairs(s, 'a', 'b', x)
+            ba_score, _ = remove_pairs(remaining, 'b', 'a', y)
+            total_score = ab_score + ba_score
+        else:
+            # Remove "ba" first, then "ab"
+            ba_score, remaining = remove_pairs(s, 'b', 'a', y)
+            ab_score, _ = remove_pairs(remaining, 'a', 'b', x)
+            total_score = ba_score + ab_score
+        
+        return total_score
+
+'''
+Approach:
+The problem requires maximizing points by removing "ab" (x points) or "ba" (y points) substrings from a string.
+1. Define a helper function remove_pairs(s, first, second, points) that uses a stack to remove all occurrences of the substring "firstsecond" (e.g., "ab" or "ba"), returning the score and remaining string.
+2. If x >= y, prioritize removing "ab" first:
+   - Process the string with remove_pairs(s, 'a', 'b', x) to remove "ab" pairs and get the score and remaining string.
+   - Process the remaining string with remove_pairs(remaining, 'b', 'a', y) to remove "ba" pairs.
+3. If y > x, prioritize removing "ba" first, then "ab" in the same way.
+4. Sum the scores from both passes to get the total points.
+5. Return the total score.
+Time Complexity: O(n), where n is the length of the string, as each character is pushed and popped at most once per pass, and we have two passes.
+Space Complexity: O(n) for the stack and remaining string storage.
+'''
