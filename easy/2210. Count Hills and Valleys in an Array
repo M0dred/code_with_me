@@ -1,0 +1,44 @@
+class Solution:
+    def countHillValley(self, nums: List[int]) -> int:
+        # Create a new array with unique adjacent elements
+        unique_nums = [nums[0]]  # Start with first element
+        for i in range(1, len(nums)):
+            if nums[i] != nums[i-1]:  # Add element if different from previous
+                unique_nums.append(nums[i])
+        
+        # If fewer than 3 elements, no hills or valleys possible
+        if len(unique_nums) < 3:
+            return 0
+        
+        count = 0
+        # Check each index (except first and last) for hill or valley
+        for i in range(1, len(unique_nums) - 1):
+            # Hill: current > left and current > right
+            if unique_nums[i] > unique_nums[i-1] and unique_nums[i] > unique_nums[i+1]:
+                count += 1
+            # Valley: current < left and current < right
+            elif unique_nums[i] < unique_nums[i-1] and unique_nums[i] < unique_nums[i+1]:
+                count += 1
+        
+        return count
+
+'''
+Approach:
+The solution counts distinct hills and valleys in the array by:
+1. Building a new array `unique_nums` that includes only the first element of each group of equal adjacent elements, effectively collapsing sequences of equal values (e.g., [1, 1, 1] becomes [1]).
+2. If `unique_nums` has fewer than 3 elements, return 0, as hills/valleys require both left and right non-equal neighbors.
+3. Iterating through `unique_nums` (from index 1 to len-2) to check each position:
+   - A hill is counted if the current element is greater than both its left and right neighbors.
+   - A valley is counted if the current element is less than both its left and right neighbors.
+4. The solution ensures that adjacent equal elements are treated as part of the same hill/valley by using `unique_nums`, avoiding double-counting.
+
+Time Complexity:
+- Building `unique_nums` requires one pass through `nums`: O(n), where n is the length of nums.
+- Checking for hills/valleys iterates through `unique_nums` (length <= n): O(n).
+- Total time complexity: O(n).
+
+Space Complexity:
+- The `unique_nums` array stores at most n elements: O(n) space.
+- Other variables (count, i) use O(1) space.
+- Total space complexity: O(n).
+'''
