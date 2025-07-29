@@ -1,0 +1,44 @@
+class Solution:
+    def smallestSubarrays(self, nums: List[int]) -> List[int]:
+        n = len(nums)
+        answer = [1] * n  # Initialize answer with minimum length 1
+        last = [0] * 32  # Track rightmost index where each bit is set
+        
+        # Iterate from right to left
+        for i in range(n - 1, -1, -1):
+            # Update last index for each bit set in nums[i]
+            for b in range(32):
+                if nums[i] & (1 << b):
+                    last[b] = i
+            # Find the rightmost index needed to achieve max OR
+            max_last = i
+            for b in range(32):
+                if last[b] > max_last:
+                    max_last = last[b]
+            # Length of shortest subarray is max_last - i + 1
+            answer[i] = max_last - i + 1
+        
+        return answer
+
+'''
+Approach:
+The solution finds the minimum sized subarray starting at each index i that achieves the maximum bitwise OR:
+1. Initialize an array `answer` with length n, defaulting to 1 (minimum subarray length).
+2. Use a `last` array to track the rightmost index where each bit (0 to 31) is set, as nums[i] <= 10^9 fits in 32 bits.
+3. Iterate from right to left (i = n-1 to 0):
+   - For each nums[i], update `last[b]` for each bit b set in nums[i] (i.e., nums[i] & (1 << b) != 0).
+   - Compute the rightmost index (`max_last`) needed to achieve the maximum OR by taking the maximum of `last[b]` for all bits.
+   - The length of the shortest subarray starting at i is `max_last - i + 1`.
+4. Return `answer`, where `answer[i]` is the length of the shortest subarray starting at i that achieves the maximum bitwise OR.
+
+Time Complexity:
+- Iterating through n elements: O(n).
+- For each element, checking/updating 32 bits: O(32) = O(1) per element.
+- Finding max_last over 32 bits: O(32) = O(1) per element.
+- Total time complexity: O(n).
+
+Space Complexity:
+- The `answer` array: O(n) space.
+- The `last` array (32 elements): O(1) space.
+- Total space complexity: O(n).
+'''
