@@ -1,0 +1,34 @@
+class Solution:
+    def longestSubarray(self, nums: List[int]) -> int:
+        max_val = max(nums)  # Find the maximum value in nums
+        max_length = 0  # Track the longest subarray with AND equal to max_val
+        curr_length = 0  # Track current sequence of max_val
+        
+        for num in nums:
+            if num == max_val:
+                curr_length += 1  # Extend current sequence
+                max_length = max(max_length, curr_length)  # Update max_length if needed
+            else:
+                curr_length = 0  # Reset sequence if non-max_val encountered
+        
+        return max_length
+
+'''
+Approach:
+The solution finds the length of the longest subarray with the maximum possible bitwise AND:
+1. Compute the maximum value in `nums` (`max_val`), as the maximum bitwise AND of any subarray equals `max_val` (since AND requires all bits to be 1, only subarrays where all elements are `max_val` achieve this).
+2. Iterate through `nums` to find the longest contiguous subarray where all elements equal `max_val`:
+   - If the current element is `max_val`, increment `curr_length` (length of current sequence).
+   - If not, reset `curr_length` to 0.
+   - Update `max_length` with the maximum `curr_length` seen.
+3. Return `max_length` as the length of the longest subarray with bitwise AND equal to `max_val`.
+
+Time Complexity:
+- Finding the maximum value in `nums`: O(n), where n is the length of nums.
+- Iterating through `nums` to find the longest sequence: O(n).
+- Total time complexity: O(n).
+
+Space Complexity:
+- Variables (`max_val`, `max_length`, `curr_length`) use O(1) space.
+- Total space complexity: O(1).
+'''
