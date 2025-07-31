@@ -1,0 +1,26 @@
+class Solution:
+    def doesValidArrayExist(self, derived: List[int]) -> bool:
+        xor_result = 0
+        for num in derived:
+            xor_result ^= num
+        return xor_result == 0
+
+'''
+Approach:
+The solution determines if a binary array `original` exists that produces the given `derived` array via XOR operations:
+1. Compute the XOR of all elements in `derived`.
+2. Due to the circular XOR condition (`derived[i] = original[i] ⊕ original[i+1]` for i < n-1, and `derived[n-1] = original[n-1] ⊕ original[0]`), the XOR of all `derived` elements represents the consistency of the `original` array.
+3. Specifically, XOR-ing all `derived` elements results in:
+   - (original[0] ⊕ original[1]) ⊕ (original[1] ⊕ original[2]) ⊕ ... ⊕ (original[n-1] ⊕ original[0]).
+   - This cancels out all intermediate terms, leaving 0 (since original[0] ⊕ original[0] = 0).
+4. If the XOR of `derived` is 0, a valid `original` array exists (can be constructed starting with any initial value for original[0]).
+5. If the XOR is 1, no valid `original` array exists, as the circular condition cannot be satisfied.
+
+Time Complexity:
+- Iterating through `derived` to compute XOR: O(n), where n is the length of derived.
+- Total time complexity: O(n).
+
+Space Complexity:
+- Only a single variable (`xor_result`) is used: O(1) space.
+- Total space complexity: O(1).
+'''
