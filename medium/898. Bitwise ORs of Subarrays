@@ -1,0 +1,41 @@
+class Solution:
+    def subarrayBitwiseORs(self, arr: List[int]) -> int:
+        all_ors = set()  # Store all unique OR values
+        curr_ors = set()  # Store OR values for subarrays ending at current index
+        
+        for x in arr:
+            next_ors = {x}  # Start with single-element subarray [x]
+            # Compute ORs for subarrays ending at current index
+            for prev_or in curr_ors:
+                next_ors.add(prev_or | x)  # OR with previous subarray ORs
+            curr_ors = next_ors  # Update current ORs for next iteration
+            all_ors.update(curr_ors)  # Add current ORs to all unique ORs
+        
+        return len(all_ors)
+
+'''
+Approach:
+The solution counts the number of distinct bitwise ORs of all non-empty subarrays:
+1. Initialize two sets:
+   - `all_ors`: Stores all unique OR values across all subarrays.
+   - `curr_ors`: Stores OR values of subarrays ending at the current index.
+2. Iterate through each element `x` in `arr`:
+   - Create a new set `next_ors` starting with `{x}` (OR of the single-element subarray).
+   - For each OR value in `curr_ors` (from subarrays ending at the previous index), compute the OR with `x` to get ORs of subarrays ending at the current index.
+   - Update `curr_ors` to `next_ors` for the next iteration.
+   - Add all ORs in `curr_ors` to `all_ors` to track unique values.
+3. Return the size of `all_ors`, which is the number of distinct OR values.
+4. The approach leverages the fact that OR values stabilize due to the monotonic nature of bitwise OR, keeping the number of unique ORs small (at most 30 distinct values for 32-bit integers).
+
+Time Complexity:
+- Each element `x` in `arr` generates a new `curr_ors` set.
+- The size of `curr_ors` is bounded by the number of unique bit patterns (at most 30 for 32-bit integers, as arr[i] <= 10^9).
+- For each element, we perform O(1) OR operations per previous OR value (up to 30).
+- Iterating over n elements: O(n * k), where k is the size of `curr_ors` (effectively O(1), bounded by ~30).
+- Total time complexity: O(n).
+
+Space Complexity:
+- `all_ors` stores at most O(n) unique OR values in the worst case, but typically much less (bounded by bit patterns).
+- `curr_ors` stores at most O(1) values (up to ~30 unique bit patterns).
+- Total space complexity: O(n) in the worst case.
+'''
