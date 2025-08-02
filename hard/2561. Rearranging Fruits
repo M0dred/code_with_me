@@ -1,0 +1,56 @@
+from collections import Counter
+from typing import List
+
+class Solution:
+    def minCost(self, basket1: List[int], basket2: List[int]) -> int:
+        # Step 1: build frequency difference map
+        c1, c2 = Counter(basket1), Counter(basket2)
+        diff = {}
+        for v in set(c1) | set(c2):
+            d = c1.get(v, 0) - c2.get(v, 0)
+            # if any total count is odd, impossible to pair
+            if d % 2 != 0:
+                return -1
+            if d:
+                diff[v] = d
+
+        # Step 2: collect mismatched fruits (half of the absolute difference for each cost)
+        mismatches = []
+        for v, d in diff.items():
+            for _ in range(abs(d) // 2):
+                mismatches.append(v)
+
+        # already equal
+        if not mismatches:
+            return 0
+
+        # Step 3: find global minimum fruit cost for indirect swaps
+        global_min = min(min(basket1), min(basket2))
+
+        # Step 4: sort mismatches and pair smallest with largest
+        mismatches.sort()
+        i, j = 0, len(mismatches) - 1
+        cost = 0
+        # Step 5: for each pair, choose direct swap vs two-step via global_min
+        while i < j:
+            cost += min(mismatches[i], 2 * global_min)
+            i += 1
+            j -= 1
+
+        return cost
+
+
+'''  
+Approach:
+1. Count frequencies of each fruit cost in both baskets.
+2. Verify that for every cost, the combined count across both baskets is even—otherwise return -1.
+3. Compute the half‐difference for each cost and collect those as “mismatches” needing swaps.
+4. Identify the global minimum fruit cost to enable cheaper two‐step swaps.
+5. Sort the mismatches list; pair the smallest and largest by iterating from both ends.
+6. For each pair, add min(direct swap cost = smallest cost, indirect swap cost = 2 * global_min).
+7. Sum these and return the total as the minimum cost.
+
+Complexity:
+- Time: O(n + k log k), where n = len(basket1) and k ≤ n is the total number of mismatches (sorting dominates).
+- Space: O(n) for the Counters, diff map, and mismatches list.
+'''
