@@ -1,0 +1,15 @@
+class Solution:
+    def isPowerOfTwo(self, n: int) -> bool:
+        return n > 0 and (n & (n - 1)) == 0
+
+'''
+Approach:
+A number that is a power of two has exactly one bit set to 1 in its binary representation
+(e.g., 1 = 0001, 2 = 0010, 4 = 0100). For such a number n, the expression n & (n - 1)
+will be zero because n - 1 flips the rightmost 1 bit to 0 and all bits to its right to 1,
+resulting in no common 1 bits when ANDed with n. We also check n > 0 since powers of two
+must be positive. This solution is O(1) and avoids loops or recursion.
+
+Time Complexity: O(1) - The bitwise operation and comparison are constant-time operations.
+Space Complexity: O(1) - No additional space is used beyond a few variables.
+'''
