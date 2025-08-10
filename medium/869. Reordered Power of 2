@@ -1,0 +1,32 @@
+class Solution:
+    def reorderedPowerOf2(self, n: int) -> bool:
+        # Convert n to sorted string of digits
+        n_sorted = ''.join(sorted(str(n)))
+        
+        # Check powers of 2 from 2^0 to 2^30
+        for i in range(31):
+            power_of_2 = 1 << i
+            power_sorted = ''.join(sorted(str(power_of_2)))
+            if power_sorted == n_sorted:
+                return True
+                
+        return False
+
+'''
+Approach:
+To determine if the digits of a given integer n can be reordered to form a power of 2, we check if any permutation of n's digits (with a non-zero leading digit) matches the digit composition of any power of 2. Since n is between 1 and 10^9, we consider powers of 2 from 2^0 (1) to 2^30 (approximately 10^9). The steps are:
+1. Convert n to a sorted string of its digits to represent its digit composition.
+2. Compare this with the sorted digit strings of all powers of 2 from 2^0 to 2^30.
+3. If any power of 2 has the same sorted digits as n, return true; otherwise, return false.
+This works because two numbers have the same digits (in any order) if their sorted digit strings are identical, and sorting ensures we account for all possible permutations efficiently.
+
+Time Complexity:
+- Converting n to a string and sorting its digits takes O(k log k), where k is the number of digits in n (k ≤ 10 since n ≤ 10^9).
+- We iterate over 31 powers of 2 (from 2^0 to 2^30). For each, converting to a string takes O(log m) (where m is the power of 2, up to ~10^9, so log m ≤ 10), sorting takes O(k log k), and comparing takes O(k).
+- Total: O(31 * (k log k + k)) = O(k log k). Since k ≤ 10, this is effectively O(1).
+
+Space Complexity:
+- We store the sorted string of n and each power of 2, each of length at most k ≤ 10, so O(k) space.
+- Additional variables use O(1) space.
+- Total: O(k), effectively O(1) since k is bounded.
+'''
