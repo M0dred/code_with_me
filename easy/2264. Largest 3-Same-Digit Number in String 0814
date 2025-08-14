@@ -1,0 +1,24 @@
+class Solution:
+    def largestGoodInteger(self, num: str) -> str:
+        max_good = ""
+        for i in range(len(num) - 2):
+            substring = num[i:i+3]
+            if len(set(substring)) == 1:  # Check if all digits are the same
+                max_good = max(max_good, substring)
+        return max_good
+
+"""
+Approach:
+1. Initialize an empty string `max_good` to store the largest good integer found.
+2. Iterate through the string `num` to consider all substrings of length 3 using a sliding window (i to i+3).
+3. For each substring, check if it consists of only one unique digit by converting it to a set and checking if the set's length is 1.
+4. If a substring is good, update `max_good` by taking the lexicographical maximum of the current `max_good` and the substring.
+5. Return `max_good`, which will be an empty string if no good integer is found.
+
+Time Complexity:
+- O(n): We iterate through the string once, where n is the length of `num`. For each substring, checking if all digits are the same (using `set`) takes O(1) since the substring length is fixed at 3.
+- String comparison and slicing are also O(1) for fixed-length substrings.
+
+Space Complexity:
+- O(1): We only store a fixed-size substring (length 3) and the `max_good` string (at most 3 characters), plus a temporary set of at most 3 elements.
+"""
