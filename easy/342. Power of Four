@@ -1,0 +1,26 @@
+class Solution:
+    def isPowerOfFour(self, n: int) -> bool:
+        # Handle non-positive numbers
+        if n <= 0:
+            return False
+        # Check if n is a power of 2 (has exactly one bit set)
+        if n & (n - 1) != 0:
+            return False
+        # Check if the set bit is at an even position (0-based index)
+        return (n & 0x55555555) != 0
+
+"""
+Approach:
+1. A number n is a power of 4 if it is a power of 2 (i.e., has exactly one bit set in its binary representation) and the set bit is at an even position (0-based index).
+2. First, check if n <= 0, as powers of 4 are positive. Return False if so.
+3. Check if n is a power of 2 using n & (n-1) == 0, which is true if n has exactly one bit set (e.g., 4=0100, 16=10000).
+4. For powers of 4, the set bit must be at an even index in the binary representation (e.g., 4=2^2 has bit at position 2, 16=2^4 has bit at position 4).
+5. Use a bitmask 0x55555555 (binary: 0101...0101) to check if the set bit is at an even position. This mask has 1s at even positions (0, 2, 4, ...).
+6. If n & 0x55555555 != 0, the set bit is at an even position, confirming n is a power of 4.
+
+Time Complexity:
+- O(1): Uses constant-time bitwise operations.
+
+Space Complexity:
+- O(1): Only uses a constant amount of extra space.
+"""
