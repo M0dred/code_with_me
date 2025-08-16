@@ -1,0 +1,24 @@
+class Solution:
+    def maximum69Number(self, num: int) -> int:
+        # Convert num to string for easier digit manipulation
+        num_str = str(num)
+        # Replace the first '6' with '9' if it exists
+        num_str = num_str.replace('6', '9', 1)
+        # Convert back to integer and return
+        return int(num_str)
+
+"""
+Approach:
+1. To maximize the number, change the leftmost 6 to 9 (if any), as this increases the number's value the most due to positional significance.
+2. Convert the input integer `num` to a string for easy digit manipulation.
+3. Use the string's `replace` method to change the first occurrence of '6' to '9' (with a limit of 1 replacement).
+4. If no '6' exists, the string remains unchanged (e.g., 9999 stays 9999).
+5. Convert the resulting string back to an integer and return it.
+
+Time Complexity:
+- O(log n): Converting the number to a string and processing it depends on the number of digits, which is O(log n) since n <= 10^4.
+- String operations (replace) are effectively O(1) for small strings (max 4 digits).
+
+Space Complexity:
+- O(log n): Space for the string representation of the number, which has at most 4 digits given n <= 10^4.
+"""
