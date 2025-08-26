@@ -1,0 +1,33 @@
+class Solution:
+    def areaOfMaxDiagonal(self, dimensions: List[List[int]]) -> int:
+        max_diagonal = 0
+        max_area = 0
+        
+        for length, width in dimensions:
+            # Calculate diagonal length (without taking square root since we only need to compare)
+            diagonal_squared = length * length + width * width
+            
+            # If this diagonal is longer, update both max diagonal and area
+            if diagonal_squared > max_diagonal:
+                max_diagonal = diagonal_squared
+                max_area = length * width
+            # If this diagonal equals the maximum, check if area is larger
+            elif diagonal_squared == max_diagonal:
+                max_area = max(max_area, length * width)
+        
+        return max_area
+
+"""
+Approach:
+The solution iterates through a list of rectangle dimensions, where each dimension is represented by a pair of integers [length, width]. For each rectangle:
+1. Compute the squared diagonal length using the Pythagorean theorem (length² + width²). The square root is not needed since we only compare relative values.
+2. If the squared diagonal is greater than the current maximum diagonal, update both the maximum diagonal and the corresponding area (length * width).
+3. If the squared diagonal equals the current maximum diagonal, update the area only if the current rectangle's area is larger.
+4. Finally, return the maximum area found.
+
+Time Complexity:
+- O(n), where n is the number of rectangles in the input list. We iterate through the list once, performing constant-time operations (multiplication, comparison) for each rectangle.
+
+Space Complexity:
+- O(1), as we only use a constant amount of extra space to store the maximum diagonal and maximum area, regardless of the input size.
+"""
