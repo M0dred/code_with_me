@@ -1,0 +1,42 @@
+class Solution:
+    def sortMatrix(self, grid: List[List[int]]) -> List[List[int]]:
+        n = len(grid)
+        
+        for d in range(-(n - 1), n):
+            values = []
+            start_i = max(0, d)
+            end_i = min(n - 1, n - 1 + d)
+            
+            for i in range(start_i, end_i + 1):
+                j = i - d
+                values.append(grid[i][j])
+            
+            if d >= 0:
+                values.sort(reverse=True)  # non-increasing
+            else:
+                values.sort()  # non-decreasing
+            
+            idx = 0
+            for i in range(start_i, end_i + 1):
+                j = i - d
+                grid[i][j] = values[idx]
+                idx += 1
+        
+        return grid
+
+"""
+Approach:
+The solution sorts the diagonals of the matrix defined by constant differences d = i - j:
+1. For each possible d from -(n-1) to (n-1):
+   - Collect the values along the diagonal where i - j = d, in order of increasing i.
+   - If d >= 0 (bottom-left triangle including the main diagonal), sort the values in non-increasing (descending) order.
+   - If d < 0 (top-right triangle), sort the values in non-decreasing (ascending) order.
+   - Place the sorted values back into the same positions along the diagonal.
+2. The matrix is modified in place and returned.
+
+Time Complexity:
+- O(n^2 log n), since there are O(n) diagonals, each with up to O(n) elements, and sorting each takes O(n log n) in the worst case. Given n <= 10, this is efficient.
+
+Space Complexity:
+- O(n), for storing the values of the longest diagonal temporarily.
+"""
