@@ -1,0 +1,34 @@
+class Solution:
+    def flowerGame(self, n: int, m: int) -> int:
+        # Alice wins if total flowers (x + y) is odd
+        # Count pairs (x, y) where x in [1,n], y in [1,m], and x + y is odd
+        
+        # Count even and odd numbers in range [1,n] and [1,m]
+        even_x = n // 2
+        odd_x = n - even_x
+        even_y = m // 2
+        odd_y = m - even_y
+        
+        # Alice wins when x + y is odd, so one must be even and the other odd
+        # Count pairs: (odd x, even y) + (even x, odd y)
+        return odd_x * even_y + even_x * odd_y
+
+"""
+Approach:
+The solution determines the number of pairs (x, y) where Alice wins the game, with x in [1,n] and y in [1,m]:
+1. For Alice to win, the total number of moves (x + y) must be odd, since Alice takes the first turn and the last move (when no flowers remain) leads to a win.
+2. A sum x + y is odd only when one number is even and the other is odd.
+3. Calculate:
+   - Number of even x in [1,n]: floor(n/2)
+   - Number of odd x in [1,n]: n - floor(n/2)
+   - Number of even y in [1,m]: floor(m/2)
+   - Number of odd y in [1,m]: m - floor(m/2)
+4. Count valid pairs: (odd x, even y) + (even x, odd y), which is (odd_x * even_y) + (even_x * odd_y).
+5. Return the total count of valid pairs.
+
+Time Complexity:
+- O(1), as the solution involves only constant-time arithmetic operations (division, subtraction, multiplication).
+
+Space Complexity:
+- O(1), as only a constant amount of extra space is used for variables.
+"""
