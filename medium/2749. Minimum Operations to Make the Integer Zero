@@ -1,0 +1,42 @@
+class Solution:
+    def makeTheIntegerZero(self, num1: int, num2: int) -> int:
+        # If num1 < num2, impossible since each operation subtracts at least num2 + 2^0
+        if num1 < num2:
+            return -1
+        
+        # Try possible number of operations k
+        for k in range(1, 62):  # k up to 61 to cover all possible cases
+            target = num1 - k * num2
+            # If target is negative, impossible
+            if target < 0:
+                return -1
+            
+            # Count number of 1s in binary representation of target
+            ones = bin(target).count('1')
+            # Check if target can be represented with k powers of 2
+            # Number of 1s (ones) <= k, and target >= k (smallest sum is k * 2^0)
+            if ones <= k and target >= k:
+                return k
+        
+        return -1
+
+"""
+Approach:
+The solution finds the minimum number of operations k to make num1 equal to 0 by subtracting 2^i + num2:
+1. If num1 < num2, it's impossible, as each operation subtracts at least num2 + 1.
+2. For each possible k (number of operations, from 1 to 61):
+   - Compute target = num1 - k * num2.
+   - If target < 0, it's impossible, return -1.
+   - Check if target can be a sum of k powers of 2 (from 2^0 to 2^60):
+     - The number of 1s in target's binary representation (ones) must be ≤ k, as each power contributes at least one 1.
+     - target ≥ k, as the smallest sum of k powers is k * 2^0 = k.
+   - If both conditions hold, k is valid; return the smallest such k.
+3. If no k works, return -1.
+
+Time Complexity:
+- O(log num1 + log |num2|), as we iterate k up to 61, and for each k, we compute target and count 1s in its binary representation (O(log target), where target is bounded by num1 - k * num2).
+
+Space Complexity:
+- O(1), as we only use a constant amount of extra space for variables.
+
+"""
