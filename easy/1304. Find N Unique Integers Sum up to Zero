@@ -1,0 +1,27 @@
+class Solution:
+    def sumZero(self, n: int) -> List[int]:
+        result = []
+        # Generate n//2 pairs of (i, -i)
+        for i in range(1, n // 2 + 1):
+            result.append(i)
+            result.append(-i)
+        # If n is odd, add a 0 to make up the remaining element
+        if n % 2 == 1:
+            result.append(0)
+        return result
+
+"""
+Approach:
+The solution generates an array of n unique integers that sum to 0:
+1. Calculate the number of pairs needed: n//2.
+2. For i from 1 to n//2, add each pair (i, -i) to the result array.
+3. If n is odd, append a 0 to reach exactly n elements.
+4. Each pair (i, -i) sums to 0, and the extra 0 (if needed) ensures the total sum is 0.
+5. The integers are unique since each i is unique, and positive/negative pairs (and 0, if added) are distinct.
+
+Time Complexity:
+- O(n), as we generate n elements in the result array.
+
+Space Complexity:
+- O(n), for storing the output array of n integers.
+"""
