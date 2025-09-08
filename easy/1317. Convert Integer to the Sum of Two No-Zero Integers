@@ -1,0 +1,24 @@
+class Solution:
+    def getNoZeroIntegers(self, n: int) -> List[int]:
+        for a in range(1, n):
+            b = n - a
+            if '0' not in str(a) and '0' not in str(b):
+                return [a, b]
+        # The problem guarantees at least one solution, so this line should not be reached
+        return []
+
+"""
+Approach:
+The solution finds two No-Zero integers a and b such that a + b = n:
+1. Iterate over possible values of a from 1 to n-1.
+2. For each a, compute b = n - a.
+3. Check if neither a nor b contains the digit '0' in their decimal representation using string conversion and the 'in' operator.
+4. Return the first valid pair [a, b] found.
+5. Since the problem guarantees at least one solution, the loop will always find a valid pair.
+
+Time Complexity:
+- O(n * log n), where n is the input integer. In the worst case, we iterate up to n times, and for each iteration, converting a and b to strings takes O(log n) time (number of digits).
+
+Space Complexity:
+- O(1), as we only use a constant amount of extra space for variables and temporary strings, regardless of input size.
+"""
