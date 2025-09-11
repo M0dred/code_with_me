@@ -1,0 +1,37 @@
+class Solution:
+    def sortVowels(self, s: str) -> str:
+        # Define vowels set for quick lookup
+        vowels = set('aeiouAEIOU')
+        
+        # Collect vowels and their indices
+        vowel_chars = []
+        vowel_indices = []
+        for i, char in enumerate(s):
+            if char in vowels:
+                vowel_chars.append(char)
+                vowel_indices.append(i)
+        
+        # Sort vowels by ASCII value
+        vowel_chars.sort()
+        
+        # Convert string to list for modification
+        result = list(s)
+        
+        # Place sorted vowels back into their positions
+        for i, char in zip(vowel_indices, vowel_chars):
+            result[i] = char
+        
+        # Join list back into string
+        return ''.join(result)
+'''
+Approach:
+The solution permutes the string to sort vowels in nondecreasing ASCII order while keeping consonants in place:
+1. Create a set of vowels ('a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U') for O(1) lookup.
+2. Iterate through the string to collect vowels and their indices in separate lists.
+3. Sort the vowels list based on ASCII values (default string sorting uses ASCII).
+4. Convert the input string to a list for modification.
+5. Place sorted vowels back into their original indices, leaving consonants unchanged.
+6. Join the list into a string and return it.
+Time Complexity: O(n + k log k), where n is the string length and k is the number of vowels (sorting vowels dominates).
+Space Complexity: O(n), for the result list and vowel storage.
+'''
