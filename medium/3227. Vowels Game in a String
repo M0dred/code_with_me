@@ -1,0 +1,25 @@
+class Solution:
+    def doesAliceWin(self, s: str) -> bool:
+        # Define the set of vowels for quick lookup
+        vowels = set('aeiou')
+        
+        # Check if any character in the string is a vowel
+        for char in s:
+            if char in vowels:
+                return True
+        
+        # If no vowels are found, Alice cannot make a valid move
+        return False
+'''
+Approach:
+The solution determines if Alice wins the game by checking for the presence of vowels in the string:
+1. Define a set of vowels ('a', 'e', 'i', 'o', 'u') for O(1) lookup.
+2. Iterate through the string and check if any character is a vowel.
+3. If at least one vowel is found, Alice can make a valid move (removing an odd-vowel substring) and wins, so return True.
+4. If no vowels are found, Alice cannot make a valid move and loses, so return False.
+This works because:
+- Alice needs at least one vowel to make a move (odd number of vowels in a substring).
+- The presence of any vowel guarantees Alice can start the game, and optimal play ensures her win in non-trivial cases.
+Time Complexity: O(n), where n is the length of the string s, as we may need to iterate through the entire string to find a vowel.
+Space Complexity: O(1), as we use a fixed-size set of vowels (5 characters) regardless of input size.
+'''
