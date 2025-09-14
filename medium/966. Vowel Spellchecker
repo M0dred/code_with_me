@@ -1,0 +1,65 @@
+class Solution:
+    def spellchecker(self, wordlist: List[str], queries: List[str]) -> List[str]:
+        # Define vowels for quick lookup
+        vowels = set('aeiouAEIOU')
+        
+        # Helper function to devowel a word (replace vowels with '*')
+        def devowel(word: str) -> str:
+            return ''.join('*' if c in vowels else c for c in word)
+        
+        # Preprocess wordlist
+        exact = set(wordlist)  # For exact matches
+        case_insensitive = {}  # For case-insensitive matches
+        vowel_error = {}      # For vowel-error matches
+        
+        for word in wordlist:
+            # Store first occurrence for case-insensitive match
+            word_lower = word.lower()
+            case_insensitive.setdefault(word_lower, word)
+            
+            # Store first occurrence for vowel-error match
+            word_devoweled = devowel(word_lower)
+            vowel_error.setdefault(word_devoweled, word)
+        
+        # Process each query
+        result = []
+        for query in queries:
+            # Rule 1: Exact match
+            if query in exact:
+                result.append(query)
+                continue
+            
+            # Rule 2: Case-insensitive match
+            query_lower = query.lower()
+            if query_lower in case_insensitive:
+                result.append(case_insensitive[query_lower])
+                continue
+            
+            # Rule 3: Vowel-error match
+            query_devoweled = devowel(query_lower)
+            if query_devoweled in vowel_error:
+                result.append(vowel_error[query_devoweled])
+                continue
+            
+            # Rule 4: No match
+            result.append("")
+        
+        return result
+'''
+Approach:
+The solution implements a spellchecker that corrects queries based on exact matches, case-insensitive matches, and vowel-error matches:
+1. Define a set of vowels ('a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U') for quick lookup.
+2. Create a helper function to devowel a word by replacing vowels with '*'.
+3. Preprocess the wordlist into three structures:
+   - A set for exact (case-sensitive) matches.
+   - A dictionary mapping lowercase words to the first occurrence for case-insensitive matches.
+   - A dictionary mapping devoweled lowercase words to the first occurrence for vowel-error matches.
+4. For each query:
+   - Check for an exact match in the set.
+   - If no exact match, check the case-insensitive dictionary using the lowercase query.
+   - If no case-insensitive match, check the vowel-error dictionary using the devoweled lowercase query.
+   - If no match, append an empty string.
+5. Return the list of corrected words.
+Time Complexity: O(n + m), where n is the total length of all words in wordlist (for preprocessing) and m is the total length of all queries (for processing). Dictionary lookups and set operations are O(1) on average.
+Space Complexity: O(n), for storing the exact match set, case-insensitive dictionary, and vowel-error dictionary, proportional to the total length of words in wordlist.
+'''
