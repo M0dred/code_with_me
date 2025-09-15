@@ -1,0 +1,20 @@
+class Solution:
+    def canBeTypedWords(self, text: str, brokenLetters: str) -> int:
+        words = text.split()
+        broken = set(brokenLetters)
+        count = 0
+        for word in words:
+            if not any(char in broken for char in word):
+                count += 1
+        return count
+'''
+Approach:
+The solution counts the number of words that can be fully typed without using any broken keys:
+1. Split the input text into words using space as delimiter.
+2. Create a set from brokenLetters for O(1) lookup of broken keys.
+3. For each word, check if any character is in the broken set using any() with a generator expression.
+4. If no broken characters are found in the word, increment the count.
+5. Return the total count of typable words.
+Time Complexity: O(n), where n is the length of text, as we iterate through each character in all words once.
+Space Complexity: O(b), where b is the length of brokenLetters (at most 26), for the set.
+'''
