@@ -1,0 +1,29 @@
+from typing import List
+from math import gcd
+
+class Solution:
+    def replaceNonCoprimes(self, nums: List[int]) -> List[int]:
+        result = []
+        for num in nums:
+            result.append(num)
+            while len(result) >= 2 and gcd(result[-1], result[-2]) > 1:
+                last = result.pop()
+                prev = result.pop()
+                lcm_val = prev * last // gcd(prev, last)
+                result.append(lcm_val)
+        return result
+'''
+Approach:
+The solution simulates the process of replacing adjacent non-coprime numbers with their LCM using a stack-based approach:
+1. Initialize an empty list `result` to act as a stack.
+2. For each number `num` in `nums`:
+   - Append `num` to `result`.
+   - While there are at least two elements in `result` and the last two are non-coprime (GCD > 1):
+     - Pop the last two elements.
+     - Compute their LCM as (prev * last) // GCD(prev, last).
+     - Append the LCM back to `result`.
+3. The process continues merging as long as adjacent non-coprime pairs exist after each append.
+4. Since the final result is independent of the order of replacements, this left-to-right processing yields the correct final array.
+Time Complexity: O(N * log(max_val)), where N is the length of nums and max_val is the maximum value (up to 10^8). Each element is added once, and each merge reduces the stack size by 1, with GCD operations being O(log(max_val)).
+Space Complexity: O(N), for the result stack in the worst case (no merges) or O(1) in the best case (all merges into one element).
+'''
