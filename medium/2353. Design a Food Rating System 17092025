@@ -1,0 +1,65 @@
+from collections import defaultdict
+import heapq
+
+class FoodRatings:
+
+    def __init__(self, foods: List[str], cuisines: List[str], ratings: List[int]):
+        # Map food to (cuisine, rating)
+        self.food_info = {}
+        # Map cuisine to max heap of (-rating, food) and set of outdated entries
+        self.cuisine_heaps = defaultdict(list)
+        self.cuisine_outdated = defaultdict(set)
+        
+        # Initialize data structures
+        for food, cuisine, rating in zip(foods, cuisines, ratings):
+            self.food_info[food] = [cuisine, rating]
+            heapq.heappush(self.cuisine_heaps[cuisine], (-rating, food))
+
+    def changeRating(self, food: str, newRating: int) -> None:
+        # Get cuisine and old rating
+        cuisine, old_rating = self.food_info[food]
+        # Update rating in food_info
+        self.food_info[food][1] = newRating
+        # Add old entry to outdated set
+        self.cuisine_outdated[cuisine].add((old_rating, food))
+        # Push new entry to heap
+        heapq.heappush(self.cuisine_heaps[cuisine], (-newRating, food))
+
+    def highestRated(self, cuisine: str) -> str:
+        heap = self.cuisine_heaps[cuisine]
+        outdated = self.cuisine_outdated[cuisine]
+        
+        # Pop outdated entries or entries with mismatched ratings
+        while heap:
+            neg_rating, food = heap[0]
+            rating = -neg_rating  # Convert back to positive rating
+            if (rating, food) in outdated or rating != self.food_info[food][1]:
+                heapq.heappop(heap)
+                outdated.discard((rating, food))
+            else:
+                break
+        
+        # Return the food from the top valid entry
+        return heap[0][1] if heap else ""
+'''
+Approach:
+The solution implements a food rating system to modify ratings and find the highest-rated food per cuisine:
+1. In __init__:
+   - Create a dictionary mapping foods to their (cuisine, rating).
+   - For each cuisine, maintain a max heap of (-rating, food) pairs and a set of outdated entries.
+   - Initialize by adding each food to its cuisine's heap.
+2. In changeRating:
+   - Update the food's rating in the food_info dictionary.
+   - Mark the old (rating, food) pair as outdated.
+   - Push the new (-rating, food) pair to the cuisine's heap.
+3. In highestRated:
+   - For the given cuisine, pop heap entries until a valid entry is found.
+   - An entry is valid if its (rating, food) pair is not in the outdated set and the rating matches the current rating in food_info.
+   - Return the food name from the top valid entry (lexicographically smallest in case of ties).
+   - Lazy deletion ensures efficiency by cleaning outdated entries during queries.
+Time Complexity:
+   - __init__: O(n log n), where n is the number of foods, for heap insertions.
+   - changeRating: O(log n), for heap push.
+   - highestRated: O(log n) amortized, for heap pops and pushes, as outdated entries are finite.
+Space Complexity: O(n), for storing food_info, cuisine_heaps, and cuisine_outdated, proportional to the number of foods.
+'''
