@@ -1,0 +1,62 @@
+from heapq import heappush, heappop
+from collections import defaultdict
+
+class TaskManager:
+    def __init__(self, tasks: List[List[int]]):
+        self.task_info = {}  # taskId -> (userId, priority)
+        self.user_tasks = defaultdict(set)  # userId -> set of taskIds
+        self.task_heap = []  # Max heap: (-priority, -taskId, userId)
+        
+        for userId, taskId, priority in tasks:
+            self.task_info[taskId] = (userId, priority)
+            self.user_tasks[userId].add(taskId)
+            heappush(self.task_heap, (-priority, -taskId, userId))
+
+    def add(self, userId: int, taskId: int, priority: int) -> None:
+        self.task_info[taskId] = (userId, priority)
+        self.user_tasks[userId].add(taskId)
+        heappush(self.task_heap, (-priority, -taskId, userId))
+
+    def edit(self, taskId: int, newPriority: int) -> None:
+        userId, _ = self.task_info[taskId]
+        self.task_info[taskId] = (userId, newPriority)
+        heappush(self.task_heap, (-newPriority, -taskId, userId))
+
+    def rmv(self, taskId: int) -> None:
+        userId, _ = self.task_info[taskId]
+        self.user_tasks[userId].remove(taskId)
+        if not self.user_tasks[userId]:
+            del self.user_tasks[userId]
+        del self.task_info[taskId]
+
+    def execTop(self) -> int:
+        while self.task_heap:
+            priority, taskId, userId = heappop(self.task_heap)
+            priority, taskId = -priority, -taskId
+            
+            if taskId in self.task_info:
+                curr_userId, curr_priority = self.task_info[taskId]
+                if curr_userId == userId and curr_priority == priority:
+                    self.user_tasks[userId].remove(taskId)
+                    if not self.user_tasks[userId]:
+                        del self.user_tasks[userId]
+                    del self.task_info[taskId]
+                    return userId
+        return -1
+
+'''
+Approach:
+- Use a dictionary (task_info) to map taskId to (userId, priority) pairs for O(1) lookup of task details.
+- Use a defaultdict (user_tasks) to track tasks per user for efficient task removal and user cleanup.
+- Use a max heap (task_heap) to store (-priority, -taskId, userId) tuples to always get the highest priority task, with highest taskId as tiebreaker.
+- Use negative priority and taskId in the heap to simulate a max heap using Python's min heap.
+- For edit and rmv operations, don't modify the heap directly (which would be O(n)); instead, add new entries for edits and handle invalid entries in execTop.
+- In execTop, validate tasks by checking task_info for existence and correct priority, skipping outdated or removed tasks.
+- Time Complexity:
+    - __init__: O(n log n) for processing n tasks and inserting into heap.
+    - add: O(log n) for heap insertion.
+    - edit: O(1) for updating task_info, O(log n) for heap insertion.
+    - rmv: O(1) for removing from task_info and user_tasks.
+    - execTop: O(log n) amortized for heap pop, potentially multiple pops for invalid entries.
+- Space Complexity: O(n) for storing n tasks in task_info, user_tasks, and task_heap.
+'''
