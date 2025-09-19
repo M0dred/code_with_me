@@ -1,0 +1,51 @@
+class Spreadsheet:
+    def __init__(self, rows: int):
+        self.rows = rows
+        # Use dictionary to store cell values (col, row) -> value
+        self.cells = {}
+    
+    def setCell(self, cell: str, value: int) -> None:
+        # Parse cell reference (e.g., "A1" -> col 'A', row 1)
+        col = cell[0]
+        row = int(cell[1:]) - 1  # Convert to 0-indexed
+        self.cells[(col, row)] = value
+    
+    def resetCell(self, cell: str) -> None:
+        # Parse cell reference and remove from dictionary (defaults to 0)
+        col = cell[0]
+        row = int(cell[1:]) - 1
+        self.cells.pop((col, row), None)
+    
+    def getValue(self, formula: str) -> int:
+        # Remove '=' and split formula into operands
+        operands = formula[1:].split('+')
+        total = 0
+        
+        for operand in operands:
+            if operand.isdigit():
+                # If operand is a number, add it directly
+                total += int(operand)
+            else:
+                # Parse cell reference (e.g., "A1")
+                col = operand[0]
+                row = int(operand[1:]) - 1
+                # Get value from cells, default to 0 if not set
+                total += self.cells.get((col, row), 0)
+        
+        return total
+    
+'''
+Approach:
+- Use a dictionary (cells) to store cell values with keys as (column, row) tuples for O(1) access.
+- In setCell, parse the cell reference (e.g., "A1") into column and row, convert row to 0-indexed, and store the value in the dictionary.
+- In resetCell, parse the cell reference and remove the entry from the dictionary (unset cells default to 0).
+- In getValue, parse the formula by removing '=' and splitting on '+'. For each operand:
+    - If it's a digit, convert to integer and add to total.
+    - If it's a cell reference, parse into column and row, get value from dictionary (default 0), and add to total.
+- Time Complexity:
+    - __init__: O(1) to initialize empty dictionary.
+    - setCell: O(1) for parsing and dictionary update.
+    - resetCell: O(1) for parsing and dictionary removal.
+    - getValue: O(1) for parsing formula and dictionary lookups (fixed number of operands).
+- Space Complexity: O(n) where n is the number of cells with explicitly set values.
+'''
