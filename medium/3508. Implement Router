@@ -1,0 +1,81 @@
+from collections import deque
+from sortedcontainers import SortedList
+
+class Router:
+    def __init__(self, memoryLimit: int):
+        self.memoryLimit = memoryLimit
+        # Deque for FIFO packet storage: (source, destination, timestamp)
+        self.packets = deque()
+        # Set for duplicate checking: (source, destination, timestamp)
+        self.packet_set = set()
+        # Dict for destination-based counting: destination -> SortedList of timestamps
+        self.dest_timestamps = {}
+    
+    def addPacket(self, source: int, destination: int, timestamp: int) -> bool:
+        packet = (source, destination, timestamp)
+        # Check for duplicate
+        if packet in self.packet_set:
+            return False
+        
+        # If at memory limit, remove oldest packet
+        if len(self.packets) >= self.memoryLimit:
+            old_packet = self.packets.popleft()
+            self.packet_set.remove(old_packet)
+            old_source, old_dest, old_time = old_packet
+            self.dest_timestamps[old_dest].remove(old_time)
+            if not self.dest_timestamps[old_dest]:
+                del self.dest_timestamps[old_dest]
+        
+        # Add new packet
+        self.packets.append(packet)
+        self.packet_set.add(packet)
+        if destination not in self.dest_timestamps:
+            self.dest_timestamps[destination] = SortedList()
+        self.dest_timestamps[destination].add(timestamp)
+        return True
+    
+    def forwardPacket(self) -> List[int]:
+        # Return empty list if no packets
+        if not self.packets:
+            return []
+        
+        # Remove and return oldest packet
+        packet = self.packets.popleft()
+        self.packet_set.remove(packet)
+        source, destination, timestamp = packet
+        self.dest_timestamps[destination].remove(timestamp)
+        if not self.dest_timestamps[destination]:
+            del self.dest_timestamps[destination]
+        return [source, destination, timestamp]
+    
+    def getCount(self, destination: int, startTime: int, endTime: int) -> int:
+        # Get timestamps for destination
+        if destination not in self.dest_timestamps:
+            return 0
+        timestamps = self.dest_timestamps[destination]
+        # Use binary search to find range
+        left = timestamps.bisect_left(startTime)
+        right = timestamps.bisect_right(endTime)
+        return right - left
+    
+'''
+Approach:
+- Use a deque (packets) to store packets in FIFO order as (source, destination, timestamp) tuples for O(1) add and remove.
+- Use a set (packet_set) to check for duplicate packets in O(1) time.
+- Use a dictionary (dest_timestamps) mapping destination to a SortedList of timestamps for efficient range queries.
+- In addPacket:
+    - Check for duplicates using packet_set.
+    - If at memoryLimit, remove oldest packet from deque, set, and dest_timestamps.
+    - Add new packet to deque, set, and SortedList for the destination.
+- In forwardPacket:
+    - Remove and return oldest packet from deque, updating set and SortedList.
+    - Return empty list if no packets.
+- In getCount:
+    - Use SortedList's bisect_left and bisect_right for O(log n) range queries to count timestamps in [startTime, endTime].
+- Time Complexity:
+    - __init__: O(1) to initialize empty data structures.
+    - addPacket: O(log n) for SortedList insertion, O(1) amortized for deque and set operations.
+    - forwardPacket: O(log n) for SortedList removal, O(1) amortized for deque and set operations.
+    - getCount: O(log n) for binary search in SortedList to find range boundaries.
+- Space Complexity: O(n) where n is the number of packets stored (bounded by memoryLimit).
+'''
