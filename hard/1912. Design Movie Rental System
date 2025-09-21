@@ -1,0 +1,71 @@
+from sortedcontainers import SortedList
+from collections import defaultdict
+
+class MovieRentingSystem:
+    def __init__(self, n: int, entries: List[List[int]]):
+        # Map (shop, movie) to price
+        self.shop_movie_price = {}
+        # Map movie to SortedList of (price, shop) for unrented copies
+        self.movie_unrented = defaultdict(SortedList)
+        # SortedList of (price, shop, movie) for rented movies
+        self.rented = SortedList()
+        # Set of rented (shop, movie) pairs
+        self.rented_set = set()
+        
+        # Initialize with entries
+        for shop, movie, price in entries:
+            self.shop_movie_price[(shop, movie)] = price
+            self.movie_unrented[movie].add((price, shop))
+    
+    def search(self, movie: int) -> List[int]:
+        # Return up to 5 cheapest shops with unrented movie
+        if movie not in self.movie_unrented:
+            return []
+        return [shop for _, shop in self.movie_unrented[movie][:5]]
+    
+    def rent(self, shop: int, movie: int) -> None:
+        # Remove from unrented and add to rented
+        price = self.shop_movie_price[(shop, movie)]
+        self.movie_unrented[movie].remove((price, shop))
+        if not self.movie_unrented[movie]:
+            del self.movie_unrented[movie]
+        self.rented.add((price, shop, movie))
+        self.rented_set.add((shop, movie))
+    
+    def drop(self, shop: int, movie: int) -> None:
+        # Remove from rented and add back to unrented
+        price = self.shop_movie_price[(shop, movie)]
+        self.rented.remove((price, shop, movie))
+        self.rented_set.remove((shop, movie))
+        if movie not in self.movie_unrented:
+            self.movie_unrented[movie] = SortedList()
+        self.movie_unrented[movie].add((price, shop))
+    
+    def report(self) -> List[List[int]]:
+        # Return up to 5 cheapest rented movies
+        return [[shop, movie] for _, shop, movie in self.rented[:5]]
+    
+'''
+Approach:
+- Use a dictionary (shop_movie_price) to map (shop, movie) to price for O(1) lookup.
+- Use a defaultdict (movie_unrented) mapping movie to SortedList of (price, shop) for O(log n) access to cheapest unrented shops.
+- Use a SortedList (rented) to store (price, shop, movie) tuples for O(log n) access to cheapest rented movies.
+- Use a set (rented_set) to track rented (shop, movie) pairs for validation (though not strictly needed due to problem guarantees).
+- In __init__:
+    - Populate shop_movie_price and movie_unrented with entries.
+- In search:
+    - Return up to 5 shops from movie_unrented[movie], sorted by price and shop ID.
+- In rent:
+    - Remove (price, shop) from movie_unrented[movie], add (price, shop, movie) to rented, update rented_set.
+- In drop:
+    - Remove (price, shop, movie) from rented, add (price, shop) back to movie_unrented[movie], update rented_set.
+- In report:
+    - Return up to 5 entries from rented, sorted by price, shop ID, and movie ID.
+- Time Complexity:
+    - __init__: O(m log m) where m is number of entries, due to SortedList insertions.
+    - search: O(log n) to access SortedList, O(1) to return first 5 elements.
+    - rent: O(log n) for SortedList remove and add operations.
+    - drop: O(log n) for SortedList remove and add operations.
+    - report: O(log n) to access SortedList, O(1) to return first 5 elements.
+- Space Complexity: O(m) where m is the number of entries, for storing in shop_movie_price, movie_unrented, rented, and rented_set.
+'''
