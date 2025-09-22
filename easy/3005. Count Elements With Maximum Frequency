@@ -1,0 +1,24 @@
+from collections import Counter
+
+class Solution:
+    def maxFrequencyElements(self, nums: List[int]) -> int:
+        # Count frequency of each element
+        freq = Counter(nums)
+        # Find maximum frequency
+        max_freq = max(freq.values())
+        # Sum frequencies of elements with maximum frequency
+        total = sum(f for f in freq.values() if f == max_freq)
+        return total
+    
+'''
+Approach:
+- Use a Counter to count the frequency of each element in nums in one pass.
+- Find the maximum frequency among all elements using max() on Counter values.
+- Sum the frequencies of all elements that have the maximum frequency.
+- Return the total sum.
+- Time Complexity:
+    - O(n) for building the Counter, where n is the length of nums.
+    - O(k) for finding max frequency and summing, where k is the number of unique elements (k <= min(n, 100)).
+    - Overall: O(n) since k is small (bounded by 100).
+- Space Complexity: O(k) for the Counter, where k is the number of unique elements (k <= 100).
+'''
