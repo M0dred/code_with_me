@@ -1,0 +1,61 @@
+class Solution:
+    def fractionToDecimal(self, numerator: int, denominator: int) -> str:
+        # Handle zero numerator
+        if numerator == 0:
+            return "0"
+        
+        # Initialize result
+        result = []
+        
+        # Handle sign
+        if numerator * denominator < 0:
+            result.append("-")
+        num, den = abs(numerator), abs(denominator)
+        
+        # Integer part
+        integer_part = num // den
+        result.append(str(integer_part))
+        
+        # If no fractional part, return result
+        remainder = num % den
+        if remainder == 0:
+            return "".join(result)
+        
+        # Fractional part
+        result.append(".")
+        remainder_map = {}
+        while remainder:
+            # If remainder repeats, we found a cycle
+            if remainder in remainder_map:
+                # Insert parentheses at the position where remainder first appeared
+                result.insert(remainder_map[remainder], "(")
+                result.append(")")
+                break
+            
+            # Store position of current remainder
+            remainder_map[remainder] = len(result)
+            
+            # Perform long division
+            remainder *= 10
+            result.append(str(remainder // den))
+            remainder = remainder % den
+        
+        return "".join(result)
+
+'''
+Approach:
+- Handle edge case: if numerator is 0, return "0".
+- Determine sign: if numerator * denominator < 0, add "-" to result.
+- Work with absolute values of numerator and denominator for simplicity.
+- Compute integer part using integer division (num // den) and append to result.
+- If remainder (num % den) is 0, return the integer part as the result.
+- For fractional part:
+  - Append "." to result.
+  - Use a dictionary (remainder_map) to track remainders and their positions in the result.
+  - Perform long division: multiply remainder by 10, compute digit (remainder // den), update remainder (remainder % den).
+  - If a remainder repeats, insert "(" at its first occurrence and append ")", then break.
+  - Continue until remainder is 0 (terminating decimal) or a repeat is found.
+- Join result list into a string.
+- Time Complexity: O(k) where k is the length of the decimal expansion (bounded by 10^4 per constraints).
+- Space Complexity: O(k) for the result list and remainder_map, where k is the number of digits in the output.
+'''
