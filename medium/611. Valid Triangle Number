@@ -1,0 +1,39 @@
+class Solution:
+    def triangleNumber(self, nums: List[int]) -> int:
+        # Sort the array in ascending order
+        nums.sort()
+        count = 0
+        n = len(nums)
+        
+        # Iterate over possible third side (largest)
+        for k in range(n - 1, 1, -1):
+            # Skip non-positive numbers (can't form triangle)
+            if nums[k] == 0:
+                continue
+            # Use two pointers for first two sides
+            i, j = 0, k - 1
+            while i < j:
+                # Check if nums[i], nums[j], nums[k] can form a triangle
+                if nums[i] + nums[j] > nums[k]:
+                    # All indices from i to j-1 can pair with j to form valid triangles with k
+                    count += j - i
+                    j -= 1
+                else:
+                    # Need larger sum, increment i
+                    i += 1
+        
+        return count
+
+'''
+Approach:
+- Sort the array in ascending order to simplify triangle inequality checks.
+- Iterate over each possible third side (nums[k]) from largest to smallest, skipping k=0 or k=1 (need at least 3 numbers).
+- For each k, use two pointers i and j (i < j < k) to select the first two sides (nums[i], nums[j]).
+- Check the triangle inequality nums[i] + nums[j] > nums[k] (other inequalities hold due to sorting: nums[i] + nums[k] > nums[j] and nums[j] + nums[k] > nums[i] since nums[k] is largest).
+- If nums[i] + nums[j] > nums[k], all indices from i to j-1 can pair with j to form valid triangles with k, so add (j - i) to count and decrement j.
+- If nums[i] + nums[j] <= nums[k], increment i to try a larger sum.
+- Skip non-positive numbers (0) as they cannot form triangle sides.
+- Return the total count of valid triplets.
+- Time Complexity: O(n^2) where n is the length of nums, due to nested loops (outer loop over k, inner two-pointer loop over i and j).
+- Space Complexity: O(1) excluding input storage, as sorting can be done in-place and only a few variables are used.
+'''
