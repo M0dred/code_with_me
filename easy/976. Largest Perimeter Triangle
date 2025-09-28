@@ -1,0 +1,18 @@
+class Solution:
+    def largestPerimeter(self, nums: List[int]) -> int:
+        nums.sort()
+        for i in range(len(nums) - 1, 1, -1):
+            if nums[i - 2] + nums[i - 1] > nums[i]:
+                return nums[i - 2] + nums[i - 1] + nums[i]
+        return 0
+
+'''
+Approach:
+- Sort the array in ascending order.
+- Iterate from the end of the array (largest possible largest side) down to the third element.
+- For each potential largest side nums[i], check if the sum of the two preceding elements nums[i-2] + nums[i-1] > nums[i].
+- If yes, return their sum as the perimeter, since this would be the largest possible (checked largest first).
+- If no such triplet is found after checking all, return 0.
+- Time Complexity: O(n log n) due to sorting, where n is the length of nums; the loop is O(n).
+- Space Complexity: O(1) excluding input storage, as sorting can be done in-place.
+'''
