@@ -1,0 +1,25 @@
+class Solution:
+    def numWaterBottles(self, numBottles: int, numExchange: int) -> int:
+        total_drunk = 0
+        empties = 0
+        full = numBottles
+        while full > 0:
+            total_drunk += full
+            empties += full
+            full = empties // numExchange
+            empties = empties % numExchange
+        return total_drunk
+
+'''
+Approach:
+- Initialize total_drunk to 0, empties to 0, and full to numBottles.
+- While there are full bottles:
+- Add the number of full bottles to total_drunk.
+- Add the number of full bottles to empties (since drinking them turns them empty).
+- Compute new full bottles from exchanging empties: full = empties // numExchange.
+- Update empties to the remainder: empties = empties % numExchange.
+- Return total_drunk.
+This simulates the process of drinking and exchanging until no more full bottles can be obtained.
+Time Complexity: O(log numBottles) in practice, as each iteration reduces the number of bottles, but worst case O(numBottles) since constraints are small.
+Space Complexity: O(1) as only a few variables are used.
+'''
