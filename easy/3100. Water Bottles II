@@ -1,0 +1,27 @@
+class Solution:
+    def maxBottlesDrunk(self, numBottles: int, numExchange: int) -> int:
+        full = numBottles
+        empty = 0
+        drunk = 0
+        exchange = numExchange
+        while full > 0 or empty >= exchange:
+            if full > 0:
+                drunk += full
+                empty += full
+                full = 0
+            else:
+                full += 1
+                empty -= exchange
+                exchange += 1
+        return drunk
+
+'''
+Approach:
+- Initialize full with numBottles, empty with 0, drunk with 0, and exchange with numExchange.
+- While there are full bottles or enough empty bottles to exchange:
+  - If there are full bottles, drink all of them: add full to drunk, add full to empty, set full to 0.
+  - Else, if empty >= exchange, exchange for one full bottle: add 1 to full, subtract exchange from empty, increment exchange by 1.
+- This simulates drinking all available full bottles and exchanging when possible, maximizing the drunk count.
+- Time Complexity: O(numBottles) in worst case, as each bottle is effectively processed a constant number of times, but given small constraints, it's efficient.
+- Space Complexity: O(1) as only a few variables are used.
+'''
