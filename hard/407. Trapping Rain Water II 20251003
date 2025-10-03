@@ -1,0 +1,60 @@
+import heapq
+
+class Solution:
+    def trapRainWater(self, heightMap: List[List[int]]) -> int:
+        if not heightMap or not heightMap[0]:
+            return 0
+        
+        m, n = len(heightMap), len(heightMap[0])
+        if m < 3 or n < 3:  # Need at least 3x3 to trap water
+            return 0
+        
+        # Min-heap to store boundary cells: (height, row, col)
+        heap = []
+        visited = set()
+        
+        # Add all boundary cells to heap
+        for i in range(m):
+            for j in range(n):
+                if i == 0 or i == m - 1 or j == 0 or j == n - 1:
+                    heapq.heappush(heap, (heightMap[i][j], i, j))
+                    visited.add((i, j))
+        
+        # Directions for adjacent cells (up, right, down, left)
+        directions = [(-1, 0), (0, 1), (1, 0), (0, -1)]
+        water = 0
+        max_height = 0  # Tracks the minimum boundary height encountered
+        
+        while heap:
+            h, r, c = heapq.heappop(heap)
+            max_height = max(max_height, h)  # Update max height seen
+            
+            # Check all adjacent cells
+            for dr, dc in directions:
+                nr, nc = r + dr, c + dc
+                if 0 <= nr < m and 0 <= nc < n and (nr, nc) not in visited:
+                    visited.add((nr, nc))
+                    # If current cell is lower than max_height, water can be trapped
+                    if heightMap[nr][nc] < max_height:
+                        water += max_height - heightMap[nr][nc]
+                    # Add neighbor to heap with its height or max_height (water level)
+                    heapq.heappush(heap, (max(heightMap[nr][nc], max_height), nr, nc))
+        
+        return water
+
+'''
+Approach:
+- Use a min-heap to process cells starting from the boundary, as water level is determined by the lowest surrounding height.
+- Initialize a min-heap with all boundary cells (height, row, col) and mark them as visited.
+- Track max_height as the maximum height encountered from the boundary inward.
+- While heap is not empty:
+  - Pop the cell with the smallest height.
+  - Update max_height to max(current height, max_height).
+  - For each unvisited adjacent cell:
+    - Mark it as visited.
+    - If its height is less than max_height, add (max_height - height) to water volume.
+    - Push the neighbor to the heap with height = max(its height, max_height) to propagate water level.
+- Handle edge cases: empty map or dimensions < 3x3 return 0 (no water can be trapped).
+- Time Complexity: O(m*n*log(m*n)) where m and n are the dimensions of the heightMap, as each cell is processed once with heap operations costing O(log(m*n)).
+- Space Complexity: O(m*n) for the heap and visited set, as all cells may be added to the heap in the worst case.
+'''
