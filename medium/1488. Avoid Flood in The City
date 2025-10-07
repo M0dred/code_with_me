@@ -1,0 +1,64 @@
+import heapq
+from collections import defaultdict
+
+class Solution:
+    def avoidFlood(self, rains: List[int]) -> List[int]:
+        n = len(rains)
+        ans = [-1] * n  # Initialize with -1 for rain days
+        full_lakes = set()  # Tracks full lakes
+        last_rain = defaultdict(list)  # Maps lake to days it rains
+        dry_heap = []  # Min-heap of (next_rain_day, lake) for full lakes
+        
+        # Populate last_rain with future rain days
+        for i, lake in enumerate(rains):
+            if lake > 0:
+                last_rain[lake].append(i)
+        
+        # Process each day
+        for i, lake in enumerate(rains):
+            if lake > 0:
+                # If lake is already full, flood occurs
+                if lake in full_lakes:
+                    return []
+                full_lakes.add(lake)
+                # Remove the current rain day and add next rain day to heap
+                last_rain[lake].pop(0)
+                if last_rain[lake]:
+                    heapq.heappush(dry_heap, (last_rain[lake][0], lake))
+            else:
+                # Dry day: choose a lake to dry
+                if not dry_heap:
+                    # No full lakes or no urgent lakes, dry any lake (arbitrarily 1)
+                    ans[i] = 1
+                else:
+                    # Dry the lake that will rain soonest
+                    next_rain_day, lake_to_dry = heapq.heappop(dry_heap)
+                    if next_rain_day <= i:
+                        # If next rain is in the past, flood would have occurred
+                        return []
+                    ans[i] = lake_to_dry
+                    full_lakes.remove(lake_to_dry)
+        
+        return ans
+
+'''
+Approach:
+- Use a set (full_lakes) to track which lakes are currently full.
+- Use a defaultdict (last_rain) to store the list of future rain days for each lake.
+- Use a min-heap (dry_heap) to store (next_rain_day, lake) for full lakes, prioritizing lakes that will rain soonest.
+- Initialize ans with -1 for all days, as rain days (rains[i] > 0) require -1.
+- Preprocess rains to populate last_rain with all rain days for each lake.
+- For each day i:
+  - If rains[i] > 0 (rain on lake):
+    - If lake is already in full_lakes, return [] (flood occurs).
+    - Add lake to full_lakes, remove current rain day from last_rain[lake].
+    - If lake has future rain days, add (next_rain_day, lake) to dry_heap.
+  - If rains[i] == 0 (dry day):
+    - If dry_heap is empty, dry any lake (set ans[i] = 1).
+    - Else, pop the lake with earliest next_rain_day from dry_heap.
+    - If next_rain_day <= i, return [] (flood already occurred).
+    - Set ans[i] to lake_to_dry and remove it from full_lakes.
+- Return ans if no flood occurs.
+- Time Complexity: O(n log n) where n is the length of rains, due to heap operations (O(log n)) for each of n days.
+- Space Complexity: O(n) for the ans array, full_lakes set, last_rain dictionary, and dry_heap.
+'''
