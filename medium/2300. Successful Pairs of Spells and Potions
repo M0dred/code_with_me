@@ -1,0 +1,33 @@
+class Solution:
+    def successfulPairs(self, spells: List[int], potions: List[int], success: int) -> List[int]:
+        potions.sort()  # Sort potions in ascending order
+        n, m = len(spells), len(potions)
+        pairs = []
+        
+        for spell in spells:
+            # Find minimum potion strength needed: ceil(success / spell)
+            min_potion = (success + spell - 1) // spell
+            # Binary search to find first potion >= min_potion
+            left, right = 0, m
+            while left < right:
+                mid = (left + right) // 2
+                if potions[mid] < min_potion:
+                    left = mid + 1
+                else:
+                    right = mid
+            # Number of valid potions is m - left
+            pairs.append(m - left)
+        
+        return pairs
+
+'''
+Approach:
+- Sort the potions array in ascending order to enable binary search.
+- For each spell in spells:
+  - Calculate the minimum potion strength required: ceil(success / spell), computed as (success + spell - 1) // spell to handle integer division.
+  - Use binary search to find the index of the first potion whose strength is at least min_potion.
+  - The number of valid potions for the spell is m - index, where m is the length of potions.
+- Append the count of valid potions for each spell to the result array.
+- Time Complexity: O(m log m + n log m), where n is the length of spells and m is the length of potions. Sorting potions takes O(m log m), and binary search for each spell takes O(log m).
+- Space Complexity: O(n) for the output array, excluding input storage. Sorting can be done in-place.
+'''
