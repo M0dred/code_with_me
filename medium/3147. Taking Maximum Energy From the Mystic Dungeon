@@ -1,0 +1,37 @@
+from typing import List
+
+class Solution:
+    def maximumEnergy(self, energy: List[int], k: int) -> int:
+        n = len(energy)
+        ans = float('-inf')
+        
+        # For each residue class r (indices r, r+k, r+2k, ...)
+        for r in range(k):
+            # last index in this residue class
+            last = r + ((n - 1 - r) // k) * k
+            cum = 0
+            # Walk backwards along the residue chain to compute maximum suffix sums
+            for i in range(last, r - 1, -k):
+                cum += energy[i]
+                ans = max(ans, cum)
+        
+        return ans
+
+'''
+Approach:
+- Observation: Starting at index i forces you to take the fixed sequence i, i+k, i+2k, ... until out of bounds.
+  For each residue class r in [0..k-1], these indices form a separate chain: r, r+k, r+2k, ...
+  The valid paths are exactly the suffixes of each chain.
+- Therefore, for each residue chain, the best starting point equals the maximum suffix sum of that chain.
+- Implementation:
+  - For each residue r, locate the last index in its chain.
+  - Traverse that chain backwards in steps of k, maintaining a running sum 'cum' (the sum of the suffix starting at current i).
+  - Update the global maximum with 'cum' at each step.
+- This ensures we consider all possible starting positions and their forced suffix paths.
+
+Time Complexity:
+- O(n). Each index is visited exactly once across all residue chains.
+
+Space Complexity:
+- O(1) extra space, aside from a few scalar variables.
+'''
