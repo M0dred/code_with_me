@@ -1,0 +1,43 @@
+from typing import List
+from collections import Counter
+
+class Solution:
+    def maximumTotalDamage(self, power: List[int]) -> int:
+        freq = Counter(power)
+        vals = sorted(freq)                       # distinct damages
+        m = len(vals)
+        if m == 0:
+            return 0
+        
+        weights = [v * freq[v] for v in vals]     # if we choose damage v, we can take all spells of v
+        
+        dp = [0] * m
+        j = -1                                    # last index whose value <= current_value - 3 (compatible)
+        for i in range(m):
+            # advance j to be the rightmost index with vals[j] <= vals[i] - 3
+            while j + 1 < i and vals[j + 1] <= vals[i] - 3:
+                j += 1
+            take = weights[i] + (dp[j] if j >= 0 else 0)
+            not_take = dp[i - 1] if i > 0 else 0
+            dp[i] = max(not_take, take)
+        
+        return dp[-1]
+
+'''
+Approach:
+- Group identical damages: multiple spells of the same damage can all be cast together if we choose that damage value.
+- Let freq[v] be the count of spells with damage v. If we choose damage v, we gain v * freq[v].
+- Sort distinct damages into vals. We must choose a subset of these damages such that no two chosen damages differ by 1 or 2
+  (i.e., any two chosen damages must differ by at least 3).
+- This becomes a maximum-weight independent set on a line:
+  - For each index i over vals, define weights[i] = vals[i] * freq[vals[i]].
+  - Find the last index j < i with vals[j] <= vals[i] - 3 (compatible with taking vals[i]).
+  - DP transition: dp[i] = max(dp[i-1], weights[i] + dp[j]).
+  - Maintain j with a single forward pointer for overall O(m) after sorting (m = number of distinct damages).
+
+Time Complexity:
+- O(n log n): counting is O(n), sorting distinct values dominates (<= n distinct), DP scan is O(m).
+
+Space Complexity:
+- O(m) for the distinct damages and DP arrays.
+'''
