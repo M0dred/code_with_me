@@ -1,0 +1,122 @@
+from typing import List
+from math import log2
+
+MOD = 10**9 + 7
+
+class Solution:
+    def magicalSum(self, m: int, k: int, nums: List[int]) -> int:
+        n = len(nums)
+        if k > m:
+            return 0
+        
+        # Precompute factorials and inverse factorials up to m for binomial coefficients
+        fact = [1] * (m + 1)
+        for i in range(1, m + 1):
+            fact[i] = fact[i - 1] * i % MOD
+        invfact = [1] * (m + 1)
+        invfact[m] = pow(fact[m], MOD - 2, MOD)
+        for i in range(m, 0, -1):
+            invfact[i - 1] = invfact[i] * i % MOD
+        
+        def nCk(nv: int, rv: int) -> int:
+            if rv < 0 or rv > nv:
+                return 0
+            return fact[nv] * invfact[rv] % MOD * invfact[nv - rv] % MOD
+        
+        # Maximum number of extra positions to flush carry.
+        # Carry is at most m, so up to floor(log2(m)) + 1 extra bit positions are enough.
+        extra = (0 if m == 0 else int(log2(m)) + 2)
+        Pmax = (n - 1) + extra  # last position index to process
+        
+        # dp[r][c][o] = total weighted count after processing up to current pos-1:
+        #   r = remaining picks not yet assigned to any index
+        #   c = incoming carry into current bit position
+        #   o = number of set bits accumulated so far
+        # We'll roll over positions.
+        # Initialize at pos = 0 with all m picks remaining, carry 0, 0 ones, weight 1.
+        prev = [[[0] * (k + 1) for _ in range(m + 1)] for __ in range(m + 1)]
+        prev[m][0][0] = 1
+        
+        # Precompute powers nums[p]^x for 0<=x<=m for each p to save time
+        pow_cache = [[1] * (m + 1) for _ in range(n)]
+        for p in range(n):
+            for x in range(1, m + 1):
+                pow_cache[p][x] = pow_cache[p][x - 1] * nums[p] % MOD
+        
+        for pos in range(Pmax + 1):
+            cur = [[[0] * (k + 1) for _ in range(m + 1)] for __ in range(m + 1)]
+            has_index = (pos < n)  # we can assign picks to this exact index if pos<n
+            for r in range(m + 1):
+                for c in range(m + 1):  # carry won't exceed m
+                    row = prev[r][c]
+                    # Fast skip: if all zeros in this (r,c) slice, continue
+                    zero_slice = True
+                    for o in range(k + 1):
+                        if row[o]:
+                            zero_slice = False
+                            break
+                    if zero_slice:
+                        continue
+                    
+                    # Choose how many of the remaining r picks go to this index
+                    if has_index:
+                        # iterate x from 0..r
+                        for x in range(r + 1):
+                            bit = (x + c) & 1
+                            # we only care if ones count won't exceed k
+                            for o in range(k + 1 - bit):
+                                ways = row[o]
+                                if ways == 0:
+                                    continue
+                                o2 = o + bit
+                                c2 = (x + c) >> 1
+                                r2 = r - x
+                                add = ways
+                                # choose which of the r remaining positions take index pos
+                                add = add * nCk(r, x) % MOD
+                                # multiply value contribution
+                                if x:
+                                    add = add * pow_cache[pos][x] % MOD
+                                cur[r2][c2][o2] = (cur[r2][c2][o2] + add) % MOD
+                    else:
+                        # pos >= n: x must be 0; only propagate carry and ones from it
+                        x = 0
+                        bit = (x + c) & 1
+                        for o in range(k + 1 - bit):
+                            ways = row[o]
+                            if ways == 0:
+                                continue
+                            o2 = o + bit
+                            c2 = (x + c) >> 1
+                            # r stays the same
+                            cur[r][c2][o2] = (cur[r][c2][o2] + ways) % MOD
+            prev = cur
+        
+        # Valid sequences must have no remaining picks and no remaining carry; exactly k ones
+        return prev[0][0][k] % MOD
+
+'''
+Approach:
+- A “magical sequence” means we pick m indices (with repetition) where the binary sum of 2^index values has exactly k set bits.
+- Represent how many times each index j is chosen by x_j (≥0, sum x_j = m).
+- Each choice contributes a product of nums[j]^x_j and a combinatorial factor m! / ∏ x_j!.
+- The binary sum constraint depends only on the counts x_j via carries in base-2 addition.
+- We run a digit-DP by index j with state (pos, rem, carry, ones):
+  - pos: current bit position
+  - rem: how many picks left
+  - carry: incoming carry from lower bits
+  - ones: how many 1-bits accumulated so far
+  Transition over x=0..rem, update new_bit=(carry+x)%2, new_carry=(carry+x)//2, ones+=new_bit.
+  Multiply contribution by C(rem, x)*nums[j]^x.
+- Base case: when pos==n, valid if rem==0 and ones + popcount(carry)==k.
+- Precompute nCr up to m and nums[j]^x up to m to speed up.
+
+Time Complexity:
+- O(n · m²):  
+  For each of n bit positions, we iterate up to m remaining selections and x∈[0..m].
+  Each DP call runs constant work, fits within small limits (n≤50, m≤30).
+
+Space Complexity:
+- O(n · m · m · k) worst-case cached states → effectively O(n · m²) since carry ≤ m and ones ≤ k ≤ m.
+- Extra O(n·m) for precomputed powers and O(m) for factorial tables.
+'''
