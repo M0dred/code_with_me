@@ -1,0 +1,31 @@
+from typing import List
+from collections import Counter
+
+class Solution:
+    def findSmallestInteger(self, nums: List[int], value: int) -> int:
+        # Count residues modulo value (handle negatives)
+        freq = Counter(((x % value) + value) % value for x in nums)
+
+        x = 0
+        while True:
+            r = x % value
+            if freq[r] > 0:
+                freq[r] -= 1    # use one number of this residue to realize x
+                x += 1
+            else:
+                return x
+
+'''
+Approach:
+- After adding value any number of times to any element, only the residue modulo value matters.
+- Count occurrences of each residue r in nums (normalize negatives).
+- Starting from x = 0, try to “form” each integer x:
+  - It requires one unused number with residue r = x % value.
+  - If available, consume one count and continue to x+1; otherwise, x is the smallest missing achievable integer (answer).
+
+Time Complexity:
+- O(n): build residue counts and at most n+1 loop iterations (each consumes one count or returns).
+
+Space Complexity:
+- O(value): frequency map over residues 0..value-1.
+'''
