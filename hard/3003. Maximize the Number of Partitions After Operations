@@ -1,0 +1,89 @@
+from typing import List
+from functools import lru_cache
+
+class Solution:
+    def maxPartitionsAfterOperations(self, s: str, k: int) -> int:
+        n = len(s)
+        A = [ord(c) - 97 for c in s]  # map to 0..25
+        
+        # Precompute prefix partitions and mask before each index (no change)
+        parts_before = [0] * n           # number of completed partitions before index i
+        mask_before  = [0] * n           # distinct-set bitmask before consuming s[i]
+        parts = 0
+        mask = 0
+        for i, ch in enumerate(A):
+            parts_before[i] = parts
+            mask_before[i]  = mask
+            bit = 1 << ch
+            if bin(mask).count("1") == k and (mask & bit) == 0:
+                # cut before s[i]
+                parts += 1
+                mask = 0
+            mask |= bit
+        base_answer = parts + 1  # final partition for the tail
+        
+        # Suffix DP: g(i, M) = number of CUTS when processing s[i..] given current set M before s[i]
+        @lru_cache(maxsize=None)
+        def g(i: int, M: int) -> int:
+            if i >= n:
+                return 0
+            ch = A[i]
+            bit = 1 << ch
+            if (M & bit) == 0 and bin(M).count("1") == k:
+                # must cut before s[i], consume s[i] into a fresh block {ch}
+                return 1 + g(i + 1, bit)
+            # no cut, just extend current block
+            return g(i + 1, M | bit)
+        
+        ans = base_answer  # consider "no change" as baseline
+        
+        # Try changing s[p] to any letter x in 'a'..'z'
+        for p in range(n):
+            M = mask_before[p]     # set of distinct chars already in current block before p
+            for x in range(26):
+                bitx = 1 << x
+                # apply the effect at position p with changed letter x
+                if (M & bitx) == 0 and bin(M).count("1") == k:
+                    # cut happens right before p due to x
+                    cuts_first = 1
+                    M_next = bitx           # new block starts with x at index p
+                    i_next = p + 1
+                else:
+                    cuts_first = 0
+                    M_next = M | bitx       # extend current block with x
+                    i_next = p + 1
+                total_parts = parts_before[p] + cuts_first + g(i_next, M_next) + 1
+                if total_parts > ans:
+                    ans = total_parts
+        
+        return ans
+
+'''
+Approach:
+- Greedy partitioning rule: scan left→right with a set of distinct characters for the current block; when a new char arrives and the set already has k distinct characters, we cut (finish a block) and start a new one.
+- First, compute the baseline (no change) result in one pass:
+  - Track for each index i:
+    - parts_before[i]: number of finished partitions before i.
+    - mask_before[i]: bitmask of distinct letters in the current block before consuming s[i].
+- Define a memoized DP on the unchanged suffix:
+  - g(i, M) = number of cuts produced when processing s[i..n-1] if the current block’s set before s[i] is M.
+  - Transition:
+    - If M already has k letters and s[i] is a new letter → cut before s[i]: 1 + g(i+1, {s[i]}).
+    - Else → no cut: g(i+1, M ∪ {s[i]}).
+- To evaluate a change at position p to any letter x:
+  - Start from prefix state (parts_before[p], mask_before[p]).
+  - Apply the single-step effect of using letter x at index p:
+    - If mask is full and x is new → an immediate cut (add 1), and next state is (p+1, {x}).
+    - Else → extend mask to include x; next state is (p+1, new_mask).
+  - Add the precomputed suffix contribution g(p+1, new_mask) and +1 for the final block.
+- Take the maximum over all positions p and letters x, and also the baseline (no change).
+
+Time Complexity:
+- O(n + n·Σ), where Σ=26:
+  - One O(n) pass for baseline and prefix states.
+  - For each position p and letter x, we do O(1) work with memoized g.
+  - The DP g has at most ~26·n states overall (i, mask) visited.
+  
+Space Complexity:
+- O(26·n) for the memoization table of g, plus O(n) for prefix arrays.
+'''
