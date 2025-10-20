@@ -1,0 +1,20 @@
+from typing import List
+
+class Solution:
+    def finalValueAfterOperations(self, operations: List[str]) -> int:
+        # Each operation is one of: "++X", "X++", "--X", "X--".
+        # The middle character uniquely tells the intent: '+' => +1, '-' => -1.
+        return sum(1 if op[1] == '+' else -1 for op in operations)
+
+'''
+Approach:
+- Each operation either increases or decreases the value by 1.
+- The second character of the string is '+' for increments and '-' for decrements.
+- Sum +1 for every '+' operation and -1 for every '-' operation.
+
+Time Complexity:
+- O(n), where n is the number of operations.
+
+Space Complexity:
+- O(1), using only a constant amount of extra space.
+'''
