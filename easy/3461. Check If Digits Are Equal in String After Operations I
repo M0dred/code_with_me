@@ -1,0 +1,26 @@
+class Solution:
+    def hasSameDigits(self, s: str) -> bool:
+        # Continue until s has exactly two digits
+        while len(s) > 2:
+            new_s = []
+            for i in range(len(s) - 1):
+                # Compute (s[i] + s[i+1]) % 10
+                d = (int(s[i]) + int(s[i + 1])) % 10
+                new_s.append(str(d))
+            s = ''.join(new_s)
+        # Return True if the two digits are the same
+        return s[0] == s[1]
+
+'''
+Approach:
+- While the string has more than two digits:
+  - Replace it with the sequence formed by summing each adjacent pair of digits modulo 10.
+  - Repeat until the length becomes 2.
+- Finally, check if the two remaining digits are equal.
+
+Time Complexity:
+- O(n²) in the worst case (each iteration reduces length by 1).
+
+Space Complexity:
+- O(n) for the intermediate string transformations.
+'''
