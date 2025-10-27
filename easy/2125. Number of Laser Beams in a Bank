@@ -1,0 +1,23 @@
+from typing import List
+
+class Solution:
+    def numberOfBeams(self, bank: List[str]) -> int:
+        prev = 0   # number of devices in the last non-empty row
+        beams = 0
+        for row in bank:
+            cur = row.count('1')
+            if cur == 0:
+                continue
+            beams += prev * cur
+            prev = cur
+        return beams
+
+'''
+Approach:
+- Count devices per row. Ignore empty rows (with 0 devices).
+- Whenever you hit a non-empty row with `cur` devices after a previous non-empty row with `prev` devices, add `prev * cur` beams.
+- Update `prev = cur` and continue.
+
+Time Complexity: O(m·n), counting '1's in each row once.  
+Space Complexity: O(1) extra.
+'''
