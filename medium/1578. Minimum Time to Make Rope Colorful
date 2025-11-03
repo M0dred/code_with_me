@@ -1,0 +1,36 @@
+from typing import List
+
+class Solution:
+    def minCost(self, colors: str, neededTime: List[int]) -> int:
+        n = len(colors)
+        total = 0
+        i = 0
+        while i < n:
+            # Start of a block of same-colored balloons
+            j = i
+            block_sum = 0
+            block_max = 0
+            while j < n and colors[j] == colors[i]:
+                t = neededTime[j]
+                block_sum += t
+                if t > block_max:
+                    block_max = t
+                j += 1
+            # To break duplicates in this block, keep the most expensive one,
+            # remove the rest.
+            total += block_sum - block_max
+            i = j
+        return total
+
+'''
+Approach:
+- Process contiguous blocks of identical colors.
+- For each block, you must remove all but one balloon; to minimize time, keep the one with the largest neededTime and remove the rest.
+- Sum (sum_of_block − max_in_block) over all blocks.
+
+Time Complexity:
+- O(n), single pass over the string.
+
+Space Complexity:
+- O(1) extra.
+'''
