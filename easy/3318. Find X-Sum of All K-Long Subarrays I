@@ -1,0 +1,31 @@
+from typing import List
+from collections import Counter
+
+class Solution:
+    def findXSum(self, nums: List[int], k: int, x: int) -> List[int]:
+        n = len(nums)
+        res = []
+
+        for i in range(n - k + 1):
+            sub = nums[i:i+k]
+            cnt = Counter(sub)  # value -> occurrences
+            # Sort by frequency desc, then value desc (bigger value wins ties)
+            top = sorted(cnt.items(), key=lambda p: (p[1], p[0]), reverse=True)
+            # Take top x entries (or fewer if not enough distinct)
+            total = 0
+            for val, c in top[:x]:
+                total += val * c
+            res.append(total)
+
+        return res
+
+'''
+Approach:
+- For each subarray nums[i..i+k-1], count occurrences with Counter.
+- Rank elements by (frequency desc, value desc). Keep the top x elements.
+- x-sum is the sum over kept elements of value * count.
+- Append for each window.
+
+Time Complexity: O((n−k+1) * k log k) ≤ small due to n ≤ 50.
+Space Complexity: O(k) for counting each window.
+'''
