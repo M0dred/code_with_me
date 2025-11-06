@@ -1,0 +1,86 @@
+from typing import List
+import heapq
+
+class Solution:
+    def processQueries(self, c: int, connections: List[List[int]], queries: List[List[int]]) -> List[int]:
+        # --- DSU (Union-Find) to compute static connected components ---
+        parent = list(range(c + 1))
+        size = [1] * (c + 1)
+
+        def find(x: int) -> int:
+            while parent[x] != x:
+                parent[x] = parent[parent[x]]
+                x = parent[x]
+            return x
+
+        def union(a: int, b: int) -> None:
+            ra, rb = find(a), find(b)
+            if ra == rb:
+                return
+            if size[ra] < size[rb]:
+                ra, rb = rb, ra
+            parent[rb] = ra
+            size[ra] += size[rb]
+
+        for u, v in connections:
+            union(u, v)
+
+        # Component id for each station
+        comp_id = [0] * (c + 1)
+        for i in range(1, c + 1):
+            comp_id[i] = find(i)
+
+        # --- Build a min-heap of all station ids for each component ---
+        comp_heap = {}
+        for i in range(1, c + 1):
+            root = comp_id[i]
+            if root not in comp_heap:
+                comp_heap[root] = []
+            comp_heap[root].append(i)
+        for root, arr in comp_heap.items():
+            heapq.heapify(arr)
+
+        # Track which stations are online (initially all True)
+        online = [False] * (c + 1)
+        for i in range(1, c + 1):
+            online[i] = True
+
+        # Helper: get current smallest online station in same component as x
+        def smallest_online_in_comp(x: int) -> int:
+            root = comp_id[x]
+            h = comp_heap.get(root)
+            if not h:
+                return -1
+            # Lazy-pop any offline stations from the top
+            while h and not online[h[0]]:
+                heapq.heappop(h)
+            return h[0] if h else -1
+
+        # Process queries
+        ans = []
+        for t, x in queries:
+            if t == 1:
+                if online[x]:
+                    ans.append(x)
+                else:
+                    ans.append(smallest_online_in_comp(x))
+            else:  # t == 2
+                online[x] = False  # going offline (idempotent)
+
+        return ans
+
+'''
+Approach:
+- The graph’s connectivity never changes (offline nodes remain in their grid), so we first compute connected components using DSU.
+- For each component, maintain a min-heap of all stations in that component.
+- Keep a boolean array `online[id]` (all True initially). When a station goes offline, set `online[id]=False`. We do not remove it from the heap immediately.
+- For a query [1, x]:
+  - If station x is online, return x.
+  - Otherwise, pop from the component’s heap while its top is offline (lazy deletion). The current top (if any) is the smallest online id; otherwise return -1.
+- For a query [2, x]: mark x offline.
+
+Complexity:
+- Building components: O((c + n) α(c)) with DSU.
+- Each query is amortized O(log c) due to heap operations with lazy deletions.
+- Space: O(c) for DSU arrays, heaps, and online flags.
+'''
