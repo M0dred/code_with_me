@@ -1,0 +1,75 @@
+from typing import List
+
+class Solution:
+    def maxPower(self, stations: List[int], r: int, k: int) -> int:
+        n = len(stations)
+
+        # Precompute base power for each city using prefix sums:
+        # base[i] = sum(stations[j] for j in [i-r, i+r] ∩ [0, n-1])
+        pref = [0] * (n + 1)
+        for i, v in enumerate(stations):
+            pref[i + 1] = pref[i] + v
+
+        def base_power(i: int) -> int:
+            L = max(0, i - r)
+            R = min(n - 1, i + r)
+            return pref[R + 1] - pref[L]
+
+        base = [base_power(i) for i in range(n)]
+
+        # Feasibility check: can we make every city's power >= target using at most k extra stations?
+        def can(target: int) -> bool:
+            add = [0] * n          # add[pos] = how many new stations we build at pos
+            extra = 0              # current window sum of add[j] for j in [i-r, i+r]
+            k_left = k
+
+            for i in range(n):
+                # Remove stations that slide out of the left side of the window for city i
+                leave_idx = i - r - 1
+                if leave_idx >= 0:
+                    extra -= add[leave_idx]
+
+                # Current total power at city i
+                total = base[i] + extra
+
+                if total < target:
+                    need = target - total
+                    pos = min(n - 1, i + r)  # place new stations as far right as still covering city i
+                    add[pos] += need
+                    extra += need            # pos is inside [i-r, i+r], so it contributes immediately
+                    k_left -= need
+                    if k_left < 0:
+                        return False
+
+            return True
+
+        # Binary search the maximum achievable minimum power
+        lo, hi = min(base), max(base) + k  # safe bounds
+        ans = lo
+        while lo <= hi:
+            mid = (lo + hi) // 2
+            if can(mid):
+                ans = mid
+                lo = mid + 1
+            else:
+                hi = mid - 1
+        return ans
+
+'''
+Approach:
+1) Compute each city’s current power (sum of stations within distance r) via prefix sums.
+2) Binary search the answer M = “minimum power we want to guarantee for all cities”.
+3) Feasibility check for a target M:
+   - Greedily sweep cities left→right.
+   - Maintain `extra`, the contribution from newly built stations in the current coverage window [i−r, i+r].
+   - If base[i] + extra < M, we must add `need = M − (base[i]+extra)` stations. Place them at `pos = min(n−1, i+r)` so they still cover city i and help as many future cities as possible.
+   - Record additions in `add[pos]`, update `extra` immediately (since pos ∈ [i−r, i+r]), and decrement `k_left`. If `k_left` < 0, target M is infeasible.
+   - Slide the window by subtracting `add[i−r−1]` when it leaves the window.
+4) The greedy works because placing needed stations as far right as possible while still covering the current deficit maximizes their future usefulness.
+
+Complexity:
+- Precompute base powers: O(n).
+- Each feasibility check runs in O(n).
+- Binary search over ~log(max(base)+k) (~≤ 40 steps). Overall O(n log k).
+- Extra space O(n).
+'''
