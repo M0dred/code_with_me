@@ -1,0 +1,71 @@
+from typing import List
+
+class Solution:
+    def minOperations(self, nums: List[int]) -> int:
+        n = len(nums)
+
+        # Group indices by value (ignore zeros – they never need an operation themselves)
+        pos = {}
+        for i, v in enumerate(nums):
+            if v > 0:
+                pos.setdefault(v, []).append(i)
+
+        if not pos:
+            return 0
+
+        # Union–Find (DSU)
+        parent = list(range(n))
+        rank = [0] * n
+        active = [False] * n   # whether this position is already "available" (value >= current v)
+
+        def find(x: int) -> int:
+            while parent[x] != x:
+                parent[x] = parent[parent[x]]
+                x = parent[x]
+            return x
+
+        def union(a: int, b: int) -> None:
+            ra, rb = find(a), find(b)
+            if ra == rb:
+                return
+            if rank[ra] < rank[rb]:
+                ra, rb = rb, ra
+            parent[rb] = ra
+            if rank[ra] == rank[rb]:
+                rank[ra] += 1
+
+        # Process values in descending order:
+        # When we add all indices with value v and union them with already-active neighbors (values > v),
+        # the number of distinct DSU roots among these newly added indices equals
+        # the number of components of ">= v" that contain at least one v.
+        # That is exactly how many operations we need for value v.
+        ans = 0
+        for v in sorted(pos.keys(), reverse=True):
+            roots = set()
+            # activate and union with neighbors already active (values >= v)
+            for i in pos[v]:
+                active[i] = True
+                if i - 1 >= 0 and active[i - 1]:
+                    union(i, i - 1)
+                if i + 1 < n and active[i + 1]:
+                    union(i, i + 1)
+            # count distinct components among the newly added indices
+            for i in pos[v]:
+                roots.add(find(i))
+            ans += len(roots)
+
+        return ans
+
+'''
+Approach (why this works):
+- In one operation on a subarray, you can zero all occurrences of the minimum value in that subarray. For a fixed value v, you can zero all v’s in any contiguous segment that contains only numbers ≥ v (values < v act as barriers).
+- Therefore, the number of operations contributed by value v equals the number of connected components in the set of indices with value ≥ v that contain at least one v.
+
+Efficient counting via DSU:
+- Process values in **descending** order. Maintain a DSU over indices that are “active” (indices whose value ≥ current v).
+- When handling value v, activate every index i with nums[i] == v and union it with its already-active neighbors (values > v). After that, each connected component that includes at least one of these newly added indices corresponds to exactly one needed operation for v. Count how many distinct DSU roots appear among indices with value v and add to the answer.
+- Overall complexity: sorting distinct values O(U log U), and near-linear DSU unions/finds O(n α(n)).
+
+Time Complexity: O(n log n) (dominant factor is sorting distinct values; DSU is near-linear).  
+Space Complexity: O(n) for DSU structures and groupings.
+'''
