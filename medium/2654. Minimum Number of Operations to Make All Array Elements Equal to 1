@@ -1,0 +1,40 @@
+from typing import List
+from math import gcd
+
+class Solution:
+    def minOperations(self, nums: List[int]) -> int:
+        n = len(nums)
+        ones = nums.count(1)
+        if ones:
+            # Each non-1 can be turned into 1 with one operation using an adjacent 1
+            return n - ones
+
+        # No 1 exists: find the shortest subarray with gcd == 1
+        best = float('inf')
+        for i in range(n):
+            g = nums[i]
+            if g == 1:
+                best = 1
+                break
+            for j in range(i + 1, n):
+                g = gcd(g, nums[j])
+                if g == 1:
+                    best = min(best, j - i + 1)
+                    break  # can't do better by extending this subarray further
+
+        if best == float('inf'):
+            return -1  # impossible
+
+        # To create the first 1 from that subarray costs (best - 1) operations,
+        # then make all others 1 with (n - 1) more operations.
+        return (best - 1) + (n - 1)
+
+'''
+Approach:
+- If there is already at least one `1`, each remaining non-1 can be merged with an adjacent 1 in one operation → answer = n − count(1).
+- Otherwise, find the shortest subarray whose gcd is 1. If none exists, it’s impossible (return −1).
+- If the shortest length is L, it takes L−1 operations to create the first 1 in that subarray, then n−1 more operations to spread 1s to all positions. Total = (L−1) + (n−1).
+
+Time Complexity: O(n^2 log A), where A ≤ 10^6 (due to gcd over all subarrays).
+Space Complexity: O(1).
+'''
