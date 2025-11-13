@@ -1,0 +1,34 @@
+class Solution:
+    def maxOperations(self, s: str) -> int:
+        count_one = 0
+        ans = 0
+        i = 0
+        n = len(s)
+        while i < n:
+            if s[i] == '0':
+                # Skip the entire group of consecutive '0's
+                while i + 1 < n and s[i + 1] == '0':
+                    i += 1
+                # Every '1' seen so far can perform one operation
+                # that moves it over this entire group of '0's
+                ans += count_one
+            else:
+                count_one += 1
+            i += 1
+        return ans
+
+'''
+Approach:
+- Traverse the string from left to right.
+- Keep track of the number of '1's encountered so far (`count_one`).
+- When a '0' is found, skip over all consecutive '0's (one group).
+- For each such group of '0's, every '1' to its left can perform exactly one operation
+  that moves it past the entire group (because the operation jumps over all consecutive '0's).
+- Therefore, add `count_one` to the answer for each group of '0's.
+- Groups of '0's at the end are never counted because no '1' can start an operation on them.
+
+Time Complexity:  
+O(n) – each character is visited at most twice (once when entering a '0' group, and once when skipping inside it).
+Space Complexity:
+O(1) – only a few integer variables are used.
+'''
