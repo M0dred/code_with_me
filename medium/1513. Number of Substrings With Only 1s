@@ -1,0 +1,22 @@
+class Solution:
+    def numSub(self, s: str) -> int:
+        MOD = 1_000_000_007
+        ans = 0
+        run = 0
+        for ch in s:
+            if ch == '1':
+                run += 1
+                ans = (ans + run) % MOD   # adds current run contribution
+            else:
+                run = 0
+        return ans
+
+'''
+Approach:
+- Scan the string once, tracking the current length `run` of consecutive '1's.
+- Each time you see a '1', increment `run` and add `run` to the answer. (Over a run of length L, this sums to 1+2+...+L = L*(L+1)/2.)
+- Reset `run` to 0 when you see '0'. Take modulo 1e9+7 throughout.
+
+Time Complexity: O(n)
+Space Complexity: O(1)
+'''
