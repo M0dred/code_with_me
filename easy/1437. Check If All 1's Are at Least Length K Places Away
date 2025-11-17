@@ -1,0 +1,21 @@
+from typing import List
+
+class Solution:
+    def kLengthApart(self, nums: List[int], k: int) -> bool:
+        last = -10**18  # sentinel far left
+        for i, v in enumerate(nums):
+            if v == 1:
+                if i - last - 1 < k:
+                    return False
+                last = i
+        return True
+
+'''
+Approach:
+- Scan once, tracking the index of the previous 1.
+- For each new 1 at position i, check the zeros between: i - last - 1 ≥ k.
+- If any check fails, return False; otherwise True.
+
+Time Complexity: O(n)
+Space Complexity: O(1)
+'''
