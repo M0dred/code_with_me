@@ -1,0 +1,23 @@
+from typing import List
+
+class Solution:
+    def isOneBitCharacter(self, bits: List[int]) -> bool:
+        i = 0
+        n = len(bits)
+        while i < n - 1:   # stop before the last index
+            if bits[i] == 1:
+                i += 2    # two-bit character
+            else:
+                i += 1    # one-bit character
+        return i == n - 1  # last character is single-bit only if we land exactly on last index
+
+'''
+Approach:
+- Simulate the decoding from left to right.
+- If bits[i] == 0, it's a one-bit character → move i += 1.
+- If bits[i] == 1, it's a two-bit character (10 or 11) → move i += 2.
+- Stop before the last position. The last character is one-bit iff we land exactly on index n - 1.
+
+Time Complexity: O(n)
+Space Complexity: O(1)
+'''
