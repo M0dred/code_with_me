@@ -1,0 +1,49 @@
+from typing import List
+
+class Solution:
+    def intersectionSizeTwo(self, intervals: List[List[int]]) -> int:
+        # Sort by end ascending; if tie, start descending
+        intervals.sort(key=lambda x: (x[1], -x[0]))
+
+        res = 0
+        p1 = -10**18  # second last chosen point
+        p2 = -10**18  # last chosen point
+
+        for s, e in intervals:
+            # how many of the last two chosen points are inside [s, e]?
+            cnt = 0
+            if p1 >= s:  # (p1 is always <= e due to sorting)
+                cnt += 1
+            if p2 >= s:
+                cnt += 1
+
+            if cnt == 0:
+                # need two new points, pick the largest possible: e-1 and e
+                res += 2
+                p1 = e - 1
+                p2 = e
+            elif cnt == 1:
+                # need one more point, pick the largest possible: e
+                res += 1
+                p1 = p2
+                p2 = e
+
+        return res
+
+'''
+Approach:
+- Sort intervals by increasing end; if ends tie, sort by decreasing start.
+  This ensures when we process an interval, any points we add near its end
+  will also help future intervals as much as possible.
+- Maintain the last two chosen points (p1 < p2).
+- For each interval [s, e]:
+  - Count how many of {p1, p2} are already inside it.
+  - If 0 points inside: add e-1 and e.
+  - If 1 point inside: add e.
+  - If 2 points inside: do nothing.
+- Always choosing the rightmost available points is greedy-optimal because
+  it maximizes overlap with later intervals.
+
+Time Complexity: O(n log n) for sorting, then O(n) scan.
+Space Complexity: O(1) extra.
+'''
