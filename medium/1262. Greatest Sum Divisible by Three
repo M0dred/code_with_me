@@ -1,0 +1,54 @@
+from typing import List
+
+class Solution:
+    def maxSumDivThree(self, nums: List[int]) -> int:
+        total = sum(nums)
+
+        # Track smallest 1-rem and 2-rem numbers
+        rem1 = []
+        rem2 = []
+
+        for x in nums:
+            if x % 3 == 1:
+                rem1.append(x)
+            elif x % 3 == 2:
+                rem2.append(x)
+
+        rem1.sort()
+        rem2.sort()
+
+        r = total % 3
+
+        if r == 0:
+            return total
+
+        # Option A: remove the smallest one number with remainder r
+        ans = 0
+        if r == 1:
+            option1 = rem1[0] if rem1 else float("inf")
+            option2 = rem2[0] + rem2[1] if len(rem2) >= 2 else float("inf")
+        else:  # r == 2
+            option1 = rem2[0] if rem2 else float("inf")
+            option2 = rem1[0] + rem1[1] if len(rem1) >= 2 else float("inf")
+
+        remove = min(option1, option2)
+        if remove == float("inf"):
+            return 0  # cannot fix remainder
+
+        return total - remove
+
+'''
+Approach:
+- Compute total = sum(nums).
+- If total % 3 == 0 → answer is total.
+- Otherwise we must remove a small amount to make sum divisible by 3.
+- Track all numbers with remainder 1 in rem1, and remainder 2 in rem2.
+- If total % 3 == 1:
+    - Either remove the smallest rem1 number, or remove two smallest rem2 numbers.
+- If total % 3 == 2:
+    - Either remove the smallest rem2 number, or remove two smallest rem1 numbers.
+- Choose the option that removes the smallest total value (so the sum stays maximum).
+
+Time Complexity: O(n log n)  (sorting small lists)
+Space Complexity: O(n)  (storing remainder lists)
+'''
