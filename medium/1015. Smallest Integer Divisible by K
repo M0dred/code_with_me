@@ -1,0 +1,34 @@
+class Solution(object):
+    def smallestRepunitDivByK(self, k):
+        # Quick check: if k is divisible by 2 or 5, no repunit ending with 1 can be divisible by k
+        if k % 2 == 0 or k % 5 == 0:
+            return 1 if k == 1 else -1
+        
+        remainder = 0
+        for length in range(1, k + 1):
+            remainder = (remainder * 10 + 1) % k
+            if remainder == 0:
+                return length
+        
+        return -1
+
+"""
+Approach & Reasoning:
+We are looking for the smallest number n made of only 1's (repunit) that is divisible by k.
+Example: for k=3 → 111 (length 3), for k=7 → 111111 (length 6)
+
+Key observations:
+- Any repunit ends with digit 1 → if k is divisible by 2 or 5, n cannot be divisible by k (except k=1)
+- We simulate building the number digit by digit using modulo:
+      remainder = (remainder * 10 + 1) % k
+- If remainder becomes 0 → the current repunit is divisible by k
+- There are only k possible remainders (0 to k-1)
+  → By pigeonhole principle: if no 0 appears in first k steps, it will cycle → no solution
+
+Thus, we only need to check up to k lengths.
+
+Time Complexity : O(k)
+Space Complexity: O(1)
+
+This is the optimal solution used in interviews and accepted on LeetCode.
+"""
