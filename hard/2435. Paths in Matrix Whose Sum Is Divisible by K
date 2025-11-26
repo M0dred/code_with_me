@@ -1,0 +1,65 @@
+class Solution(object):
+    def numberOfPaths(self, grid, k):
+        """
+        :type grid: List[List[int]]
+        :type k: int
+        :rtype: int
+        """
+        if not grid or not grid[0]:
+            return 0
+            
+        m, n = len(grid), len(grid[0])
+        MOD = 10**9 + 7
+        
+        # dp[i][j][r] = number of ways to reach (i,j) with path sum % k == r
+        dp = [[[0] * k for _ in range(n)] for _ in range(m)]
+        
+        # Starting point
+        dp[0][0][grid[0][0] % k] = 1
+        
+        # Fill first row (can only come from left)
+        for j in range(1, n):
+            prev_rem = dp[0][j-1][:]
+            for r in range(k):
+                new_rem = (r + grid[0][j]) % k
+                dp[0][j][new_rem] = (dp[0][j][new_rem] + prev_rem[r]) % MOD
+        
+        # Fill first column (can only come from above)
+        for i in range(1, m):
+            prev_rem = dp[i-1][0][:]
+            for r in range(k):
+                new_rem = (r + grid[i][0]) % k
+                dp[i][0][new_rem] = (dp[i][0][new_rem] + prev_rem[r]) % MOD
+        
+        # Fill the rest of the grid
+        for i in range(1, m):
+            for j in range(1, n):
+                for r in range(k):
+                    # From top
+                    new_rem = (r + grid[i][j]) % k
+                    dp[i][j][new_rem] = (dp[i][j][new_rem] + dp[i-1][j][r]) % MOD
+                    # From left
+                    dp[i][j][new_rem] = (dp[i][j][new_rem] + dp[i][j-1][r]) % MOD
+        
+        return dp[m-1][n-1][0]
+
+"""
+Approach & Reasoning:
+We need to count paths from (0,0) to (m-1,n-1) moving only right/down,
+where the sum of values along the path is divisible by k (i.e., sum % k == 0).
+
+Key insight:
+- Standard path counting is O(m*n), but we also need to track sum modulo k.
+- Since k <= 50, we use 3D DP: dp[i][j][rem] = number of ways to reach (i,j) with sum % k == rem
+
+State transition:
+    dp[i][j][ (prev_rem + grid[i][j]) % k ] += dp[prev_i][prev_j][prev_rem]
+
+We can reach (i,j) from left (i,j-1) or top (i-1,j).
+We pre-fill first row and first column, then fill the rest.
+
+Time Complexity : O(m * n * k) ≤ 5e4 * 50 = 2.5e6 → very fast
+Space Complexity: O(m * n * k) → acceptable (~5e4 * 50 = 2.5e6 integers)
+
+This is the standard and optimal solution for this problem.
+"""
