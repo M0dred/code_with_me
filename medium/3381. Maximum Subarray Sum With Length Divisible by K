@@ -1,0 +1,62 @@
+from typing import List
+
+class Solution:
+    def maxSubarraySum(self, nums: List[int], k: int) -> int:
+        n = len(nums)
+        INF = 10**18
+        
+        # min_prefix[r] = minimum prefix sum seen at indices i where i % k == r
+        min_prefix = [INF] * k
+        prefix = 0
+        
+        # prefix[0] = 0 has index 0, so 0 % k == 0
+        min_prefix[0] = 0
+        
+        best = -INF
+        
+        # i is 1-based index for prefix sums
+        for i, x in enumerate(nums, 1):
+            prefix += x
+            m = i % k
+            
+            # If we have seen some prefix with same modulo before
+            if min_prefix[m] != INF:
+                cand = prefix - min_prefix[m]
+                if cand > best:
+                    best = cand
+            
+            # Update minimum prefix for this modulo
+            if prefix < min_prefix[m]:
+                min_prefix[m] = prefix
+        
+        return best if best != -INF else 0
+
+"""
+Approach & Reasoning:
+We need to find the maximum sum of a subarray whose length is divisible by k.
+
+Key Insight (Kadane + Modulo Trick):
+Let prefix[i] = sum of first i elements (1-based).
+For a subarray nums[l..r] (0-based), sum = prefix[r+1] - prefix[l]
+We want (r - l + 1) % k == 0 → (r + 1) % k == l % k
+
+So: if two prefix sums have the same (index % k), their difference is a subarray sum
+with length divisible by k.
+
+To maximize sum = prefix[j] - prefix[i] where j > i and j % k == i % k,
+we keep track of the minimum prefix sum seen so far for each residue modulo k.
+
+For each position j, we check if we've seen a previous i with i % k == j % k,
+and compute prefix[j] - min_prefix[j % k] → this gives maximum possible sum ending at j.
+
+We use 1-based indexing for prefix sums (common trick), so:
+- Before loop: prefix[0] = 0 at index 0 → 0 % k = 0
+- Then for i=1 to n: process nums[i-1]
+
+Edge case: if no valid subarray found → return 0 (as per typical problem expectation)
+
+Time Complexity : O(n)
+Space Complexity: O(k)
+
+This is the optimal solution — very clever and frequently asked in interviews!
+"""
