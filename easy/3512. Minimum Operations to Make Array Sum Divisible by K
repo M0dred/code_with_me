@@ -1,0 +1,59 @@
+from typing import List
+
+class Solution:
+    def minOperations(self, nums: List[int], k: int) -> int:
+        total = sum(nums)
+        if total % k == 0:
+            return 0
+        
+        # We need total - x ≡ 0 (mod k) → x ≡ total (mod k)
+        target = total % k
+        
+        # Try to achieve reduction of target by decreasing some elements
+        # For each element, the maximum we can reduce it (to 0) is nums[i]
+        # So the possible reductions are 0, 1, ..., nums[i] for each i
+        achievable = {0}
+        
+        for x in nums:
+            new_set = set()
+            for prev in achievable:
+                # reduce by 0 to x
+                for dec in range(x + 1):
+                    new_set.add((prev + dec) % k)
+            achievable = new_set
+            # early exit: we already can reach every residue
+            if len(achievable) == k:
+                break
+        
+        # Find the minimum reduction that makes sum ≡ 0 (mod k)
+        min_ops = float('inf')
+        for reduction in achievable:
+            if (total - reduction) % k == 0:
+                min_ops = min(min_ops, reduction)
+        
+        return min_ops
+
+"""
+Approach & Reasoning:
+We need to reduce the total sum S by some amount X (X ≥ 0) using decrements of 1,
+so that (S - X) ≡ 0 (mod k) → X ≡ S (mod k).
+
+X is the sum of several values d_i where 0 ≤ d_i ≤ nums[i] for each i.
+
+This is a classic "subset sum with upper bounds" problem modulo k.
+Since k ≤ 100 and n ≤ 1000, we can use a DP/set approach:
+- maintain all achievable reduction amounts modulo k
+- for each number, we can add a reduction from 0 to nums[i]
+
+The number of distinct residues is at most k, so the set size never exceeds k.
+Time complexity becomes O(n * k * max(nums[i])) in worst case,
+but since max(nums[i]) ≤ 1000 and k ≤ 100 → easily acceptable (< 10^7 operations).
+
+After processing all numbers, we look for the smallest achievable reduction
+that has the same residue as S modulo k.
+
+This guarantees the minimum number of operations.
+
+Time Complexity : O(n * k * max(nums[i])) ≤ 1000 * 100 * 1000 = 10^8 → acceptable
+Space Complexity: O(k) for the set of achievable residues
+"""
