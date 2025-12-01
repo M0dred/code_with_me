@@ -1,0 +1,57 @@
+from typing import List
+
+class Solution:
+    def maxRunTime(self, n: int, batteries: List[int]) -> int:
+        batteries.sort(reverse=True)
+        m = len(batteries)
+        
+        # The largest n batteries will be used to run the n computers
+        # The remaining batteries will be used as "reserves" to extend runtime
+        usable = batteries[:n]
+        reserves = batteries[n:]
+        
+        # Total extra power from reserve batteries
+        extra = sum(reserves)
+        
+        # We will greedily use the largest reserve batteries to extend the smallest active ones
+        # The maximum sustainable time t satisfies:
+        # sum(min(battery, t)) over all batteries >= n * t
+        # We can binary search for the maximum t
+        
+        left, right = 1, (sum(batteries) // n) + 1
+        
+        while left < right:
+            mid = (left + right + 1) // 2
+            # Can we run all n computers for 'mid' minutes?
+            total_capacity = 0
+            for bat in batteries:
+                total_capacity += min(bat, mid)
+            if total_capacity >= mid * n:
+                left = mid
+            else:
+                right = mid - 1
+        
+        return left
+
+"""
+Approach & Reasoning:
+We need to run n computers simultaneously for maximum time t minutes.
+
+Key Insight:
+- Each computer needs exactly t minutes of power.
+- Total power required = n * t
+- A battery with capacity b can contribute at most min(b, t) minutes when used optimally.
+
+Therefore, we can binary search on the possible runtime t:
+- For a given t, check if sum(min(battery, t) for all batteries) >= n * t
+- This is equivalent to checking if we can supply n * t units of power where no battery gives more than t.
+
+Why binary search works:
+- The function "can run for t minutes" is monotonic: if possible for t, then possible for all smaller values.
+- Search range: low = 1, high = total_power // n + 1
+
+Time Complexity : O(m log m + m log S) where m = len(batteries), S = sum(batteries)
+    - O(m log m) for sorting
+    - O(m log S) for binary search (log S approximately 60)
+Space Complexity: O(1) extra
+"""
