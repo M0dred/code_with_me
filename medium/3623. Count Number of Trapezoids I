@@ -1,0 +1,60 @@
+from typing import List
+from collections import defaultdict
+
+class Solution:
+    def countTrapezoids(self, points: List[List[int]]) -> int:
+        MOD = 10**9 + 7
+        
+        # Group by y-coordinate
+        y_groups = defaultdict(list)
+        for x, y in points:
+            y_groups[y].append(x)
+        
+        total = 0
+        
+        # For each y-level, sort x-coordinates
+        for y in y_groups:
+            xs = sorted(y_groups[y])
+            n = len(xs)
+            if n < 2:
+                continue
+            # Number of ways to choose 2 distinct x-coordinates on this line
+            ways = n * (n - 1) // 2
+            # This line will pair with every other line that has >=2 points
+            total = (total + ways) % MOD
+        
+        # Now total = sum over all y: C(count[y], 2)
+        # We need sum over all pairs (y1,y2): C(y1,2)*C(y2,2) = [sum C(yi,2)] ^ 2 - sum C(yi,2)^2  (over all i)
+        # Actually: (sum_i C_i)^2 = sum_i C_i^2 + 2 * sum_{i<j} C_i*C_j
+        # So sum_{i<j} C_i*C_j = [ (sum C_i)^2 - sum C_i^2 ] / 2
+        
+        sq_sum = 0
+        for y in y_groups:
+            cnt = len(y_groups[y])
+            if cnt >= 2:
+                c = cnt * (cnt - 1) // 2
+                sq_sum = (sq_sum + c * c) % MOD
+        
+        total_sq = (total * total) % MOD
+        result = (total_sq - sq_sum) * pow(2, MOD - 2, MOD) % MOD
+        
+        return result
+
+"""
+Approach:
+Let C(y) = number of ways to choose 2 points on horizontal line y = C(count[y], 2)
+
+The total number of trapezoids is:
+    sum_{y1 < y2} C(y1) * C(y2)
+
+This equals:
+    [ (sum_y C(y))^2 - sum_y C(y)^2 ] / 2
+
+We compute:
+- S  = sum_y C(y)
+- Q  = sum_y C(y)^2
+Then answer = (S^2 - Q) / 2  (modulo MOD)
+
+Time Complexity : O(n log n) due to sorting x-coordinates per y-level
+Space Complexity: O(n)
+"""
