@@ -1,0 +1,40 @@
+class Solution:
+    def countCollisions(self, directions: str) -> int:
+        n = len(directions)
+        
+        # Skip all leading 'L' cars — they go left forever, no collision
+        left = 0
+        while left < n and directions[left] == 'L':
+            left += 1
+            
+        # Skip all trailing 'R' cars — they go right forever, no collision
+        right = n - 1
+        while right >= 0 and directions[right] == 'R':
+            right -= 1
+            
+        # All cars from index left to right (inclusive) will eventually stop
+        # Each moving car ('L' or 'R') that stops contributes exactly 1 collision
+        ans = 0
+        for i in range(left, right + 1):
+            if directions[i] != 'S':
+                ans += 1
+                
+        return ans
+
+"""
+Approach & Reasoning:
+Every car that eventually stops contributes exactly 1 to the total collision count:
+- When 'R' and 'L' collide → both stop → +2 collisions → each contributes 1
+- When a moving car hits 'S' → moving car stops → +1 collision → contributes 1
+
+Cars that never stop:
+- All leading 'L's (nothing to their left)
+- All trailing 'R's (nothing to their right)
+
+All other cars will hit something and stop.
+
+So total collisions = number of non-'S' cars in the middle segment (after removing escaping cars).
+
+Time Complexity : O(n)
+Space Complexity: O(1)
+"""
