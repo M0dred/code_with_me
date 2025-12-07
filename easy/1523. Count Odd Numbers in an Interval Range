@@ -1,0 +1,27 @@
+class Solution:
+    def countOdds(self, low: int, high: int) -> int:
+        return (high + 1) // 2 - low // 2
+
+"""
+Approach & Reasoning:
+
+This is the most elegant O(1) solution.
+
+Explanation:
+- low // 2 = number of integers from 0 to low-1 that are even (i.e., floor division by 2)
+- (high + 1) // 2 = number of integers from 0 to high that are even
+
+The number of odd numbers up to x is:
+- If x is odd: (x + 1) // 2
+- If x is even: x // 2
+
+So:
+- Number of odds <= high = (high + 1) // 2
+- Number of odds < low = low // 2
+
+Therefore:
+    odds in [low, high] = (high + 1) // 2 - low // 2
+
+Time Complexity : O(1)
+Space Complexity: O(1)
+"""
