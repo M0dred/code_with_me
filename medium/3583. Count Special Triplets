@@ -1,0 +1,58 @@
+class Solution:
+    def specialTriplets(self, nums: List[int]) -> int:
+        MOD = 10**9 + 7
+        freq = {}           # total frequency of each number
+        left_freq = {}      # frequency seen so far (for i < j)
+        
+        for num in nums:
+            freq[num] = freq.get(num, 0) + 1
+        
+        ans = 0
+        
+        for j in range(len(nums)):
+            v = nums[j]
+            target = v * 2
+            
+            # Number of valid i < j such that nums[i] == target
+            l_cnt = left_freq.get(target, 0)
+            
+            # Number of valid k > j such that nums[k] == target
+            r_cnt = freq.get(target, 0) - left_freq.get(target, 0) - (1 if j < len(nums) and nums[j] == target else 0)
+            
+            ans = (ans + l_cnt * r_cnt) % MOD
+            
+            # Add current element to "seen so far" for future j
+            left_freq[v] = left_freq.get(v, 0) + 1
+        
+        return ans
+
+"""
+Approach & Reasoning:
+
+A special triplet (i, j, k) requires:
+    nums[i] == nums[j] * 2
+    nums[k] == nums[j] * 2
+    and i < j < k
+
+So for each possible middle index j:
+    Let target = nums[j] * 2
+    We need:
+        - nums[i] == target with i < j
+        - nums[k] == target with k > j
+
+We use two frequency maps:
+    - freq: total count of each number (precomputed)
+    - left_freq: count of numbers seen before current j
+
+For each j:
+    l_cnt = number of i < j with nums[i] == target
+    r_cnt = number of k > j with nums[k] == target
+        = total[target] - seen_so_far[target] - (1 if nums[j] == target else 0)
+
+Then add l_cnt * r_cnt to answer.
+
+This correctly counts all triplets with i < j < k.
+
+Time Complexity : O(n)
+Space Complexity: O(n)
+"""
