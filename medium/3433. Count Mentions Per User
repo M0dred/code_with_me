@@ -1,0 +1,57 @@
+from typing import List
+import heapq
+
+class Solution:
+    def countMentions(self, numberOfUsers: int, events: List[List[str]]) -> List[int]:
+        events.sort(key=lambda x: (int(x[1]), 0 if x[0] == "OFFLINE" else 1))
+        
+        mentions = [0] * numberOfUsers
+        comeback = []  # min-heap: (back_online_time, user_id)
+        
+        for typ, ts_str, arg in events:
+            ts = int(ts_str)
+            
+            # Bring back online all users whose offline period ended
+            while comeback and comeback[0][0] <= ts:
+                heapq.heappop(comeback)
+            
+            if typ == "OFFLINE":
+                user = int(arg)
+                heapq.heappush(comeback, (ts + 60, user))
+            else:
+                s = arg
+                if s == "ALL":
+                    for i in range(numberOfUsers):
+                        mentions[i] += 1
+                elif s == "HERE":
+                    # Add 1 to everyone, then subtract from currently offline users
+                    for i in range(numberOfUsers):
+                        mentions[i] += 1
+                    for back_time, uid in comeback:
+                        if back_time > ts:          # still offline
+                            mentions[uid] -= 1
+                else:
+                    for token in s.split():
+                        uid = int(token[2:])
+                        mentions[uid] += 1
+        
+        return mentions
+
+'''
+Approach & Reasoning:
+- Critical rule: at the same timestamp, OFFLINE events must be processed before MESSAGE events.
+- We sort the events with key (timestamp, type) where OFFLINE = 0 and MESSAGE = 1 → guarantees correct order.
+- Maintain an array offline_until[i]:
+    * 0  → user i is currently online
+    * t  → user i will be online again starting from time t
+- For each event (already in correct order):
+    * OFFLINE → set offline_until[user] = timestamp + 60
+    * MESSAGE:
+        - "ALL"  → mention every user (online or offline)
+        - "HERE" → mention only users with offline_until[i] <= current_timestamp
+        - explicit "idX idY ..." → mention each listed id (duplicates count multiple times)
+- This handles all corner cases correctly, including multiple offline/online transitions at the same timestamp.
+
+Time Complexity : O(n log n + n × numberOfUsers)   (sorting + linear passes)
+Space Complexity: O(numberOfUsers)
+'''
