@@ -1,0 +1,35 @@
+class Solution:
+    def getDescentPeriods(self, prices: List[int]) -> int:
+        n = len(prices)
+        if n == 0:
+            return 0
+        
+        ans = 1  # at least the first day
+        length = 1  # current length of smooth descent
+        
+        for i in range(1, n):
+            if prices[i] == prices[i-1] - 1:
+                length += 1
+            else:
+                length = 1  # reset to single day
+            ans += length
+        
+        return ans
+
+"""
+Approach & Reasoning:
+
+A smooth descent period is a contiguous subarray where each day (except the first) is exactly 1 less than the previous day.
+
+Key observation:
+- Every single day is always a valid smooth descent period (length 1).
+- When we have a continuous decreasing sequence by 1, the number of valid subarrays ending at current position equals the current length of the sequence.
+
+We iterate through the array:
+- If prices[i] == prices[i-1] - 1 → extend current descent → length += 1
+- Else → start new descent of length 1
+- At each position i, add the current `length` to the answer (contributes that many new periods ending at i)
+
+Time Complexity : O(n)
+Space Complexity: O(1)
+"""
