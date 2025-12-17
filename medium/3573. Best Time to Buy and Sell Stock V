@@ -1,0 +1,83 @@
+class Solution:
+    def maximumProfit(self, prices: List[int], k: int) -> int:
+        from functools import cache
+        from math import inf
+        
+        n = len(prices)
+        if n < 2:
+            return 0
+        
+        @cache
+        def dfs(i: int, trans: int, state: int) -> int:
+            # i: current day (0 to n-1)
+            # trans: remaining transactions allowed (0 to k)
+            # state: 0 = no position, 1 = holding long, 2 = holding short
+            
+            if trans < 0:
+                return -inf
+            if i == -1:
+                return 0 if state == 0 else -inf  # must end with no position
+            
+            p = prices[i]
+            
+            if state == 0:  # no position
+                # do nothing
+                res = dfs(i - 1, trans, 0)
+                # buy long
+                res = max(res, dfs(i - 1, trans, 1) - p)
+                # sell short
+                res = max(res, dfs(i - 1, trans, 2) + p)
+            elif state == 1:  # holding long
+                # hold
+                res = dfs(i - 1, trans, 1)
+                # sell (complete transaction)
+                res = max(res, dfs(i - 1, trans - 1, 0) + p)
+            else:  # state == 2, holding short
+                # hold
+                res = dfs(i - 1, trans, 2)
+                # buy back (complete transaction)
+                res = max(res, dfs(i - 1, trans - 1, 0) - p)
+            
+            return res
+        
+        # Start from last day, with k transactions, no position
+        result = dfs(n - 1, k, 0)
+        dfs.cache_clear()  # clear cache to free memory
+        return result
+
+"""
+Approach & Reasoning:
+
+We use top-down DP with memoization.
+
+State:
+- i: current day index (from n-1 down to 0)
+- trans: number of transactions remaining
+- state: current position status
+  - 0: no open position
+  - 1: holding long (bought stock)
+  - 2: holding short (sold short)
+
+Transitions:
+- From no position (state 0):
+  - Do nothing
+  - Buy long → go to state 1
+  - Sell short → go to state 2
+- From holding long (state 1):
+  - Hold
+  - Sell → complete transaction, go to state 0, consume one transaction
+- From holding short (state 2):
+  - Hold
+  - Buy back → complete transaction, go to state 0, consume one transaction
+
+Base cases:
+- trans < 0 → invalid
+- i < 0 → if state == 0 return 0, else invalid
+
+We start from dfs(n-1, k, 0) — at last day, with k transactions, no position.
+
+Use @cache for memoization and clear cache at end.
+
+Time Complexity : O(n * k * 3) = O(n * k)
+Space Complexity: O(n * k * 3) for cache
+"""
