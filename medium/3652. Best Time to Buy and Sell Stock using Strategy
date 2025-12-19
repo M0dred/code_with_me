@@ -1,0 +1,67 @@
+class Solution:
+    def maxProfit(self, prices: List[int], strategy: List[int], k: int) -> int:
+        n = len(prices)
+        half = k // 2
+        
+        # prefix_profit[i+1] = sum of strategy[j] * prices[j] for j in [0..i]
+        prefix_profit = [0] * (n + 1)
+        # prefix_price[i+1] = sum of prices[j] for j in [0..i]
+        prefix_price = [0] * (n + 1)
+        
+        for i in range(n):
+            prefix_profit[i + 1] = prefix_profit[i] + strategy[i] * prices[i]
+            prefix_price[i + 1] = prefix_price[i] + prices[i]
+        
+        # Original profit without modification
+        ans = prefix_profit[n]
+        
+        # Try every possible window of length k
+        # Window: [start, start+k)
+        # First half: [start, start+half) → set to 0 (hold)
+        # Second half: [start+half, start+k) → set to 1 (sell)
+        for start in range(n - k + 1):
+            # Profit from left part (before window) remains the same
+            left_profit = prefix_profit[start]
+            
+            # Original profit in first half
+            first_orig = prefix_profit[start + half] - prefix_profit[start]
+            
+            # Original profit in second half
+            second_orig = prefix_profit[start + k] - prefix_profit[start + half]
+            
+            # New profit in second half when all sell (1)
+            second_new = prefix_price[start + k] - prefix_price[start + half]
+            
+            # New total profit for this modification
+            new_profit = left_profit + 0 + second_new + (prefix_profit[n] - prefix_profit[start + k])
+            # Simplified: left_profit + second_new + right_profit
+            # where right_profit = prefix_profit[n] - prefix_profit[start + k]
+            
+            ans = max(ans, left_profit + second_new + (prefix_profit[n] - prefix_profit[start + k]))
+        
+        return ans
+
+"""
+Approach & Reasoning:
+
+We use prefix sums to compute range sums in O(1).
+
+- prefix_profit[i+1]: cumulative profit using original strategy up to day i
+- prefix_price[i+1]: cumulative price sum up to day i
+
+For each possible starting position of the modification window of length k:
+- First half becomes hold (0) → profit contribution = 0
+- Second half becomes sell (1) → profit contribution = sum of prices in second half
+- Profit outside the window remains unchanged
+
+Net profit = 
+    profit before window +
+    0 (first half) +
+    sum(prices in second half) +
+    profit after window
+
+We compute this using prefix sums and take the maximum over all windows and the original profit.
+
+Time Complexity : O(n)
+Space Complexity: O(n)
+"""
