@@ -1,0 +1,43 @@
+class Solution:
+    def minDeletionSize(self, strs: List[str]) -> int:
+        if not strs:
+            return 0
+        m = len(strs[0])                     # number of columns
+        f = [0] * m                          # f[i] = length of longest non-decreasing subsequence ending at column i
+        
+        for i in range(m):
+            for j in range(i):
+                # If column j can precede column i:
+                # - f[j] is larger than current f[i]
+                # - AND for every row, strs[row][j] <= strs[row][i]
+                if f[j] > f[i] and all(s[j] <= s[i] for s in strs):
+                    f[i] = f[j]
+            f[i] += 1                        # include current column itself
+        
+        return m - max(f)
+
+"""
+Approach & Reasoning:
+
+We need to find the minimum number of columns to delete so that each remaining row is non-decreasing.
+
+This is equivalent to finding the longest sequence of columns where:
+- The characters in each row are non-decreasing across these columns.
+
+We use dynamic programming:
+- f[i] = length of longest valid subsequence of columns ending at column i
+- For each column i, try all previous columns j < i
+- We can append column i after column j if:
+  - f[j] > f[i] (better candidate)
+  - AND strs[row][j] <= strs[row][i] for every row (preserves order in all rows)
+- Then f[i] = f[j] + 1
+- Finally, include the current column itself: f[i] += 1
+
+The maximum value in f is the length of the longest valid column subsequence.
+Minimum deletions = total columns - max(f)
+
+Time Complexity : O(m² × n) where m = number of columns, n = number of rows
+Space Complexity: O(m)
+
+This DP correctly computes the longest set of columns that can be kept.
+"""
