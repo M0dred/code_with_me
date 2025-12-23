@@ -1,0 +1,54 @@
+class Solution:
+    def maxTwoEvents(self, events: List[List[int]]) -> int:
+        events.sort(key=lambda x: x[1])  # sort by end time
+        
+        n = len(events)
+        max_val = [0] * (n + 1)  # max_val[i] = max value of events[0..i-1]
+        
+        for i in range(n):
+            max_val[i + 1] = max(max_val[i], events[i][2])
+        
+        ans = 0
+        for i in range(n):
+            # value of current event
+            ans = max(ans, events[i][2])
+            
+            # find the latest event that ends before or at events[i][0] - 1
+            # i.e., first event with end_time >= events[i][0]
+            target = events[i][0]
+            left, right = 0, n
+            while left < right:
+                mid = (left + right) // 2
+                if events[mid][1] >= target:
+                    right = mid
+                else:
+                    left = mid + 1
+            
+            # left is the smallest index where events[left][1] >= target
+            # so max value from events[0..left-1]
+            if left > 0:
+                ans = max(ans, events[i][2] + max_val[left])
+        
+        return ans
+
+"""
+Approach & Reasoning:
+
+We want to pick at most two non-overlapping events with maximum sum of values.
+
+Sort events by end time.
+
+Precompute max_val[i] = maximum value among events[0..i-1] (ending at or before events[i-1])
+
+For each event i:
+- Consider taking it alone: contributes events[i][2]
+- Consider pairing it with a previous non-overlapping event:
+  - Find the latest event that ends before events[i] starts (i.e., end <= events[i][0] - 1)
+  - Using binary search on sorted end times to find the rightmost such event
+  - Then take max_val up to that point + current event value
+
+Take the maximum over all possibilities.
+
+Time Complexity : O(n log n) due to sorting and n binary searches
+Space Complexity: O(n)
+"""
