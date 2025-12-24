@@ -1,0 +1,34 @@
+class Solution:
+    def minimumBoxes(self, apple: List[int], capacity: List[int]) -> int:
+        total_apples = sum(apple)
+        
+        # Sort capacity in descending order (greedy: use largest boxes first)
+        capacity.sort(reverse=True)
+        
+        used = 0
+        current = 0
+        for cap in capacity:
+            current += cap
+            used += 1
+            if current >= total_apples:
+                return used
+        
+        return used  # though problem guarantees it's possible
+
+"""
+Approach & Reasoning:
+
+We need to pack all apples into as few boxes as possible.
+
+Since apples from the same pack can be split across boxes, the problem reduces to:
+- Total number of apples = sum(apple)
+- We need to cover this total using the box capacities.
+
+To minimize the number of boxes:
+- Use the largest available boxes first (greedy choice).
+
+Sort capacity descending and cumulatively add until the sum >= total_apples.
+
+Time Complexity : O(m log m) due to sorting
+Space Complexity: O(1)
+"""
