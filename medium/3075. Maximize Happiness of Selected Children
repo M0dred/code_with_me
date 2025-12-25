@@ -1,0 +1,32 @@
+class Solution:
+    def maximumHappinessSum(self, happiness: List[int], k: int) -> int:
+        happiness.sort(reverse=True)
+        
+        ans = 0
+        for i in range(k):
+            # After i children selected, all remaining happiness decrease by i
+            # So current child's effective happiness = original - i (but not below 0)
+            cur = happiness[i] - i
+            if cur <= 0:
+                break
+            ans += cur
+        
+        return ans
+
+"""
+Approach & Reasoning:
+
+To maximize the sum, we should always pick the currently happiest child.
+
+Greedy strategy:
+- Sort happiness in descending order.
+- In turn i (0-based), we pick the i-th largest original happiness.
+- By the time we pick it, all unselected children have been decremented i times.
+- Effective happiness = happiness[i] - i (or 0 if negative).
+- Add to answer and continue for k turns or until no positive contribution.
+
+Sorting ensures we always pick the best possible at each step.
+
+Time Complexity : O(n log n) due to sorting
+Space Complexity: O(1)
+"""
