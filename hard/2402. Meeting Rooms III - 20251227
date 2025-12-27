@@ -1,0 +1,62 @@
+class Solution:
+    def mostBooked(self, n: int, meetings: List[List[int]]) -> int:
+        # Sort meetings by start time
+        meetings.sort()
+        
+        # Min-heap for available rooms (room numbers)
+        available = list(range(n))
+        heapq.heapify(available)
+        
+        # Min-heap for busy rooms: (end_time, room_number)
+        busy = []
+        
+        # Count of meetings per room
+        count = [0] * n
+        
+        for start, end in meetings:
+            # Free up rooms that have finished by current start time
+            while busy and busy[0][0] <= start:
+                _, room = heapq.heappop(busy)
+                heapq.heappush(available, room)
+            
+            # If there are available rooms, use the lowest numbered one
+            if available:
+                room = heapq.heappop(available)
+                heapq.heappush(busy, (end, room))
+                count[room] += 1
+            else:
+                # All rooms busy → delay meeting until earliest room frees up
+                end_time, room = heapq.heappop(busy)
+                # New end time = end_time + duration
+                new_end = end_time + (end - start)
+                heapq.heappush(busy, (new_end, room))
+                count[room] += 1
+        
+        # Find room with maximum count, tie-break by lowest room number
+        max_meetings = max(count)
+        for i in range(n):
+            if count[i] == max_meetings:
+                return i
+        
+        return 0  # fallback (though always one exists)
+
+"""
+Approach & Reasoning:
+
+We simulate the meeting scheduling using two priority queues (heaps):
+
+1. available: min-heap of available room numbers (smallest first)
+2. busy: min-heap of (end_time, room_number) for currently occupied rooms
+
+Process meetings in order of start time:
+- First, free up any rooms that finished before current meeting starts
+- If there's an available room → assign the lowest numbered one
+- If no available room → wait until the earliest busy room finishes
+  - Delay the current meeting accordingly
+  - Assign that room when it becomes free
+
+Track meeting count per room and return the room with highest count (lowest number on tie).
+
+Time Complexity : O(m log n) where m = number of meetings, n = number of rooms
+Space Complexity: O(n)
+"""
