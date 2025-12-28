@@ -1,0 +1,39 @@
+class Solution:
+    def countNegatives(self, grid: List[List[int]]) -> int:
+        if not grid or not grid[0]:
+            return 0
+        
+        m, n = len(grid), len(grid[0])
+        count = 0
+        row = 0
+        col = n - 1
+        
+        # Start from top-right corner
+        while row < m and col >= 0:
+            if grid[row][col] < 0:
+                # All elements below in this column are also negative (rows are sorted)
+                count += (m - row)
+                col -= 1  # move left
+            else:
+                row += 1  # move down
+        
+        return count
+
+"""
+Approach & Reasoning:
+
+The grid is sorted in non-increasing order both row-wise and column-wise.
+
+We use a pointer starting from the top-right corner:
+- If current element is negative:
+  - All elements in the current column from current row to bottom are negative
+  - Add (m - row) to count
+  - Move left to check previous column
+- Else:
+  - Move down to next row (since current column has no negatives in this row or above)
+
+This traverses at most m + n steps → O(m + n) time.
+
+Time Complexity : O(m + n)
+Space Complexity: O(1)
+"""
