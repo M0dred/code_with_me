@@ -1,0 +1,45 @@
+class Solution:
+    def pyramidTransition(self, bottom: str, allowed: List[str]) -> bool:
+        # Preprocess allowed patterns: for each pair (left, right) -> set of possible top blocks
+        trans = defaultdict(set)
+        for pattern in allowed:
+            trans[(pattern[0], pattern[1])].add(pattern[2])
+        
+        # DFS with memoization: check if we can build a pyramid from current row
+        @cache
+        def can_build(row: str) -> bool:
+            if len(row) == 1:
+                return True  # reached the top
+            
+            # Try to build the next level
+            n = len(row)
+            # Generate all possible next rows
+            def build_next(level: int, curr: str) -> bool:
+                if level == n - 1:
+                    # Finished building next row, try to recurse
+                    return can_build(curr)
+                
+                left, right = row[level], row[level + 1]
+                for top in trans[(left, right)]:
+                    if build_next(level + 1, curr + top):
+                        return True
+                return False
+            
+            return build_next(0, "")
+        
+        return can_build(bottom)
+
+"""
+Approach & Reasoning:
+
+We use backtracking with memoization to check if we can build the pyramid.
+
+- Preprocess allowed into a map: (left, right) -> set of possible top blocks
+- For a given row, try to build the next row above it:
+  - For each consecutive pair in current row, choose a valid top block from allowed
+  - Recursively check if the resulting next row can lead to a single block top
+- Memoize results for each row string (since bottom.length <= 6 → limited states)
+
+Time Complexity : O(states × choices) — small due to constraints
+Space Complexity: O(states) for memoization
+"""
