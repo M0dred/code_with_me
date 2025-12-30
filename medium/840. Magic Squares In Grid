@@ -1,0 +1,70 @@
+class Solution:
+    def numMagicSquaresInside(self, grid: List[List[int]]) -> int:
+        rows = len(grid)
+        cols = len(grid[0]) if grid else 0
+        if rows < 3 or cols < 3:
+            return 0
+        
+        count = 0
+        
+        # Check every possible 3x3 subgrid
+        for i in range(rows - 2):
+            for j in range(cols - 2):
+                # Extract the 3x3 subgrid
+                sub = [
+                    grid[i][j:j+3],
+                    grid[i+1][j:j+3],
+                    grid[i+2][j:j+3]
+                ]
+                
+                # Check if it's a magic square
+                if self.is_magic(sub):
+                    count += 1
+        
+        return count
+    
+    def is_magic(self, g):
+        # Must contain distinct numbers 1 to 9
+        seen = set()
+        for row in g:
+            for num in row:
+                if num < 1 or num > 9 or num in seen:
+                    return False
+                seen.add(num)
+        
+        # Magic sum is always 15 for 1-9
+        magic_sum = 15
+        
+        # Check rows
+        for row in g:
+            if sum(row) != magic_sum:
+                return False
+        
+        # Check columns
+        for c in range(3):
+            if g[0][c] + g[1][c] + g[2][c] != magic_sum:
+                return False
+        
+        # Check diagonals
+        if g[0][0] + g[1][1] + g[2][2] != magic_sum:
+            return False
+        if g[0][2] + g[1][1] + g[2][0] != magic_sum:
+            return False
+        
+        return True
+
+"""
+Approach & Reasoning:
+
+A 3x3 magic square must satisfy:
+- Contains distinct integers 1 through 9 exactly once
+- All rows, columns, and both main diagonals sum to 15
+
+We iterate over all possible 3x3 subgrids:
+- Extract the subgrid
+- First check if it contains exactly the numbers 1-9 (no duplicates, no other numbers)
+- Then verify all 8 sums (3 rows, 3 columns, 2 diagonals) equal 15
+
+Time Complexity : O(rows × cols)
+Space Complexity: O(1)
+"""
