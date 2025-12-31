@@ -1,0 +1,64 @@
+class Solution:
+    def latestDayToCross(self, row: int, col: int, cells: List[List[int]]) -> int:
+        # Binary search on the day
+        left, right = 0, len(cells)
+        
+        def can_cross(day: int) -> bool:
+            # Build grid with first 'day' cells flooded (1 = water, 0 = land)
+            grid = [[0] * col for _ in range(row)]
+            for i in range(day):
+                r, c = cells[i]
+                grid[r-1][c-1] = 1
+            
+            # BFS from top row to see if we can reach bottom row
+            queue = []
+            visited = [[False] * col for _ in range(row)]
+            
+            # Add all land cells in top row to queue
+            for c in range(col):
+                if grid[0][c] == 0:
+                    queue.append((0, c))
+                    visited[0][c] = True
+            
+            dirs = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+            
+            while queue:
+                r, c = queue.pop(0)
+                
+                # If we reached bottom row
+                if r == row - 1:
+                    return True
+                
+                for dr, dc in dirs:
+                    nr, nc = r + dr, c + dc
+                    if 0 <= nr < row and 0 <= nc < col and not visited[nr][nc] and grid[nr][nc] == 0:
+                        visited[nr][nc] = True
+                        queue.append((nr, nc))
+            
+            return False
+        
+        # Binary search for the last day where crossing is possible
+        while left < right:
+            mid = (left + right + 1) // 2
+            if can_cross(mid):
+                left = mid
+            else:
+                right = mid - 1
+        
+        return left
+
+"""
+Approach & Reasoning:
+
+We use binary search on the day (0 to row*col) to find the latest day where it's still possible to walk from top to bottom on land.
+
+For each candidate day:
+- Simulate the grid with the first 'day' cells flooded (turned to water)
+- Use BFS starting from all land cells in the top row
+- Check if we can reach any cell in the bottom row
+
+Since flooding is monotonic (more water → harder to cross), the feasibility is monotonic, so binary search works.
+
+Time Complexity : O((row × col) × log(row × col)) → acceptable for constraints
+Space Complexity: O(row × col) for grid and visited
+"""
