@@ -1,0 +1,29 @@
+class Solution:
+    def plusOne(self, digits: List[int]) -> List[int]:
+        n = len(digits)
+        
+        # Start from the least significant digit
+        for i in range(n - 1, -1, -1):
+            if digits[i] < 9:
+                digits[i] += 1
+                return digits
+            # If digit is 9, set it to 0 and carry over
+            digits[i] = 0
+        
+        # If we exit the loop, all digits were 9 → need to add 1 at front
+        return [1] + digits
+
+"""
+Approach & Reasoning:
+
+We increment the large integer by 1 from right to left (least significant digit first).
+
+- If current digit < 9 → increment it and return (no carry)
+- If digit == 9 → set to 0 and continue (carry over to next digit)
+- If all digits are 9 → the number was like 999 → becomes 1000 → return [1, 0, ..., 0]
+
+We modify the input array in-place when possible.
+
+Time Complexity : O(n)
+Space Complexity: O(1) extra (O(n) only if we need to add a new digit)
+"""
