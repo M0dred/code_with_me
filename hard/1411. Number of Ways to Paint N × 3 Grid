@@ -1,0 +1,58 @@
+class Solution:
+    def numOfWays(self, n: int) -> int:
+        mod = 10**9 + 7
+        
+        # Generate all valid row colorings: 3 positions, adjacent different
+        types = []
+        for i in range(3):
+            for j in range(3):
+                for k in range(3):
+                    if i != j and j != k:  # only adjacent different
+                        types.append(i * 9 + j * 3 + k)
+        
+        type_cnt = len(types)  # 12 valid colorings
+        
+        # Precompute valid transitions: related[i][j] = 1 if types[i] can be followed by types[j]
+        related = [[0] * type_cnt for _ in range(type_cnt)]
+        for i, ti in enumerate(types):
+            x1 = ti // 9
+            x2 = ti // 3 % 3
+            x3 = ti % 3
+            for j, tj in enumerate(types):
+                y1 = tj // 9
+                y2 = tj // 3 % 3
+                y3 = tj % 3
+                if x1 != y1 and x2 != y2 and x3 != y3:
+                    related[i][j] = 1
+        
+        # DP: f[i][j] = number of ways to color first i rows, ending with type j
+        f = [[0] * type_cnt for _ in range(n + 1)]
+        f[1] = [1] * type_cnt  # first row can be any valid coloring
+        
+        for i in range(2, n + 1):
+            for j in range(type_cnt):
+                for k in range(type_cnt):
+                    if related[k][j]:
+                        f[i][j] = (f[i][j] + f[i - 1][k]) % mod
+        
+        return sum(f[n]) % mod
+
+"""
+Approach & Reasoning:
+
+We model the problem as finding the number of valid sequences of row colorings.
+
+- A valid row coloring: 3 positions with adjacent colors different → 3×2×2 = 12 possibilities.
+- Encode each valid coloring as a number (0-26) using base-3: i*9 + j*3 + k.
+- Precompute all 12 valid types.
+- Precompute transitions: types[i] → types[j] is valid if no vertical same color (x1!=y1, x2!=y2, x3!=y3).
+- Use DP:
+  - f[i][j] = number of ways to color i rows, ending with type j
+  - f[1][j] = 1 for all valid j
+  - f[i][j] = sum f[i-1][k] over all k where transition k→j is valid
+
+Final answer = sum of f[n][all j]
+
+Time Complexity : O(1) preprocessing + O(n × 12²) = O(n)
+Space Complexity: O(n × 12) = O(n)
+"""
