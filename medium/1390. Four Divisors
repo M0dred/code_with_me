@@ -1,0 +1,39 @@
+class Solution:
+    def sumFourDivisors(self, nums: List[int]) -> int:
+        ans = 0
+        
+        for num in nums:
+            # Find number of divisors and their sum if exactly 4 divisors
+            divisor_count = 0
+            divisor_sum = 0
+            
+            for i in range(1, int(num**0.5) + 1):
+                if num % i == 0:
+                    divisor_count += 1
+                    divisor_sum += i
+                    
+                    # If i != num//i, add the pair divisor too
+                    if i != num // i:
+                        divisor_count += 1
+                        divisor_sum += num // i
+            
+            if divisor_count == 4:
+                ans += divisor_sum
+        
+        return ans
+
+"""
+Approach & Reasoning:
+
+A number has exactly 4 divisors in two possible forms:
+1. p^3 (divisors: 1, p, p^2, p^3)
+2. p * q (p and q distinct primes) → divisors: 1, p, q, p*q
+
+We iterate through each number in nums:
+- For each num, count divisors and their sum by checking from 1 to sqrt(num)
+- If a divisor i is found, count both i and num//i (unless i == num//i)
+- If exactly 4 divisors → add their sum to answer
+
+Time Complexity : O(n × √m) where m = max(nums[i]) ≤ 10^5 → acceptable (n≤10^4)
+Space Complexity: O(1)
+"""
