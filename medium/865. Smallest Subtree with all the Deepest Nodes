@@ -1,0 +1,40 @@
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def subtreeWithAllDeepest(self, root: Optional[TreeNode]) -> Optional[TreeNode]:
+        def dfs(node):
+            if not node:
+                return 0, None  # height, subtree root
+            
+            left_h, left_root = dfs(node.left)
+            right_h, right_root = dfs(node.right)
+            
+            curr_h = max(left_h, right_h) + 1
+            
+            if left_h == right_h:
+                return curr_h, node
+            elif left_h > right_h:
+                return curr_h, left_root
+            else:
+                return curr_h, right_root
+        
+        # The second returned value is the answer
+        return dfs(root)[1]
+
+"""
+Approach & Reasoning:
+We use post-order DFS to return two values from each subtree:
+1. The maximum depth (height) of the subtree
+2. The root of the smallest subtree that contains all deepest nodes in this subtree
+
+Key logic:
+- If left and right subtree have the same max depth → current node is the smallest one covering all deepest nodes
+- If left subtree is deeper → answer lies in left subtree
+- If right subtree is deeper → answer lies in right subtree
+
+This is a classic post-order pattern to find the LCA-like node of all deepest leaves.
+"""
