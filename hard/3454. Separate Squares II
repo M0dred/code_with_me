@@ -1,0 +1,123 @@
+from typing import List
+from bisect import bisect_left
+
+class Node:
+    __slots__ = 'l', 'r', 'min_cover_len', 'min_cover', 'todo'
+    def __init__(self):
+        self.l = self.r = self.min_cover_len = self.min_cover = self.todo = 0
+
+class SegmentTree:
+    def __init__(self, xs: List[int]):
+        n = len(xs) - 1
+        self.seg = [Node() for _ in range(2 << (n - 1).bit_length())]
+        self.build(xs, 1, 0, n - 1)
+
+    def get_covered_length(self, total_range: int) -> int:
+        if self.seg[1].min_cover > 0:
+            return total_range
+        return total_range - self.seg[1].min_cover_len
+
+    def maintain(self, o: int) -> None:
+        lo, ro = self.seg[o * 2], self.seg[o * 2 + 1]
+        mn = min(lo.min_cover, ro.min_cover)
+        self.seg[o].min_cover = mn
+        self.seg[o].min_cover_len = (lo.min_cover_len if lo.min_cover == mn else 0) + \
+                                    (ro.min_cover_len if ro.min_cover == mn else 0)
+
+    def do(self, o: int, v: int) -> None:
+        self.seg[o].min_cover += v
+        self.seg[o].todo += v
+
+    def spread(self, o: int) -> None:
+        if self.seg[o].todo:
+            self.do(o * 2, self.seg[o].todo)
+            self.do(o * 2 + 1, self.seg[o].todo)
+            self.seg[o].todo = 0
+
+    def build(self, xs: List[int], o: int, l: int, r: int) -> None:
+        self.seg[o].l, self.seg[o].r = l, r
+        if l == r:
+            self.seg[o].min_cover_len = xs[l + 1] - xs[l]
+            return
+        m = (l + r) // 2
+        self.build(xs, o * 2, l, m)
+        self.build(xs, o * 2 + 1, m + 1, r)
+        self.maintain(o)
+
+    def update(self, o: int, l: int, r: int, v: int) -> None:
+        if l <= self.seg[o].l and self.seg[o].r <= r:
+            self.do(o, v)
+            return
+        self.spread(o)
+        m = (self.seg[o].l + self.seg[o].r) // 2
+        if l <= m: self.update(o * 2, l, r, v)
+        if m < r: self.update(o * 2 + 1, l, r, v)
+        self.maintain(o)
+
+class Solution:
+    def separateSquares(self, squares: List[List[int]]) -> float:
+        xs_set = set()
+        events = []
+        for x, y, l in squares:
+            xs_set.add(x)
+            xs_set.add(x + l)
+            events.append((y, x, x + l, 1))
+            events.append((y + l, x, x + l, -1))
+        
+        xs = sorted(xs_set)
+        events.sort()
+        st = SegmentTree(xs)
+        total_width = xs[-1] - xs[0]
+        
+        records = []
+        total_area = 0.0
+        
+        i = 0
+        while i < len(events):
+            y_curr = events[i][0]
+            while i < len(events) and events[i][0] == y_curr:
+                _, lx, rx, delta = events[i]
+                l_idx = bisect_left(xs, lx)
+                r_idx = bisect_left(xs, rx) - 1
+                if l_idx <= r_idx:
+                    st.update(1, l_idx, r_idx, delta)
+                i += 1
+            
+            covered_len = st.get_covered_length(total_width)
+            records.append([y_curr, total_area, covered_len])
+            
+            if i < len(events):
+                y_next = events[i][0]
+                total_area += covered_len * (y_next - y_curr)
+
+        target = total_area / 2.0
+        idx = bisect_left(records, target, key=lambda r: r[1]) - 1
+        
+        y_start, area_at_start, active_len = records[idx]
+        remaining_needed = target - area_at_start
+        
+        return y_start + (remaining_needed / active_len)
+
+"""
+Approach & Reasoning:
+
+We solve the problem using a Sweep Line algorithm in conjunction with a Segment Tree to handle the Union Area of overlapping squares.
+
+Event Generation: Each square generates two horizontal boundary events: a start event at y (bottom) and an end event at y + l (top).
+
+Coordinate Compression: Since x-coordinates can be large, we discretize all unique x-coordinates into intervals. The segment tree manages these intervals.
+
+Segment Tree Logic: 
+- Each node tracks min_cover (the minimum number of times an interval is covered) and min_cover_len (the total length within that node covered exactly min_cover times).
+- If min_cover > 0 at the root, the entire horizontal span is covered. Otherwise, the covered length is TotalSpan - min_cover_len.
+
+Area Calculation: We iterate through y-events. For each interval between unique y-levels, the union width (covered length) is constant. We accumulate these vertical slices to find the total union area.
+
+Finding the Median: 
+- We record the cumulative area at each y-event.
+- We use binary search on these records to locate the specific y-interval [y_i, y_{i+1}] that contains the half-area point.
+- Because the union width is constant within this interval, we use linear interpolation: y = y_start + (NeededArea / CurrentUnionWidth).
+
+Time Complexity: O(n log n) where n is the number of squares.
+Space Complexity: O(n) to store events, discretized x-coordinates, and the segment tree.
+"""
