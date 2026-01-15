@@ -1,0 +1,43 @@
+class Solution:
+    def maximizeSquareHoleArea(self, n: int, m: int, hBars: List[int], vBars: List[int]) -> int:
+        def max_consec(bars):
+            if not bars:
+                return 0
+            bars.sort()
+            max_len = 1
+            curr_len = 1
+            for i in range(1, len(bars)):
+                if bars[i] == bars[i-1] + 1:
+                    curr_len += 1
+                    max_len = max(max_len, curr_len)
+                else:
+                    curr_len = 1
+            return max_len
+        
+        max_h = max_consec(hBars)
+        max_v = max_consec(vBars)
+        
+        side = min(max_h + 1, max_v + 1)
+        return side * side
+
+"""
+Approach & Reasoning:
+
+To form a square hole of side s (s x s cells):
+
+- Need s consecutive rows of cells with no horizontal bars between them → s+1 consecutive horizontal bars with the inner s-1 bars removed.
+- The inner s-1 bars must be removable → need s-1 consecutive removable horizontal bars.
+
+- So max s = max_consecutive_removable_h + 1
+- Same for vertical.
+
+- Then max square side = min(max_s_h, max_s_v)
+- Area = side ** 2
+
+To find max_consecutive_removable:
+- Sort the bar indices
+- Find the longest chain where each next = prev + 1
+
+Time Complexity: O(h log h + v log v) — sorting
+Space Complexity: O(1)
+"""
