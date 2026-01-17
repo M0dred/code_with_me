@@ -1,0 +1,39 @@
+class Solution:
+    def largestSquareArea(self, bottomLeft: List[List[int]], topRight: List[List[int]]) -> int:
+        n = len(bottomLeft)
+        max_side = 0
+        
+        for i in range(n):
+            for j in range(i + 1, n):
+                # Compute intersection of rectangle i and j
+                lx = max(bottomLeft[i][0], bottomLeft[j][0])
+                ly = max(bottomLeft[i][1], bottomLeft[j][1])
+                rx = min(topRight[i][0], topRight[j][0])
+                ry = min(topRight[i][1], topRight[j][1])
+                
+                # If no intersection (empty)
+                if lx >= rx or ly >= ry:
+                    continue
+                
+                # The maximum square side length possible in this intersection
+                side = min(rx - lx, ry - ly)
+                max_side = max(max_side, side)
+        
+        return max_side * max_side
+
+"""
+Approach & Reasoning:
+
+We need to find the largest square that can fit inside the intersection of at least two rectangles.
+
+Since the square must be completely inside some pairwise intersection region:
+- We enumerate all pairs of rectangles (i < j)
+- For each pair, compute their intersection rectangle (if exists)
+  - lx = max(left bottoms), rx = min(right tops), etc.
+- If intersection is non-empty (lx < rx and ly < ry), the largest square that can fit inside it has side length = min(width, height) = min(rx-lx, ry-ly)
+- Track the maximum such side length over all pairs
+- Final answer = max_side²
+
+Time Complexity: O(n²) where n ≤ 1000 → acceptable (10⁶ operations)
+Space Complexity: O(1)
+"""
