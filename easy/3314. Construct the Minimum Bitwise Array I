@@ -1,0 +1,58 @@
+from typing import List
+
+class Solution:
+    def minBitwiseArray(self, nums: List[int]) -> List[int]:
+        ans: List[int] = []
+
+        for p in nums:
+            # Only even prime is 2, and OR(x, x+1) is always odd => impossible for 2
+            if p == 2:
+                ans.append(-1)
+                continue
+
+            # Let s = number of trailing 1s in p (since p is odd, s >= 1)
+            s = 0
+            x = p
+            while x & 1:
+                s += 1
+                x >>= 1
+
+            # Choose k = s-1 (largest bit within the trailing-ones suffix) to minimize the result
+            k = s - 1
+            ans.append(p - (1 << k))
+
+        return ans
+
+
+"""
+Approach & Reasoning:
+
+We need, for each prime p = nums[i], the smallest integer a such that:
+    a OR (a + 1) == p
+or return -1 if impossible.
+
+Key bit property:
+Let k be the index of the least significant 0-bit in a.
+Then bits [0..k-1] in a are all 1, bit k in a is 0, and adding 1 flips:
+- bits [0..k-1] -> 0
+- bit k -> 1
+- higher bits unchanged
+
+Therefore, (a OR (a+1)) will always have bits [0..k] all equal to 1, and higher bits equal to a.
+So p must look like: “some prefix” + “a suffix of (k+1) ones”.
+In particular, p is always odd. Hence p = 2 is impossible (the only even prime).
+
+Construction and minimization:
+Let s be the number of trailing 1s in p.
+Any k in [0..s-1] can work by taking a = p with bit k cleared.
+To minimize a, we clear the largest such k (i.e., k = s - 1), because removing a higher power of two
+reduces the number the most while preserving the required trailing-ones suffix.
+
+So for p > 2:
+- s = countTrailingOnes(p)
+- k = s - 1
+- a = p - 2^k
+
+Time Complexity: O(n log(max(nums))) (counting trailing ones per number).
+Space Complexity: O(1) extra (excluding output).
+"""
