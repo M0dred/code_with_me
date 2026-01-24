@@ -1,0 +1,33 @@
+from typing import List
+
+class Solution:
+    def minPairSum(self, nums: List[int]) -> int:
+        nums.sort()
+        i, j = 0, len(nums) - 1
+        best = 0
+        while i < j:
+            best = max(best, nums[i] + nums[j])
+            i += 1
+            j -= 1
+        return best
+
+"""
+Approach & Reasoning:
+
+To minimize the maximum pair sum, we should "balance" pairs by always matching the
+smallest remaining number with the largest remaining number.
+
+Why this works:
+- If we pair a large number with anything other than the smallest available,
+    the large number’s pair sum can only get larger.
+- Pairing extremes reduces the worst-case sum (classic greedy / rearrangement argument).
+
+Steps:
+1) Sort nums.
+2) Use two pointers: i at start, j at end.
+3) Pair nums[i] with nums[j], update answer with their sum, then move i++, j--.
+4) The maximum among these sums is the minimized maximum pair sum.
+
+Time Complexity: O(n log n) due to sorting.
+Space Complexity: O(1) extra (or O(n) depending on sorting implementation).
+"""
