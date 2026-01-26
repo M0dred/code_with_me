@@ -1,0 +1,40 @@
+from typing import List
+
+class Solution:
+    def minimumAbsDifference(self, arr: List[int]) -> List[List[int]]:
+        arr.sort()
+
+        min_diff = float("inf")
+        res: List[List[int]] = []
+
+        for i in range(1, len(arr)):
+            diff = arr[i] - arr[i - 1]
+            if diff < min_diff:
+                min_diff = diff
+                res = [[arr[i - 1], arr[i]]]
+            elif diff == min_diff:
+                res.append([arr[i - 1], arr[i]])
+
+        return res
+
+
+"""
+Approach & Reasoning:
+
+We need all pairs with the smallest absolute difference among any two distinct elements.
+
+Key idea:
+After sorting, the minimum absolute difference must occur between two adjacent elements.
+So we sort the array and only compare neighboring values.
+
+Steps:
+1) Sort arr.
+2) Scan adjacent pairs (arr[i-1], arr[i]) and compute diff = arr[i] - arr[i-1].
+3) Track the smallest diff seen so far:
+   - If we find a smaller diff, reset the result list to just this pair.
+   - If we find the same diff, append this pair.
+4) Because we scan in sorted order, the resulting pairs are already in ascending order.
+
+Time Complexity: O(n log n) due to sorting.
+Space Complexity: O(1) extra (excluding the output list).
+"""
