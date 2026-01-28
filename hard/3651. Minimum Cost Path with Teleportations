@@ -1,0 +1,102 @@
+from typing import List
+
+class Solution:
+    def minCost(self, grid: List[List[int]], k: int) -> int:
+        m, n = len(grid), len(grid[0])
+        INF = 10**30
+
+        maxV = 0
+        for i in range(m):
+            for j in range(n):
+                if grid[i][j] > maxV:
+                    maxV = grid[i][j]
+
+        def forward_dp(init: List[List[int]], layer0: bool) -> List[List[int]]:
+            dist = [[INF] * n for _ in range(m)]
+            for i in range(m):
+                for j in range(n):
+                    best = init[i][j]
+                    if layer0 and i == 0 and j == 0:
+                        best = min(best, 0)  # start at (0,0) with cost 0 only for layer 0
+
+                    if i > 0:
+                        best = min(best, dist[i - 1][j] + grid[i][j])
+                    if j > 0:
+                        best = min(best, dist[i][j - 1] + grid[i][j])
+
+                    dist[i][j] = best
+            return dist
+
+        # Layer 0: no teleports used
+        init0 = [[INF] * n for _ in range(m)]
+        dist = forward_dp(init0, layer0=True)
+
+        best_answer = dist[m - 1][n - 1]
+
+        # Build layers 1..k by teleporting once from previous layer, then doing normal moves
+        for _ in range(k):
+            # best_exact[v] = min dist among cells with grid value exactly v
+            best_exact = [INF] * (maxV + 2)
+            for i in range(m):
+                for j in range(n):
+                    v = grid[i][j]
+                    if dist[i][j] < best_exact[v]:
+                        best_exact[v] = dist[i][j]
+
+            # Suffix minima: best_exact[v] becomes min dist among cells with value >= v
+            for v in range(maxV - 1, -1, -1):
+                if best_exact[v + 1] < best_exact[v]:
+                    best_exact[v] = best_exact[v + 1]
+
+            # Teleport-init for next layer: can land on (i,j) if some reachable source has value >= grid[i][j]
+            init = [[INF] * n for _ in range(m)]
+            for i in range(m):
+                for j in range(n):
+                    init[i][j] = best_exact[grid[i][j]]
+
+            dist = forward_dp(init, layer0=False)
+            if dist[m - 1][n - 1] < best_answer:
+                best_answer = dist[m - 1][n - 1]
+
+        return int(best_answer)
+
+
+"""
+Approach & Reasoning:
+
+We model “at most k teleports” using layers:
+- dist_t[i][j] = minimum cost to reach cell (i,j) using exactly t teleports.
+We finally return min_{t=0..k} dist_t[m-1][n-1].
+
+Normal moves are only right/down, so the graph is a DAG.
+Given an initial cost init[i][j] (meaning “we can start from (i,j) with this cost”),
+the shortest path with only right/down edges can be computed by a single forward DP:
+    dist[i][j] = min(
+        init[i][j],
+        dist[i-1][j] + grid[i][j],
+        dist[i][j-1] + grid[i][j]
+    )
+(with bounds checks). This works because every edge goes from up/left into (i,j).
+
+Teleport transition (cost 0):
+From any reachable source cell s with value grid[s] to any destination d with value grid[d] <= grid[s].
+So for a fixed destination value v = grid[d], the best teleport arrival cost is:
+    init_next[d] = min dist_t[s] over all s with grid[s] >= v
+This depends only on values, not positions.
+
+We compute this efficiently per layer:
+1) best_exact[val] = min dist_t over cells with grid value exactly val
+2) Convert to suffix minima so best_exact[val] becomes:
+       min dist_t over all cells with value >= val
+3) Then init_next[i][j] = best_exact[grid[i][j]]
+4) Run the forward DP to obtain dist_{t+1}.
+
+We do this for t = 0..k-1 and track the best answer across layers.
+
+Time Complexity:
+- Each layer: O(mn + maxValue) for building suffix minima + O(mn) DP
+- With m,n <= 80 (mn <= 6400), k <= 10, maxValue <= 1e4:
+  total is easily within limits.
+
+Space Complexity: O(mn + maxValue)
+"""
