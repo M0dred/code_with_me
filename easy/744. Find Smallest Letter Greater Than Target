@@ -1,0 +1,28 @@
+from typing import List
+
+class Solution:
+    def nextGreatestLetter(self, letters: List[str], target: str) -> str:
+        lo, hi = 0, len(letters)
+        while lo < hi:
+            mid = (lo + hi) // 2
+            if letters[mid] <= target:
+                lo = mid + 1
+            else:
+                hi = mid
+        return letters[lo % len(letters)]
+
+
+"""
+Approach & Reasoning:
+
+We need the smallest character strictly greater than target in a sorted array.
+This is exactly an “upper bound” search.
+
+Steps:
+1) Binary search for the first index lo where letters[lo] > target.
+2) If lo == len(letters), it means no character is greater than target, so we wrap around and return letters[0].
+   Using lo % len(letters) handles this wrap-around cleanly.
+
+Time Complexity: O(log n)
+Space Complexity: O(1)
+"""
