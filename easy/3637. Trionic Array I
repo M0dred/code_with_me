@@ -1,0 +1,52 @@
+from typing import List
+
+class Solution:
+    def isTrionic(self, nums: List[int]) -> bool:
+        n = len(nums)
+        if n < 4:
+            return False
+
+        p = 0
+        # strictly increasing from start
+        while p + 1 < n and nums[p] < nums[p + 1]:
+            p += 1
+        if p == 0 or p == n - 1:
+            return False
+
+        q = p
+        # strictly decreasing
+        while q + 1 < n and nums[q] > nums[q + 1]:
+            q += 1
+        if q == p or q == n - 1:
+            return False
+
+        # strictly increasing to end
+        r = q
+        while r + 1 < n and nums[r] < nums[r + 1]:
+            r += 1
+
+        return r == n - 1
+
+
+"""
+Approach & Reasoning:
+
+A trionic array must have three consecutive phases:
+1) strictly increasing from index 0 to some peak p,
+2) strictly decreasing from p to some valley q,
+3) strictly increasing from q to the end.
+
+Because the segments are contiguous and must be strict, the array must follow this exact pattern
+without any equal neighbors or extra direction changes.
+
+We can check this in one pass:
+1) Walk forward while nums[i] < nums[i+1] to find the end of the first increasing segment (p).
+   - p must be at least 1 and not the last index.
+2) Continue walking while nums[i] > nums[i+1] to find the end of the decreasing segment (q).
+   - q must be greater than p and not the last index.
+3) Continue walking while nums[i] < nums[i+1] to see if we can reach the last index.
+   - If we end exactly at n-1, the array is trionic.
+
+Time Complexity: O(n)
+Space Complexity: O(1)
+"""
