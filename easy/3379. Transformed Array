@@ -1,0 +1,34 @@
+from typing import List
+
+class Solution:
+    def constructTransformedArray(self, nums: List[int]) -> List[int]:
+        n = len(nums)
+        res = [0] * n
+
+        for i, x in enumerate(nums):
+            if x == 0:
+                res[i] = 0
+            else:
+                j = (i + x) % n
+                res[i] = nums[j]
+
+        return res
+
+
+"""
+Approach & Reasoning:
+
+For each index i:
+- If nums[i] > 0, we move nums[i] steps to the right.
+- If nums[i] < 0, we move abs(nums[i]) steps to the left.
+Both cases are the same as moving by nums[i] steps in a circular array.
+
+So the landing index is:
+    j = (i + nums[i]) mod n
+Python’s % handles negative values correctly, so this works for left moves as well.
+
+If nums[i] == 0, result[i] is 0 (same as nums[i]).
+
+Time Complexity: O(n)
+Space Complexity: O(n)
+"""
