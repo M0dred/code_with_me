@@ -1,0 +1,55 @@
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+
+from typing import Optional, List
+
+class Solution:
+    def balanceBST(self, root: Optional["TreeNode"]) -> Optional["TreeNode"]:
+        vals: List[int] = []
+
+        def inorder(node: Optional["TreeNode"]) -> None:
+            if not node:
+                return
+            inorder(node.left)
+            vals.append(node.val)
+            inorder(node.right)
+
+        def build(l: int, r: int) -> Optional["TreeNode"]:
+            if l > r:
+                return None
+            mid = (l + r) // 2
+            node = TreeNode(vals[mid])
+            node.left = build(l, mid - 1)
+            node.right = build(mid + 1, r)
+            return node
+
+        inorder(root)
+        return build(0, len(vals) - 1)
+
+
+"""
+Approach & Reasoning:
+
+A binary search tree (BST) has the property that an inorder traversal
+produces its values in sorted order.
+
+Steps:
+1) Perform an inorder traversal of the original BST and store all node values in an array.
+   This gives a sorted list of values.
+2) Build a balanced BST from the sorted array:
+   - Choose the middle element as the root.
+   - Recursively build the left subtree from the left half.
+   - Recursively build the right subtree from the right half.
+
+Choosing the middle element at each step ensures that the height difference
+between left and right subtrees is at most 1, so the resulting BST is balanced.
+
+Since the problem allows returning any valid balanced BST, this construction is sufficient.
+
+Time Complexity: O(n)
+Space Complexity: O(n)
+"""
