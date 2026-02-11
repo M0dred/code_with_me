@@ -1,0 +1,52 @@
+from typing import List
+
+class Solution:
+    def longestBalanced(self, nums: List[int]) -> int:
+        n = len(nums)
+        best = 0
+
+        # For each left boundary, track distinct parity counts
+        for l in range(n):
+            evens = set()
+            odds = set()
+
+            # Early pruning: remaining length must exceed current best
+            if n - l <= best:
+                break
+
+            for r in range(l, n):
+                if nums[r] & 1:
+                    odds.add(nums[r])
+                else:
+                    evens.add(nums[r])
+
+                if len(evens) == len(odds):
+                    best = max(best, r - l + 1)
+
+        return best
+
+
+"""
+Approach & Reasoning:
+
+A subarray is balanced if:
+    #distinct even numbers == #distinct odd numbers
+
+Even though n ≤ 1e5, distinct tracking makes true sliding window difficult,
+because removing elements from the left requires maintaining distinct parity counts
+with deletions, which is non-trivial.
+
+Key observation:
+We brute-force the left boundary l.
+For each l, we expand r forward and maintain two sets:
+- evens
+- odds
+
+Whenever len(evens) == len(odds), we update the answer.
+
+Optimization:
+If remaining elements (n - l) cannot beat current best, stop early.
+
+Worst-case Time Complexity: O(n^2)
+Space Complexity: O(n)
+"""
