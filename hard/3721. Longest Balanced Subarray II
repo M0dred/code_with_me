@@ -1,52 +1,143 @@
 from typing import List
 
+# Faster local min/max
+min = lambda a, b: b if b < a else a
+max = lambda a, b: b if b > a else a
+
+
+class Node:
+    __slots__ = ("min", "max", "todo")
+
+    def __init__(self):
+        self.min = 0
+        self.max = 0
+        self.todo = 0
+
+
+class LazySegmentTree:
+    def __init__(self, n: int):
+        self._n = n
+        size = 2 << (n - 1).bit_length()
+        self._tree = [Node() for _ in range(size)]
+
+    def _apply(self, node: int, delta: int) -> None:
+        cur = self._tree[node]
+        cur.min += delta
+        cur.max += delta
+        cur.todo += delta
+
+    def _push(self, node: int) -> None:
+        todo = self._tree[node].todo
+        if todo:
+            self._apply(node * 2, todo)
+            self._apply(node * 2 + 1, todo)
+            self._tree[node].todo = 0
+
+    def _pull(self, node: int) -> None:
+        left = self._tree[node * 2]
+        right = self._tree[node * 2 + 1]
+        self._tree[node].min = min(left.min, right.min)
+        self._tree[node].max = max(left.max, right.max)
+
+    def _update(self, node: int, l: int, r: int, ql: int, qr: int, delta: int) -> None:
+        if ql <= l and r <= qr:
+            self._apply(node, delta)
+            return
+        self._push(node)
+        mid = (l + r) // 2
+        if ql <= mid:
+            self._update(node * 2, l, mid, ql, qr, delta)
+        if qr > mid:
+            self._update(node * 2 + 1, mid + 1, r, ql, qr, delta)
+        self._pull(node)
+
+    def update(self, l: int, r: int, delta: int) -> None:
+        if l <= r:
+            self._update(1, 0, self._n - 1, l, r, delta)
+
+    def _find_first(self, node: int, l: int, r: int, ql: int, qr: int, target: int) -> int:
+        if r < ql or l > qr:
+            return -1
+        cur = self._tree[node]
+        if not (cur.min <= target <= cur.max):
+            return -1
+        if l == r:
+            return l
+        self._push(node)
+        mid = (l + r) // 2
+        left = self._find_first(node * 2, l, mid, ql, qr, target)
+        if left != -1:
+            return left
+        return self._find_first(node * 2 + 1, mid + 1, r, ql, qr, target)
+
+    def find_first(self, l: int, r: int, target: int) -> int:
+        if l > r:
+            return -1
+        return self._find_first(1, 0, self._n - 1, l, r, target)
+
+
 class Solution:
     def longestBalanced(self, nums: List[int]) -> int:
         n = len(nums)
-        best = 0
+        seg = LazySegmentTree(n + 1)
 
-        # For each left boundary, track distinct parity counts
-        for l in range(n):
-            evens = set()
-            odds = set()
+        last_pos = {}
+        cur_balance = 0
+        ans = 0
 
-            # Early pruning: remaining length must exceed current best
-            if n - l <= best:
-                break
+        for i, x in enumerate(nums, 1):
+            delta = 1 if x & 1 else -1
+            prev = last_pos.get(x, 0)
 
-            for r in range(l, n):
-                if nums[r] & 1:
-                    odds.add(nums[r])
-                else:
-                    evens.add(nums[r])
+            if prev == 0:
+                cur_balance += delta
+                seg.update(i, n, delta)
+            else:
+                seg.update(prev, i - 1, -delta)
 
-                if len(evens) == len(odds):
-                    best = max(best, r - l + 1)
+            last_pos[x] = i
 
-        return best
+            idx = seg.find_first(0, i - 1 - ans, cur_balance)
+            if idx != -1:
+                ans = i - idx
+
+        return ans
 
 
 """
 Approach & Reasoning:
 
-A subarray is balanced if:
-    #distinct even numbers == #distinct odd numbers
+We want the longest subarray where:
+    #distinct odd numbers == #distinct even numbers.
 
-Even though n ≤ 1e5, distinct tracking makes true sliding window difficult,
-because removing elements from the left requires maintaining distinct parity counts
-with deletions, which is non-trivial.
+Transform:
+For each distinct number:
+    +1 if odd
+    -1 if even
 
-Key observation:
-We brute-force the left boundary l.
-For each l, we expand r forward and maintain two sets:
-- evens
-- odds
+We maintain a prefix "balance":
+    balance = (#distinct odds so far) - (#distinct evens so far)
 
-Whenever len(evens) == len(odds), we update the answer.
+If two prefix balances are equal, the subarray between them is balanced.
 
-Optimization:
-If remaining elements (n - l) cannot beat current best, stop early.
+Complication:
+When a number appears again, its previous contribution must be removed,
+since distinct counting only counts its latest appearance.
 
-Worst-case Time Complexity: O(n^2)
+So we:
+- Track last position of each value.
+- When a value appears:
+    • If first time → add its contribution.
+    • If repeated → remove previous contribution effect.
+
+A lazy segment tree maintains prefix balances efficiently:
+    - Range add updates
+    - Query first index with same balance
+
+For each position i:
+    Find earliest j where prefix_balance[j] == current_balance
+    Then subarray (j, i] is balanced.
+
+Time Complexity: O(n log n)
 Space Complexity: O(n)
 """
