@@ -1,0 +1,47 @@
+from typing import List
+
+class Solution:
+    def longestBalanced(self, s: str) -> int:
+        n = len(s)
+        best = 1  # any single character substring is balanced
+
+        for l in range(n):
+            cnt = [0] * 26
+            for r in range(l, n):
+                cnt[ord(s[r]) - 97] += 1
+
+                mn = 10**9
+                mx = 0
+                for c in cnt:
+                    if c:
+                        if c < mn:
+                            mn = c
+                        if c > mx:
+                            mx = c
+
+                if mx == mn:
+                    best = max(best, r - l + 1)
+
+        return best
+
+
+"""
+Approach & Reasoning:
+
+A substring is balanced if all distinct characters inside it appear the same number of times.
+That means among the non-zero frequency counts in the substring, the minimum frequency equals
+the maximum frequency.
+
+Since |s| <= 1000 and the alphabet size is only 26, we can brute force all substrings:
+
+For each left boundary l:
+1) Maintain a frequency array cnt[26] for the substring s[l..r] as r expands.
+2) After adding s[r], compute:
+   - mx = maximum of cnt over characters with non-zero count
+   - mn = minimum of cnt over characters with non-zero count
+3) If mx == mn, then all distinct characters occur equally often, so s[l..r] is balanced.
+   Update the best length.
+
+Time Complexity: O(n^2 * 26), which is fast enough for n <= 1000.
+Space Complexity: O(26) = O(1).
+"""
