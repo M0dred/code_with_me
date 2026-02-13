@@ -1,0 +1,105 @@
+from typing import List, Tuple, Dict
+
+class Solution:
+    def longestBalanced(self, s: str) -> int:
+        n = len(s)
+
+        # Case 1: substring has only 1 distinct character (always balanced)
+        best1 = 1
+        run = 1
+        for i in range(1, n):
+            if s[i] == s[i - 1]:
+                run += 1
+            else:
+                if run > best1:
+                    best1 = run
+                run = 1
+        if run > best1:
+            best1 = run
+
+        a = b = c = 0
+        best2 = 0
+        best3 = 0
+
+        # Case 3: all three characters present with equal counts:
+        # need (A-B, A-C) same at both ends
+        seen_abc: Dict[Tuple[int, int], int] = {(0, 0): 0}
+
+        # Case 2: exactly two characters used (third absent)
+        # (a,b): C fixed and (A-B) fixed
+        seen_ab: Dict[Tuple[int, int], int] = {(0, 0): 0}
+        # (a,c): B fixed and (A-C) fixed
+        seen_ac: Dict[Tuple[int, int], int] = {(0, 0): 0}
+        # (b,c): A fixed and (B-C) fixed
+        seen_bc: Dict[Tuple[int, int], int] = {(0, 0): 0}
+
+        for i, ch in enumerate(s, 1):
+            if ch == "a":
+                a += 1
+            elif ch == "b":
+                b += 1
+            else:
+                c += 1
+
+            # three-char balanced
+            key3 = (a - b, a - c)
+            if key3 in seen_abc:
+                best3 = max(best3, i - seen_abc[key3])
+            else:
+                seen_abc[key3] = i
+
+            # two-char balanced (third absent enforced by fixed prefix of third char)
+            key_ab = (c, a - b)
+            if key_ab in seen_ab:
+                best2 = max(best2, i - seen_ab[key_ab])
+            else:
+                seen_ab[key_ab] = i
+
+            key_ac = (b, a - c)
+            if key_ac in seen_ac:
+                best2 = max(best2, i - seen_ac[key_ac])
+            else:
+                seen_ac[key_ac] = i
+
+            key_bc = (a, b - c)
+            if key_bc in seen_bc:
+                best2 = max(best2, i - seen_bc[key_bc])
+            else:
+                seen_bc[key_bc] = i
+
+        return max(best1, best2, best3)
+
+
+"""
+Approach & Reasoning:
+
+A substring is balanced if all distinct characters inside it appear the same number of times.
+Here s contains only 'a', 'b', 'c', so a balanced substring can have:
+1) 1 distinct character: always balanced (e.g., "aaaa")
+2) 2 distinct characters: their counts must be equal, and the third character must be absent
+3) 3 distinct characters: counts of a, b, c must all be equal
+
+We use prefix counts A, B, C.
+
+Case 3 (a,b,c all equal):
+Counts are equal in substring (l..r] iff:
+    (A-B) at r == (A-B) at l   and   (A-C) at r == (A-C) at l
+So we hash earliest index for each pair (A-B, A-C) and take the maximum distance.
+
+Case 2 (two characters only):
+For (a,b) with no 'c' inside substring:
+    C must be unchanged => C(r) == C(l)
+    and A-B must be unchanged => (A-B)(r) == (A-B)(l)
+So we hash earliest index by key (C, A-B).
+Similarly:
+- (a,c): key (B, A-C)
+- (b,c): key (A, B-C)
+
+Case 1 (one character only):
+Just the longest run of identical characters.
+
+We compute all three cases in a single left-to-right pass using hash maps.
+
+Time Complexity: O(n)
+Space Complexity: O(n)
+"""
