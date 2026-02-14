@@ -1,0 +1,38 @@
+from typing import List
+
+class Solution:
+    def champagneTower(self, poured: int, query_row: int, query_glass: int) -> float:
+        row = [0.0] * (query_row + 2)
+        row[0] = float(poured)
+
+        for r in range(query_row):
+            nxt = [0.0] * (query_row + 2)
+            for c in range(r + 1):
+                overflow = max(0.0, row[c] - 1.0)
+                if overflow > 0:
+                    share = overflow / 2.0
+                    nxt[c] += share
+                    nxt[c + 1] += share
+            row = nxt
+
+        return min(1.0, row[query_glass])
+
+
+"""
+Approach & Reasoning:
+
+Each glass holds at most 1 cup. Any amount above 1 overflows equally to the two glasses below.
+
+We simulate the flow row by row up to query_row:
+- Let row[c] be the amount of champagne that arrives at position c in the current row.
+- For each glass (r, c), overflow = max(0, row[c] - 1).
+  That overflow is split equally to the two children in the next row.
+
+After processing up to query_row, the fullness of (query_row, query_glass) is:
+    min(1, row[query_glass])
+
+We only keep the current row and next row, so memory stays small.
+
+Time Complexity: O(query_row^2) (at most 100^2 operations).
+Space Complexity: O(query_row)
+"""
