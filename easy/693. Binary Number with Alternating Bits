@@ -1,0 +1,32 @@
+class Solution:
+    def hasAlternatingBits(self, n: int) -> bool:
+        x = n ^ (n >> 1)
+        return (x & (x + 1)) == 0
+
+
+"""
+Approach & Reasoning:
+
+If a number has alternating bits (e.g., 101010...),
+then shifting it right by 1 and XORing with itself
+produces a sequence of all 1s.
+
+Example:
+n = 5 (101)
+n >> 1 = 010
+n ^ (n >> 1) = 111
+
+So for alternating bits:
+    x = n ^ (n >> 1)
+    x must be of the form 111... (all 1s)
+
+A number with all 1s satisfies:
+    x & (x + 1) == 0
+
+Therefore:
+1) Compute x = n ^ (n >> 1)
+2) Check if x is all 1s using (x & (x + 1)) == 0
+
+Time Complexity: O(1)
+Space Complexity: O(1)
+"""
