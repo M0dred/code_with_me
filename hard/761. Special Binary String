@@ -1,0 +1,51 @@
+class Solution:
+    def makeLargestSpecial(self, s: str) -> str:
+        parts = []
+        bal = 0
+        start = 0
+
+        for i, ch in enumerate(s):
+            bal += 1 if ch == "1" else -1
+            if bal == 0:
+                inner = s[start + 1:i]
+                parts.append("1" + self.makeLargestSpecial(inner) + "0")
+                start = i + 1
+
+        parts.sort(reverse=True)
+        return "".join(parts)
+
+
+"""
+Approach & Reasoning:
+
+A special binary string is like a valid parentheses string if we map:
+    '1' -> '('
+    '0' -> ')'
+So it can be decomposed into consecutive “primitive” special substrings.
+
+Key observation:
+Any special string can be split into top-level special parts:
+    s = p1 + p2 + ... + pt
+where each pi is special and cannot be further split at the same level.
+
+Allowed move:
+We can swap consecutive special substrings.
+That means we can reorder these top-level parts arbitrarily, so to maximize lexicographic order,
+we should sort them in descending lexicographic order.
+
+But each part pi has the form:
+    "1" + inner + "0"
+and inner itself may contain nested special structure.
+To maximize the whole string, we must also maximize each inner recursively.
+
+Algorithm:
+1) Scan s with a balance counter (+1 for '1', -1 for '0').
+   Whenever balance returns to 0, we found a top-level special substring s[start..i].
+2) For each such substring:
+   - Recursively transform its inner section (strip the outer "1" and "0").
+   - Rebuild it as "1" + transformed_inner + "0".
+3) Sort all rebuilt parts in reverse lexicographic order and concatenate.
+
+Time Complexity: O(n^2 log n) in worst case due to recursion and sorting small parts (n <= 50).
+Space Complexity: O(n) for recursion and stored parts.
+"""
