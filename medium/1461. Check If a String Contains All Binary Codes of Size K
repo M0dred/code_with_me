@@ -1,0 +1,47 @@
+class Solution:
+    def hasAllCodes(self, s: str, k: int) -> bool:
+        n = len(s)
+        need = 1 << k
+        if n < k + need - 1:
+            return False
+
+        seen = [False] * need
+        mask = need - 1
+
+        cur = 0
+        for i, ch in enumerate(s):
+            cur = ((cur << 1) & mask) | (ch == "1")
+            if i >= k - 1:
+                v = cur
+                if not seen[v]:
+                    seen[v] = True
+                    need -= 1
+                    if need == 0:
+                        return True
+
+        return False
+
+
+"""
+Approach & Reasoning:
+
+We need to check whether every binary string of length k (there are 2^k of them)
+appears as a substring of s.
+
+Key idea:
+Use a rolling bitmask of length k to represent each k-length substring as an integer.
+
+Steps:
+1) Let need = 2^k. If s is too short to contain all distinct k-substrings,
+   return False early.
+2) Maintain a rolling value cur for the last k bits:
+      cur = ((cur << 1) & mask) | bit
+   where mask = 2^k - 1 keeps only k bits.
+3) Once we have processed at least k characters (i >= k-1),
+   cur represents the substring s[i-k+1 .. i].
+4) Mark cur as seen. Decrease need when we see a new one.
+5) If need reaches 0, we have seen all codes.
+
+Time Complexity: O(n)
+Space Complexity: O(2^k)
+"""
