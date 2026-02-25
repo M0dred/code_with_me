@@ -1,0 +1,25 @@
+from typing import List
+
+class Solution:
+    def sortByBits(self, arr: List[int]) -> List[int]:
+        return sorted(arr, key=lambda x: (x.bit_count(), x))
+
+
+"""
+Approach & Reasoning:
+
+We need to sort numbers by:
+1) The number of 1-bits in their binary representation.
+2) If two numbers have the same bit count, sort by numeric value.
+
+Python's sorted() allows sorting by a tuple key.
+So for each number x, we use:
+    key = (x.bit_count(), x)
+
+This ensures:
+- Primary sort: ascending by bit count
+- Secondary sort: ascending by value
+
+Time Complexity: O(n log n)
+Space Complexity: O(n) (depending on sorting implementation)
+"""
