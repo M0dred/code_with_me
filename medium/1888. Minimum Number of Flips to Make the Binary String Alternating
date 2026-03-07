@@ -1,0 +1,67 @@
+class Solution:
+    def minFlips(self, s: str) -> int:
+        n = len(s)
+        ss = s + s
+
+        diff0 = 0  # mismatches with pattern starting with '0': 0101...
+        diff1 = 0  # mismatches with pattern starting with '1': 1010...
+        ans = n
+
+        for i, ch in enumerate(ss):
+            expected0 = '0' if i % 2 == 0 else '1'
+            expected1 = '1' if i % 2 == 0 else '0'
+
+            if ch != expected0:
+                diff0 += 1
+            if ch != expected1:
+                diff1 += 1
+
+            if i >= n:
+                left = ss[i - n]
+                old_expected0 = '0' if (i - n) % 2 == 0 else '1'
+                old_expected1 = '1' if (i - n) % 2 == 0 else '0'
+
+                if left != old_expected0:
+                    diff0 -= 1
+                if left != old_expected1:
+                    diff1 -= 1
+
+            if i >= n - 1:
+                ans = min(ans, diff0, diff1)
+
+        return ans
+
+
+"""
+Approach & Reasoning:
+
+A rotation is allowed for free, and after rotating we want the minimum number of flips
+to make the string alternating.
+
+Key idea:
+Any rotation of s is a substring of length n inside s + s.
+So instead of explicitly rotating, we examine every length-n window in:
+    ss = s + s
+
+For each window, we compute how many positions differ from the two possible alternating patterns:
+1) "010101..."
+2) "101010..."
+
+The number of mismatches with a target pattern is exactly the number of flips needed.
+
+Sliding window:
+- Maintain diff0 = mismatches with pattern "0101..."
+- Maintain diff1 = mismatches with pattern "1010..."
+over the current window in ss.
+- Expand right pointer one character at a time.
+- Once window size exceeds n, remove the leftmost character's contribution.
+- When window size is exactly n, update the answer with min(diff0, diff1).
+
+Why this works:
+- Every possible rotation corresponds to one window of length n in s+s.
+- For each such rotation, the best way to make it alternating is to match one of the two valid patterns.
+- So the global minimum is the minimum mismatch count over all windows.
+
+Time Complexity: O(n)
+Space Complexity: O(n) because of s + s
+"""
