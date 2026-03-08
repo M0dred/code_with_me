@@ -1,0 +1,39 @@
+from typing import List
+
+class Solution:
+    def findDifferentBinaryString(self, nums: List[str]) -> str:
+        res = []
+
+        for i, s in enumerate(nums):
+            if s[i] == '0':
+                res.append('1')
+            else:
+                res.append('0')
+
+        return ''.join(res)
+
+
+"""
+Approach & Reasoning:
+
+We use Cantor's diagonal argument.
+
+Construct a new binary string ans of length n such that:
+- ans[i] is different from nums[i][i]
+
+For example:
+- if nums[i][i] == '0', set ans[i] = '1'
+- if nums[i][i] == '1', set ans[i] = '0'
+
+Why this works:
+- ans differs from nums[0] at index 0
+- ans differs from nums[1] at index 1
+- ...
+- ans differs from nums[i] at index i
+
+So ans is guaranteed to be different from every string in nums,
+which means it cannot appear in nums.
+
+Time Complexity: O(n)
+Space Complexity: O(n)
+"""
