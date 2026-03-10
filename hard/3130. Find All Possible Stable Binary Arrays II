@@ -1,0 +1,66 @@
+class Solution:
+    def numberOfStableArrays(self, zero: int, one: int, limit: int) -> int:
+        MOD = 10**9 + 7
+
+        # dp0[i][j]: number of valid arrays using i zeros and j ones, ending with 0
+        # dp1[i][j]: number of valid arrays using i zeros and j ones, ending with 1
+        dp0 = [[0] * (one + 1) for _ in range(zero + 1)]
+        dp1 = [[0] * (one + 1) for _ in range(zero + 1)]
+
+        for i in range(1, min(zero, limit) + 1):
+            dp0[i][0] = 1
+        for j in range(1, min(one, limit) + 1):
+            dp1[0][j] = 1
+
+        for i in range(zero + 1):
+            for j in range(one + 1):
+                if i > 0 and j > 0:
+                    dp0[i][j] = (dp0[i - 1][j] + dp1[i - 1][j]) % MOD
+                    if i - limit - 1 >= 0:
+                        dp0[i][j] = (dp0[i][j] - dp1[i - limit - 1][j]) % MOD
+
+                    dp1[i][j] = (dp0[i][j - 1] + dp1[i][j - 1]) % MOD
+                    if j - limit - 1 >= 0:
+                        dp1[i][j] = (dp1[i][j] - dp0[i][j - limit - 1]) % MOD
+
+        return (dp0[zero][one] + dp1[zero][one]) % MOD
+
+
+"""
+Approach & Reasoning:
+
+A stable array is exactly a binary array with:
+- exactly `zero` zeros,
+- exactly `one` ones,
+- no run of consecutive equal values longer than `limit`.
+
+So we use dynamic programming.
+
+Define:
+- dp0[i][j] = number of valid arrays using i zeros and j ones, ending with 0
+- dp1[i][j] = number of valid arrays using i zeros and j ones, ending with 1
+
+Transition for dp0[i][j]:
+If we append a 0, the previous array can end with either 0 or 1:
+    dp0[i-1][j] + dp1[i-1][j]
+But this includes invalid arrays whose final run of 0s becomes longer than `limit`.
+Those bad arrays are exactly the ones that ended with 1 and had already used:
+    i - limit - 1 zeros, j ones
+So:
+    dp0[i][j] = dp0[i-1][j] + dp1[i-1][j] - dp1[i-limit-1][j]
+
+Similarly:
+    dp1[i][j] = dp0[i][j-1] + dp1[i][j-1] - dp0[i][j-limit-1]
+
+Base cases:
+- Using only zeros is valid iff the count is at most limit:
+    dp0[i][0] = 1 for 1 <= i <= limit
+- Using only ones is valid iff the count is at most limit:
+    dp1[0][j] = 1 for 1 <= j <= limit
+
+Finally, the answer is:
+    dp0[zero][one] + dp1[zero][one]
+
+Time Complexity: O(zero * one)
+Space Complexity: O(zero * one)
+"""
