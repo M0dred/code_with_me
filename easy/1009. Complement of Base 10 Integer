@@ -1,0 +1,38 @@
+class Solution:
+    def bitwiseComplement(self, n: int) -> int:
+        if n == 0:
+            return 1
+
+        mask = 0
+        x = n
+        while x:
+            mask = (mask << 1) | 1
+            x >>= 1
+
+        return mask ^ n
+
+
+"""
+Approach & Reasoning:
+
+The complement flips every bit in the binary representation of n.
+However, we only flip bits up to the most significant 1 of n.
+
+Example:
+n = 5 → binary "101"
+We want to flip only these 3 bits:
+    101 -> 010
+
+Steps:
+1) Build a mask consisting of all 1s with the same length as n's binary representation.
+   Example: n = 5 (101) → mask = 111
+2) XOR the mask with n:
+       mask ^ n
+   which flips exactly those bits.
+
+Edge case:
+If n = 0, its binary representation is "0", so the complement is "1".
+
+Time Complexity: O(log n)
+Space Complexity: O(1)
+"""
