@@ -1,0 +1,79 @@
+from typing import List
+
+class Solution:
+    def largestSubmatrix(self, matrix: List[List[int]]) -> int:
+        m, n = len(matrix), len(matrix[0])
+
+        heights = [0] * n
+        ans = 0
+
+        for i in range(m):
+            for j in range(n):
+                if matrix[i][j] == 0:
+                    heights[j] = 0
+                else:
+                    heights[j] += 1
+
+            row = sorted(heights, reverse=True)
+
+            for width in range(1, n + 1):
+                ans = max(ans, row[width - 1] * width)
+
+        return ans
+
+
+"""
+Approach & Reasoning:
+
+We want the largest all-1 submatrix after rearranging columns optimally.
+
+Key observation:
+For each row, treat it as the bottom of a possible submatrix.
+If we know the height of consecutive 1s ending at that row for every column,
+then we can decide the best column order for that row.
+
+Step 1: Build histogram heights
+For each cell:
+- if matrix[i][j] == 0, then height becomes 0
+- if matrix[i][j] == 1, then height increases by 1
+
+So heights[j] means:
+the number of consecutive 1s in column j ending at the current row.
+
+Step 2: Rearrange columns optimally
+Since columns can be reordered in any order, for the current row,
+we should sort the heights in descending order.
+
+Why?
+Because if we choose the first k columns after sorting,
+the limiting height is the k-th largest height,
+so the area is:
+    height[k-1] * k
+
+Step 3: Try every possible width
+After sorting the heights for the current row:
+- width = 1  -> area = row[0] * 1
+- width = 2  -> area = row[1] * 2
+- width = 3  -> area = row[2] * 3
+...
+Take the maximum over all rows and widths.
+
+Why this works:
+For any row as the bottom boundary, any valid all-1 submatrix is determined by:
+- a set of columns
+- the minimum height among those columns
+
+Sorting the heights gives the optimal arrangement for that row,
+because the tallest columns are grouped first, maximizing possible area.
+
+Time Complexity:
+- Updating heights: O(m * n)
+- Sorting each row: O(m * n log n)
+
+Total:
+O(m * n log n)
+
+Space Complexity:
+O(n)
+for the heights array and sorted row copy
+"""
