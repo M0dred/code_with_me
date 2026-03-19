@@ -1,0 +1,67 @@
+from typing import List
+
+class Solution:
+    def numberOfSubmatrices(self, grid: List[List[str]]) -> int:
+        m, n = len(grid), len(grid[0])
+
+        x_pref = [[0] * (n + 1) for _ in range(m + 1)]
+        y_pref = [[0] * (n + 1) for _ in range(m + 1)]
+
+        ans = 0
+
+        for i in range(m):
+            for j in range(n):
+                x_pref[i + 1][j + 1] = (
+                    x_pref[i][j + 1]
+                    + x_pref[i + 1][j]
+                    - x_pref[i][j]
+                    + (1 if grid[i][j] == "X" else 0)
+                )
+                y_pref[i + 1][j + 1] = (
+                    y_pref[i][j + 1]
+                    + y_pref[i + 1][j]
+                    - y_pref[i][j]
+                    + (1 if grid[i][j] == "Y" else 0)
+                )
+
+                x_cnt = x_pref[i + 1][j + 1]
+                y_cnt = y_pref[i + 1][j + 1]
+
+                if x_cnt > 0 and x_cnt == y_cnt:
+                    ans += 1
+
+        return ans
+
+
+"""
+Approach & Reasoning:
+
+A submatrix that contains grid[0][0] must start at (0, 0),
+because there is no row above 0 and no column left of 0.
+
+So every valid submatrix is exactly a prefix submatrix:
+    grid[0..i][0..j]
+
+Thus, we only need to check all prefix rectangles.
+
+For each prefix submatrix ending at (i, j), we need:
+1) number of 'X' == number of 'Y'
+2) at least one 'X'
+
+We compute two 2D prefix-sum tables:
+- x_pref[i+1][j+1] = number of 'X' in grid[0..i][0..j]
+- y_pref[i+1][j+1] = number of 'Y' in grid[0..i][0..j]
+
+Then for every cell (i, j):
+- x_cnt = x_pref[i+1][j+1]
+- y_cnt = y_pref[i+1][j+1]
+
+If:
+    x_cnt > 0 and x_cnt == y_cnt
+then the prefix submatrix ending at (i, j) is valid.
+
+Count all such prefixes.
+
+Time Complexity: O(mn)
+Space Complexity: O(mn)
+"""
