@@ -1,0 +1,40 @@
+from typing import List
+
+class Solution:
+    def reverseSubmatrix(self, grid: List[List[int]], x: int, y: int, k: int) -> List[List[int]]:
+        top = x
+        bottom = x + k - 1
+
+        while top < bottom:
+            for col in range(y, y + k):
+                grid[top][col], grid[bottom][col] = grid[bottom][col], grid[top][col]
+            top += 1
+            bottom -= 1
+
+        return grid
+
+
+"""
+Approach & Reasoning:
+
+We only need to flip the chosen k x k submatrix vertically,
+which means reversing the order of its rows while keeping columns in place.
+
+So inside the submatrix:
+- swap the first row with the last row
+- swap the second row with the second-last row
+- continue until the middle is reached
+
+Since only columns y to y+k-1 belong to the submatrix,
+we swap values only within that column range.
+
+Steps:
+1) Let top = x and bottom = x + k - 1.
+2) While top < bottom:
+   - for each column in [y, y+k-1], swap grid[top][col] and grid[bottom][col]
+   - move top down and bottom up
+3) Return the modified grid.
+
+Time Complexity: O(k^2)
+Space Complexity: O(1)
+"""
