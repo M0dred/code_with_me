@@ -1,0 +1,46 @@
+from typing import List
+
+class Solution:
+    def findRotation(self, mat: List[List[int]], target: List[List[int]]) -> bool:
+        def rotate(matrix: List[List[int]]) -> List[List[int]]:
+            n = len(matrix)
+            res = [[0] * n for _ in range(n)]
+            for i in range(n):
+                for j in range(n):
+                    res[j][n - 1 - i] = matrix[i][j]
+            return res
+
+        cur = mat
+        for _ in range(4):
+            if cur == target:
+                return True
+            cur = rotate(cur)
+
+        return False
+
+
+"""
+Approach & Reasoning:
+
+A square matrix can only have 4 distinct rotations:
+- 0 degrees
+- 90 degrees
+- 180 degrees
+- 270 degrees
+
+So we just check all of them.
+
+To rotate a matrix 90 degrees clockwise:
+- an element at position (i, j) moves to:
+      (j, n - 1 - i)
+
+Steps:
+1) Start with the original matrix.
+2) Check if it already equals target.
+3) Rotate it 90 degrees clockwise and check again.
+4) Repeat up to 4 times total.
+5) If any rotation matches, return True; otherwise return False.
+
+Time Complexity: O(n^2)
+Space Complexity: O(n^2)
+"""
