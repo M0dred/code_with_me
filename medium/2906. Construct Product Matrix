@@ -1,0 +1,64 @@
+from typing import List
+
+class Solution:
+    def constructProductMatrix(self, grid: List[List[int]]) -> List[List[int]]:
+        MOD = 12345
+        n, m = len(grid), len(grid[0])
+        total = n * m
+
+        arr = [0] * total
+        idx = 0
+        for i in range(n):
+            for j in range(m):
+                arr[idx] = grid[i][j] % MOD
+                idx += 1
+
+        prefix = [1] * total
+        for i in range(1, total):
+            prefix[i] = (prefix[i - 1] * arr[i - 1]) % MOD
+
+        suffix = 1
+        for i in range(total - 1, -1, -1):
+            arr[i] = (prefix[i] * suffix) % MOD
+            suffix = (suffix * (grid[i // m][i % m] % MOD)) % MOD
+
+        ans = [[0] * m for _ in range(n)]
+        idx = 0
+        for i in range(n):
+            for j in range(m):
+                ans[i][j] = arr[idx]
+                idx += 1
+
+        return ans
+
+
+"""
+Approach & Reasoning:
+
+We need each answer cell to be:
+    product of all grid values except itself, modulo 12345
+
+This is the classic “product except self” problem.
+Since division is not safe here (mod 12345 is not prime, and values may not be invertible),
+we use prefix and suffix products.
+
+Steps:
+1) Flatten the 2D grid into a 1D array arr of length n*m.
+2) Build:
+   - prefix[i] = product of all elements before i
+   - suffix product while scanning from right to left
+3) Then for each position i:
+      result[i] = prefix[i] * suffix[i]
+   where suffix[i] is the product of all elements after i.
+4) Convert the 1D result back into an n x m matrix.
+
+Why this works:
+- prefix[i] contains all elements before arr[i]
+- suffix contains all elements after arr[i]
+- multiplying them gives the product of all elements except arr[i]
+
+All operations are done modulo 12345.
+
+Time Complexity: O(n * m)
+Space Complexity: O(n * m)
+"""
