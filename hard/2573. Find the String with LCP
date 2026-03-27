@@ -1,0 +1,113 @@
+from typing import List
+
+class DSU:
+    def __init__(self, n: int):
+        self.parent = list(range(n))
+        self.rank = [0] * n
+
+    def find(self, x: int) -> int:
+        while self.parent[x] != x:
+            self.parent[x] = self.parent[self.parent[x]]
+            x = self.parent[x]
+        return x
+
+    def union(self, a: int, b: int) -> None:
+        ra = self.find(a)
+        rb = self.find(b)
+        if ra == rb:
+            return
+        if self.rank[ra] < self.rank[rb]:
+            ra, rb = rb, ra
+        self.parent[rb] = ra
+        if self.rank[ra] == self.rank[rb]:
+            self.rank[ra] += 1
+
+
+class Solution:
+    def findTheString(self, lcp: List[List[int]]) -> str:
+        n = len(lcp)
+        dsu = DSU(n)
+
+        # If lcp[i][j] > 0, then word[i] == word[j], so they must be in the same group.
+        for i in range(n):
+            for j in range(i + 1, n):
+                if lcp[i][j] > 0:
+                    dsu.union(i, j)
+
+        # Build the lexicographically smallest string by assigning the smallest possible
+        # character to each new component in order of first appearance.
+        comp_to_char = {}
+        next_char = 0
+        ans = [""] * n
+
+        for i in range(n):
+            root = dsu.find(i)
+            if root not in comp_to_char:
+                if next_char == 26:
+                    return ""
+                comp_to_char[root] = chr(ord("a") + next_char)
+                next_char += 1
+            ans[i] = comp_to_char[root]
+
+        word = "".join(ans)
+
+        # Verify the constructed word exactly matches the given lcp matrix.
+        dp = [[0] * (n + 1) for _ in range(n + 1)]
+
+        for i in range(n - 1, -1, -1):
+            for j in range(n - 1, -1, -1):
+                if word[i] == word[j]:
+                    dp[i][j] = 1 + dp[i + 1][j + 1]
+                else:
+                    dp[i][j] = 0
+
+                if dp[i][j] != lcp[i][j]:
+                    return ""
+
+        return word
+
+
+"""
+Approach & Reasoning:
+
+If lcp[i][j] > 0, then the suffixes starting at i and j share at least one common character,
+so we must have:
+    word[i] == word[j]
+
+This gives an equality relation between positions.
+We use DSU (Union-Find) to group all indices that must contain the same character.
+
+Step 1: Build character groups
+- For every pair (i, j):
+    if lcp[i][j] > 0, union i and j
+- After this, each DSU component represents positions that must share one letter.
+
+Step 2: Construct the lexicographically smallest string
+- Scan positions from left to right
+- Whenever we see a component for the first time, assign it the smallest unused letter:
+    'a', then 'b', then 'c', ...
+- This greedy assignment gives the lexicographically smallest possible string
+- If more than 26 different components are needed, return ""
+
+Step 3: Verify the whole lcp matrix
+The unions only enforce:
+    lcp[i][j] > 0  =>  word[i] == word[j]
+But the matrix also requires exact LCP lengths, not just first-character equality.
+
+So we recompute the true LCP values of the constructed word using DP:
+- Let dp[i][j] = LCP length of suffixes word[i:] and word[j:]
+- If word[i] == word[j]:
+      dp[i][j] = 1 + dp[i+1][j+1]
+  else:
+      dp[i][j] = 0
+
+If for any cell dp[i][j] != lcp[i][j], the matrix is invalid and we return "".
+
+Why this works:
+- DSU captures all necessary equal-character constraints
+- Greedy component labeling makes the answer lexicographically smallest
+- Final DP verification guarantees the constructed word matches the given lcp exactly
+
+Time Complexity: O(n^2)
+Space Complexity: O(n^2)
+"""
