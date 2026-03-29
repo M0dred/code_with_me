@@ -1,0 +1,30 @@
+class Solution:
+    def canBeEqual(self, s1: str, s2: str) -> bool:
+        return sorted([s1[0], s1[2]]) == sorted([s2[0], s2[2]]) and \
+               sorted([s1[1], s1[3]]) == sorted([s2[1], s2[3]])
+
+
+"""
+Approach & Reasoning:
+
+The allowed operation swaps characters whose indices differ by 2.
+So:
+- index 0 can only swap with index 2
+- index 1 can only swap with index 3
+
+This means the string is split into two independent groups:
+- even positions: {0, 2}
+- odd positions: {1, 3}
+
+Within each group, we can freely rearrange the two characters by swapping if needed.
+Therefore, s1 can be transformed into s2 if and only if:
+- the multiset of characters at positions {0, 2} matches in both strings
+- the multiset of characters at positions {1, 3} matches in both strings
+
+So we compare:
+- sorted([s1[0], s1[2]]) with sorted([s2[0], s2[2]])
+- sorted([s1[1], s1[3]]) with sorted([s2[1], s2[3]])
+
+Time Complexity: O(1)
+Space Complexity: O(1)
+"""
