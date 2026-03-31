@@ -1,0 +1,69 @@
+class Solution:
+    def generateString(self, str1: str, str2: str) -> str:
+        n = len(str1)
+        m = len(str2)
+        sz = n + m - 1
+        ans = [None] * sz
+        modifiable = [True] * sz
+
+        # Handle all 'T' positions
+        for i in range(n):
+            if str1[i] == 'T':
+                for j in range(m):
+                    pos = i + j
+                    if ans[pos] is not None and ans[pos] != str2[j]:
+                        return ''
+                    ans[pos] = str2[j]
+                    modifiable[pos] = False
+
+        # Fill remaining with 'a'
+        for i in range(sz):
+            if ans[i] is None:
+                ans[i] = 'a'
+
+        # Handle all 'F' positions
+        for i in range(n):
+            if str1[i] == 'F':
+                # Check if matches str2
+                match = True
+                for j in range(m):
+                    if ans[i + j] != str2[j]:
+                        match = False
+                        break
+                if match:
+                    # Find rightmost modifiable position
+                    mod_pos = -1
+                    for j in range(m):
+                        pos = i + j
+                        if modifiable[pos]:
+                            mod_pos = pos
+                    if mod_pos == -1:
+                        return ''
+                    ans[mod_pos] = 'b'
+                    modifiable[mod_pos] = False
+
+        return ''.join(ans)
+
+"""
+Approach & Reasoning:
+We construct the word of length n+m-1 as follows:
+
+1. Initialize ans array of size n+m-1. For every 'T' in str1 at position i, force ans[i:i+m] to be str2, marking those positions as non-modifiable. If any conflict with previous forces, impossible, return "".
+
+2. Set all modifiable (unforced) positions to 'a' to achieve the lexicographically smallest possible string.
+
+3. For each 'F' at position i in str1 (processed from left to right):
+   - If the current ans[i:i+m] equals str2, we need to break this equality.
+   - To do so with minimal impact on lex order, change the rightmost modifiable position in [i, i+m-1] from 'a' to 'b'.
+   - If no modifiable position in the window, impossible (can't break the match), return "".
+
+This greedy works because:
+- 'T' constraints are hard and must be satisfied first.
+- Setting to 'a' minimizes early characters.
+- Processing 'F's left-to-right and fixing each remaining violation by bumping its rightmost modifiable position pushes any necessary increases as far right as possible.
+- Any prior fix (from an earlier 'F') that affects the current window would already have broken the match (since fixes only occur on critical windows where str2 expects 'a' on free positions), so no unnecessary changes occur.
+- No fix can create a new violation for any other 'F' (changing 'a' to 'b' can only introduce mismatches where str2 has 'a').
+
+Time Complexity: O(n * m)
+Space Complexity: O(n + m)
+"""
