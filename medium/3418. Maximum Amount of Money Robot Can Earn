@@ -1,0 +1,54 @@
+class Solution:
+    def maximumAmount(self, coins: List[List[int]]) -> int:
+        if not coins or not coins[0]:
+            return 0
+        m, n = len(coins), len(coins[0])
+        NEG_INF = -10**9 - 1
+        dp = [[[NEG_INF] * 3 for _ in range(n)] for _ in range(m)]
+        
+        # Initialize (0, 0)
+        c = coins[0][0]
+        dp[0][0][0] = c
+        if c < 0:
+            dp[0][0][1] = 0
+        
+        # Fill the DP table
+        for i in range(m):
+            for j in range(n):
+                if i == 0 and j == 0:
+                    continue
+                c = coins[i][j]
+                for prev_k in range(3):
+                    max_prev = NEG_INF
+                    if i > 0:
+                        max_prev = max(max_prev, dp[i-1][j][prev_k])
+                    if j > 0:
+                        max_prev = max(max_prev, dp[i][j-1][prev_k])
+                    if max_prev == NEG_INF:
+                        continue
+                    # Option 1: do not neutralize current cell
+                    dp[i][j][prev_k] = max(dp[i][j][prev_k], max_prev + c)
+                    # Option 2: neutralize if current is robber and we can
+                    if c < 0 and prev_k < 2:
+                        dp[i][j][prev_k + 1] = max(dp[i][j][prev_k + 1], max_prev)
+        
+        ans = max(dp[m-1][n-1][k] for k in range(3))
+        return ans if ans != NEG_INF else 0
+
+"""
+Approach & Reasoning:
+We use dynamic programming where dp[i][j][k] represents the maximum coins (profit) we can achieve when reaching cell (i, j) after using exactly k neutralizations so far (k = 0,1,2).
+
+For each cell, we consider the best way to arrive from left or up for each possible prev_k (used up to the previous cell).
+
+Then, we have two options at the current cell:
+- Don't neutralize: add coins[i][j] (even if negative), keep same k.
+- If coins[i][j] < 0 and prev_k < 2, neutralize: add 0 instead of c, increment to prev_k + 1.
+
+This accounts for all possible paths (via max over incoming for each k) and all possible choices of which (at most 2) negative cells to neutralize along any path. Neutralizations are only applied to actual robbers (negative cells), and the budget of 2 is strictly enforced.
+
+The table is filled in row-major order (ensuring left/upper cells are already computed). At the end we take the best over all possible k at the destination.
+
+Time Complexity: O(m * n)
+Space Complexity: O(m * n)
+"""
