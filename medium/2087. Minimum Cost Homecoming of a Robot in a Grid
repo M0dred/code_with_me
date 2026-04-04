@@ -1,0 +1,46 @@
+class Solution:
+    def minCost(self, startPos: List[int], homePos: List[int], rowCosts: List[int], colCosts: List[int]) -> int:
+        if startPos == homePos:
+            return 0
+        
+        sr, sc = startPos
+        hr, hc = homePos
+        ans = 0
+        
+        # Move rows: from sr to hr (cost of entering each new row)
+        if sr < hr:
+            for r in range(sr + 1, hr + 1):
+                ans += rowCosts[r]
+        else:
+            for r in range(sr - 1, hr - 1, -1):
+                ans += rowCosts[r]
+        
+        # Move columns: from sc to hc (cost of entering each new column)
+        if sc < hc:
+            for c in range(sc + 1, hc + 1):
+                ans += colCosts[c]
+        else:
+            for c in range(sc - 1, hc - 1, -1):
+                ans += colCosts[c]
+        
+        return ans
+
+"""
+Approach & Reasoning:
+The key observation is that the minimum cost is independent of the specific path taken, as long as we only move towards the home without unnecessary detours or loops. Any valid path from start to home will enter exactly the same set of new rows and new columns (except the starting cell).
+
+- To change rows from sr to hr, we must enter every row between them (inclusive of the target row, exclusive of start row). The cost is the sum of rowCosts for those rows.
+- Similarly for columns: sum of colCosts for the columns entered when moving horizontally.
+
+We can process rows and columns separately (the order of horizontal/vertical moves doesn't affect the total cost).
+
+If startPos == homePos, no moves are needed, cost is 0.
+
+This works because:
+- Moving into a row always costs rowCosts[r] regardless of the column.
+- Moving into a column always costs colCosts[c] regardless of the row.
+- No benefit from extra moves (they would only add more costs or return to already-paid cells).
+
+Time Complexity: O(m + n) in worst case (when |sr - hr| or |sc - hc| is large).
+Space Complexity: O(1)
+"""
