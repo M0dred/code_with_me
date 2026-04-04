@@ -1,0 +1,32 @@
+class Solution:
+    def decodeCiphertext(self, encodedText: str, rows: int) -> str:
+        if rows == 0 or not encodedText:
+            return ""
+        n = len(encodedText)
+        cols = n // rows
+        ans = []
+        for start_col in range(cols):
+            r, c = 0, start_col
+            while r < rows and c < cols:
+                ans.append(encodedText[r * cols + c])
+                r += 1
+                c += 1
+        return ''.join(ans).rstrip()
+
+"""
+Approach & Reasoning:
+The encodedText is the row-wise reading of the matrix (including padding spaces).
+
+1. Compute the number of columns: cols = len(encodedText) // rows (guaranteed divisible).
+2. To recover originalText, read the matrix along the diagonals (down-right direction) starting from every column in the top row.
+   - For each starting column `start_col` in [0, cols):
+     - Start at position (0, start_col)
+     - Repeatedly move one step down and one step right: (r+1, c+1), appending the character at each step.
+3. This traverses exactly in the order the originalText was placed (top-left to bottom-right diagonals).
+4. Finally, join the collected characters and use rstrip() to remove any trailing spaces (as per problem guarantee that originalText has no trailing spaces).
+
+This correctly decodes because the encoding places characters diagonally and reads row-wise; decoding does the inverse: reads diagonally from the row-wise filled matrix.
+
+Time Complexity: O(n) where n = len(encodedText)
+Space Complexity: O(n)
+"""
