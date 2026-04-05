@@ -1,0 +1,31 @@
+class Solution:
+    def judgeCircle(self, moves: str) -> bool:
+        x = y = 0
+        for move in moves:
+            if move == 'R':
+                x += 1
+            elif move == 'L':
+                x -= 1
+            elif move == 'U':
+                y += 1
+            elif move == 'D':
+                y -= 1
+        return x == 0 and y == 0
+
+"""
+Approach & Reasoning:
+The robot returns to the origin (0, 0) if and only if its net displacement in both the x-axis and y-axis is zero.
+
+- Track the current position (x, y) starting at (0, 0).
+- For each move in the string:
+  - 'R' increases x by 1 (right)
+  - 'L' decreases x by 1 (left)
+  - 'U' increases y by 1 (up)
+  - 'D' decreases y by 1 (down)
+- After processing all moves, check whether x == 0 and y == 0.
+
+This correctly determines if the total right/left moves balance and the total up/down moves balance. No other considerations (facing direction, magnitude) are needed per the problem statement.
+
+Time Complexity: O(n) where n = len(moves)
+Space Complexity: O(1)
+"""
