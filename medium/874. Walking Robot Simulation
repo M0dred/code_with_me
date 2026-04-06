@@ -1,0 +1,40 @@
+class Solution:
+    def robotSim(self, commands: List[int], obstacles: List[List[int]]) -> int:
+        obs = set((ox, oy) for ox, oy in obstacles)
+        dirs = [(0, 1), (1, 0), (0, -1), (-1, 0)]  # N, E, S, W
+        x = y = 0
+        d = 0
+        max_dist = 0
+        for cmd in commands:
+            if cmd == -2:
+                d = (d - 1) % 4
+            elif cmd == -1:
+                d = (d + 1) % 4
+            else:
+                dx, dy = dirs[d]
+                for _ in range(cmd):
+                    nx, ny = x + dx, y + dy
+                    if (nx, ny) in obs:
+                        break
+                    x, y = nx, ny
+                    max_dist = max(max_dist, x*x + y*y)
+        return max_dist
+
+"""
+Approach & Reasoning:
+Simulate the robot's movement exactly as described, processing each command in sequence:
+
+- Represent the four directions with a cyclic array of (dx, dy) vectors (North, East, South, West).
+- Maintain current position (x, y) and direction index.
+- For turn commands (-1 right, -2 left), update the direction index modulo 4.
+- For forward commands (1-9), attempt each of the k unit steps individually:
+  - Compute the next candidate position.
+  - If it coincides with any obstacle (checked via a set in O(1) time), stop moving for this command and proceed to the next one.
+  - Otherwise, update position and immediately compute/update the maximum squared Euclidean distance reached so far.
+- Because every single step is examined, the maximum distance is guaranteed to be captured at the furthest point visited.
+
+The obstacle at (0, 0) (if present) is handled naturally: the robot can leave the origin on its first move (no check on the starting cell), but any later attempt to return will be blocked exactly as specified.
+
+Time Complexity: O(total unit steps) = O(9 * commands.length) which is at most ~9*10^4, plus O(obstacles.length) for building the set.
+Space Complexity: O(obstacles.length) for the obstacle set.
+"""
