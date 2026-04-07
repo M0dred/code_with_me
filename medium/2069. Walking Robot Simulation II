@@ -1,0 +1,55 @@
+class Robot:
+
+    def __init__(self, width: int, height: int):
+        self.width = width
+        self.height = height
+        self.x = 0
+        self.y = 0
+        self.dir_idx = 0  # 0: East, 1: North, 2: West, 3: South
+        self.directions = ["East", "North", "West", "South"]
+        self.dx = [1, 0, -1, 0]
+        self.dy = [0, 1, 0, -1]
+        self.perimeter = 2 * (width + height - 2)
+
+    def step(self, num: int) -> None:
+        if num == 0:
+            return
+        if num >= self.perimeter:
+            num %= self.perimeter
+            if self.x == 0 and self.y == 0 and self.dir_idx == 0:
+                self.dir_idx = 3  # South
+        for _ in range(num):
+            while True:
+                nx = self.x + self.dx[self.dir_idx]
+                ny = self.y + self.dy[self.dir_idx]
+                if 0 <= nx < self.width and 0 <= ny < self.height:
+                    self.x = nx
+                    self.y = ny
+                    break
+                else:
+                    self.dir_idx = (self.dir_idx + 1) % 4
+
+    def getPos(self) -> List[int]:
+        return [self.x, self.y]
+
+    def getDir(self) -> str:
+        return self.directions[self.dir_idx]
+
+"""
+Approach & Reasoning:
+The robot always stays on the perimeter of the grid and follows a deterministic counterclockwise path, turning left (90 degrees counterclockwise) exactly when the next forward move would exit the grid.
+
+The full cycle length around the perimeter is P = 2 * (width + height - 2). After completing full cycles, the robot returns to the same position and direction (except for the special initial state at (0, 0) facing East, which after exactly k * P steps ends facing South).
+
+To handle large num (≤ 10^5) efficiently while supporting up to 10^4 total calls:
+- If num >= P, reduce it to num %= P.
+- If the robot is still at the initial state ((0, 0) facing East) and a full multiple of cycles was taken, explicitly set direction to South.
+- Then simulate the remaining (≤ P ≤ 396) individual steps one-by-one:
+  - Repeatedly attempt to move forward one cell.
+  - If out of bounds, turn left and retry (the current step is only consumed once a valid move occurs).
+
+This guarantees O(perimeter) work per step() call at worst, for a total runtime well under the limit. getPos() and getDir() simply return the maintained internal state.
+
+Time Complexity: O(perimeter) per step() call (amortized across all calls)
+Space Complexity: O(1)
+"""
