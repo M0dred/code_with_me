@@ -1,0 +1,32 @@
+class Solution:
+    def xorAfterQueries(self, nums: List[int], queries: List[List[int]]) -> int:
+        MOD = 10**9 + 7
+        for l, r, k, v in queries:
+            idx = l
+            while idx <= r:
+                nums[idx] = (nums[idx] * v) % MOD
+                idx += k
+        xor = 0
+        for x in nums:
+            xor ^= x
+        return xor
+
+"""
+Approach & Reasoning:
+Process each query exactly as specified:
+
+For every query [li, ri, ki, vi]:
+- Start at idx = li
+- While idx <= ri:
+  - Multiply nums[idx] by vi and take modulo 10^9+7
+  - Advance idx by ki
+
+After handling all queries, compute the bitwise XOR of every element in the final nums array.
+
+Since n <= 1000 and q <= 1000, and for each query the inner loop runs at most n/ki + 1 <= 1000 times, the total time is bounded by roughly 1000 * 1000 = 10^6 operations, which is efficient.
+
+No optimizations are needed beyond direct simulation.
+
+Time Complexity: O(q * (n / min(ki)) ) ≈ O(10^6) worst case
+Space Complexity: O(1) extra (modifies nums in place)
+"""
