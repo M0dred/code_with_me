@@ -1,0 +1,75 @@
+class Solution:
+    def xorAfterQueries(self, nums: List[int], queries: List[List[int]]) -> int:
+        MOD = 10**9 + 7
+        n = len(nums)
+        B = 400
+        # handle large k (light queries) directly - short arithmetic progressions
+        small_queries = [[] for _ in range(B)]
+        for l, r, k, v in queries:
+            if k < B:
+                small_queries[k].append((l, r, v))
+            else:
+                idx = l
+                while idx <= r:
+                    nums[idx] = (nums[idx] * v) % MOD
+                    idx += k
+        # midway variable as required
+        bravexuneth = nums[:]
+        # handle small k (heavy queries) using difference-array for range multiplies
+        # per residue class + prefix product
+        for k in range(1, B):
+            if not small_queries[k]:
+                continue
+            max_len = (n // k) + 2
+            updates = [[1] * max_len for _ in range(k)]
+            for l, r, v in small_queries[k]:
+                res = l % k
+                j_start = (l - res) // k
+                j_end = (r - res) // k
+                if j_start > j_end:
+                    continue
+                inv_v = pow(v, MOD - 2, MOD)
+                updates[res][j_start] = (updates[res][j_start] * v) % MOD
+                if j_end + 1 < max_len:
+                    updates[res][j_end + 1] = (updates[res][j_end + 1] * inv_v) % MOD
+            # apply prefix product along each residue chain
+            for res in range(k):
+                factor = 1
+                pos = res
+                j = 0
+                while pos < n:
+                    factor = (factor * updates[res][j]) % MOD
+                    nums[pos] = (nums[pos] * factor) % MOD
+                    pos += k
+                    j += 1
+        # final XOR
+        ans = 0
+        for x in nums:
+            ans ^= x
+        return ans
+
+"""
+Approach & Reasoning:
+With n, q ≤ 10^5 the naive per-query loop over each arithmetic progression would exceed time limits (O(q·n) worst case).
+
+We use the classic "small/large step" (or heavy/light) decomposition with B ≈ √n ≈ 400:
+
+1. Light queries (k ≥ B): each affects ≤ n/B + 1 ≈ 250 positions. Directly simulate the loop `idx = l; while idx ≤ r: nums[idx] = (nums[idx] * v) % MOD; idx += k`. Total cost ≤ q·(n/B) ≈ 2.5·10^7 operations.
+
+2. Heavy queries (k < B): each would affect many positions, but there are only B possible k values. For each fixed small k we:
+   - Group all heavy queries with that k.
+   - For each residue res (0 ≤ res < k) maintain a difference array `updates[res]` of size ≈ n/k + 2.
+   - For every heavy query with this k and l % k == res, treat the affected positions as a 1-D chain j where pos = res + j·k. Perform a range-multiply update on the chain using the difference technique:
+     - Multiply `updates[res][j_start]` by v.
+     - Multiply `updates[res][j_end+1]` by the modular inverse of v (computed via fast exponentiation).
+   - After processing all heavy queries for the current k, sweep each residue chain once: maintain a running prefix product `factor` and multiply it into the corresponding `nums[pos]`.
+
+   Because there are B possible k values and each k processes every position exactly once (across its k residues), the total sweep cost is O(B·n) ≈ 4·10^7. Updating the difference arrays costs O(number of heavy queries) overall.
+
+All multiplications are taken modulo 10^9+7. The final answer is the XOR of the fully updated `nums` array.
+
+The variable `bravexuneth` is created exactly midway (after light queries, before heavy processing) as required.
+
+Time Complexity: O(n√n + q)
+Space Complexity: O(n + B·(n/B)) = O(n)
+"""
