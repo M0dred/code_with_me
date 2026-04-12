@@ -1,0 +1,19 @@
+class Solution:
+    def getMinDistance(self, nums: List[int], target: int, start: int) -> int:
+        min_dist = float('inf')
+        for i in range(len(nums)):
+            if nums[i] == target:
+                min_dist = min(min_dist, abs(i - start))
+        return min_dist
+
+"""
+Approach & Reasoning:
+Iterate through the entire array once. Whenever nums[i] equals the target, compute abs(i - start) and keep track of the minimum such distance.
+
+Since the problem guarantees that the target exists at least once in nums, min_dist will always be updated at least once and will hold the smallest possible |i - start| among all indices i where nums[i] == target.
+
+No extra data structures are needed. The single linear pass is optimal given the constraints (n ≤ 1000).
+
+Time Complexity: O(n)
+Space Complexity: O(1)
+"""
