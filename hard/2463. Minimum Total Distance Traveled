@@ -1,0 +1,41 @@
+class Solution:
+    def minimumTotalDistance(self, robot: List[int], factory: List[List[int]]) -> int:
+        robot.sort()
+        factory.sort(key=lambda x: x[0])
+        n, m = len(robot), len(factory)
+        INF = 10**18
+        dp = [[INF] * (m + 1) for _ in range(n + 1)]
+        for j in range(m + 1):
+            dp[0][j] = 0
+        for j in range(1, m + 1):
+            fpos = factory[j - 1][0]
+            lim = factory[j - 1][1]
+            for i in range(1, n + 1):
+                dp[i][j] = dp[i][j - 1]
+                cum = 0
+                for k in range(1, min(lim, i) + 1):
+                    cum += abs(robot[i - k] - fpos)
+                    if dp[i - k][j - 1] != INF:
+                        dp[i][j] = min(dp[i][j], dp[i - k][j - 1] + cum)
+        return dp[n][m]
+
+"""
+Approach & Reasoning:
+Sort the robot positions and the factory positions (by their location).
+
+Define dp[i][j] as the minimum total distance required to repair the first i (leftmost) robots using only the first j (leftmost) factories.
+
+Base case: dp[0][j] = 0 for all j (no robots need no travel).
+
+For each factory j (from left to right):
+  - First, carry over the cost without using this factory: dp[i][j] = dp[i][j-1].
+  - Then, try assigning the last k consecutive robots (i-k .. i-1) to this factory (k = 1..min(limit, i)).
+    - These k robots are the rightmost among the first i robots.
+    - Compute the cumulative cost of moving each of them to the factory position (sum of absolute differences).
+    - Update dp[i][j] = min(dp[i][j], dp[i-k][j-1] + cum_cost).
+
+Because both arrays are sorted and the cost is absolute distance on a line, the optimal assignment pairs prefixes of robots with prefixes of factories using contiguous segments. This non-crossing property guarantees that the DP finds the global minimum without violating repair rules or capacities (robots can always choose the direction toward their assigned factory, and previous factories' capacities are already accounted for).
+
+Time Complexity: O(m · n²) (for each of m factories, for each of n robot counts, loop up to n possible k).
+Space Complexity: O(m · n)
+"""
