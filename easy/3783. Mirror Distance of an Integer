@@ -1,0 +1,17 @@
+class Solution:
+    def mirrorDistance(self, n: int) -> int:
+        rev = int(str(n)[::-1])
+        return abs(n - rev)
+
+"""
+Approach & Reasoning:
+Convert n to string, reverse the digits, and convert back to integer (which automatically discards leading zeros). Compute the absolute difference between original n and its reversed version.
+
+This directly implements the definition given in the problem. It handles all edge cases correctly:
+- Single digit numbers return 0.
+- Numbers ending with zeros have their reverse correctly drop leading zeros after reversal.
+- Maximum n=10^9 is handled efficiently.
+
+Time Complexity: O(d) where d is the number of digits (≤10)
+Space Complexity: O(d) for the string
+"""
