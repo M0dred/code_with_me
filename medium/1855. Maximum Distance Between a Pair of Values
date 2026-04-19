@@ -1,0 +1,30 @@
+class Solution:
+    def maxDistance(self, nums1: List[int], nums2: List[int]) -> int:
+        n = len(nums1)
+        m = len(nums2)
+        max_dist = 0
+        i = 0
+        for j in range(m):
+            while i <= j and i < n and nums1[i] > nums2[j]:
+                i += 1
+            if i <= j and i < n:
+                max_dist = max(max_dist, j - i)
+        return max_dist
+
+"""
+Approach & Reasoning:
+Because both nums1 and nums2 are non-increasing, a simple two-pointer scan finds the maximum valid distance in linear time.
+
+- Maintain pointer `i` (the smallest possible index in nums1 that can still form a valid pair with the current or future `j`).
+- Iterate `j` from 0 to m-1 (all possible right endpoints in nums2).
+- For each `j`, advance `i` while `i <= j` and `nums1[i] > nums2[j]` (these `i` are invalid for the current `j` and all larger `j` since nums2 is non-increasing).
+- After the inner while, if `i <= j`, then `j - i` is a candidate distance (and it is the largest possible for this `j` because `i` is the leftmost valid starting index).
+- Track the global maximum of all such `j - i`.
+
+The pointer `i` only ever increases, guaranteeing O(n + m) total time. If no valid pair exists, `max_dist` stays 0 as required by the problem.
+
+This exploits the monotonicity to avoid checking every possible pair explicitly.
+
+Time Complexity: O(n + m)
+Space Complexity: O(1)
+"""
