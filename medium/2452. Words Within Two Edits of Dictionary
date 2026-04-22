@@ -1,0 +1,28 @@
+class Solution:
+    def twoEditWords(self, queries: List[str], dictionary: List[str]) -> List[str]:
+        def hamming(s1: str, s2: str) -> int:
+            return sum(c1 != c2 for c1, c2 in zip(s1, s2))
+        
+        res = []
+        for q in queries:
+            for d in dictionary:
+                if hamming(q, d) <= 2:
+                    res.append(q)
+                    break
+        return res
+
+"""
+Approach & Reasoning:
+For each query word, we need to check whether there exists any dictionary word that differs from it in at most 2 character positions (Hamming distance <= 2). Because the maximum allowed number of edits is exactly the Hamming distance when strings have identical length.
+
+Given the constraints (queries.length <= 100, dictionary.length <= 100, word length <= 100), the straightforward double loop is efficient:
+- Iterate over every query.
+- For each query, iterate over every dictionary word.
+- Compute the number of positions where the characters differ (O(word length) time).
+- If any dictionary word satisfies distance <= 2, include that query in the result list and move on to the next query.
+
+The result preserves the original order of queries because we process them sequentially. No additional data structures are required beyond the input.
+
+Time Complexity: O(queries.length * dictionary.length * word.length) = O(10^6) which is comfortably within limits.
+Space Complexity: O(queries.length) for the output list (worst case all queries are kept).
+"""
