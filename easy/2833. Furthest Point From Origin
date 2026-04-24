@@ -1,0 +1,19 @@
+class Solution:
+    def furthestDistanceFromOrigin(self, moves: str) -> int:
+        R = moves.count('R')
+        L = moves.count('L')
+        U = moves.count('_')
+        return max(abs(R - L - U), abs(R - L + U))
+
+"""
+Approach & Reasoning:
+Let R, L, U be the counts of 'R', 'L', and '_' respectively.
+
+The final position is (R + x) - (L + (U - x)) = R - L - U + 2x where x is the number of '_' chosen as right (0 ≤ x ≤ U).
+
+Thus possible positions range from (R - L - U) to (R - L + U) in steps of 2.
+The maximum absolute value is achieved at one of the endpoints: max(|R - L - U|, |R - L + U|).
+
+Time Complexity: O(n)
+Space Complexity: O(1)
+"""
