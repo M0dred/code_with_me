@@ -1,0 +1,47 @@
+class Solution:
+    def containsCycle(self, grid: List[List[str]]) -> bool:
+        if not grid or not grid[0]:
+            return False
+        m, n = len(grid), len(grid[0])
+        visited = [[False] * n for _ in range(m)]
+        directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+
+        def dfs(x: int, y: int, px: int, py: int, char: str) -> bool:
+            visited[x][y] = True
+            for dx, dy in directions:
+                nx, ny = x + dx, y + dy
+                if 0 <= nx < m and 0 <= ny < n and grid[nx][ny] == char:
+                    if visited[nx][ny]:
+                        if (nx, ny) != (px, py):
+                            return True
+                    else:
+                        if dfs(nx, ny, x, y, char):
+                            return True
+            return False
+
+        for i in range(m):
+            for j in range(n):
+                if not visited[i][j]:
+                    if dfs(i, j, -1, -1, grid[i][j]):
+                        return True
+        return False
+
+"""
+Approach & Reasoning:
+Model the grid as an undirected graph where each cell is a node and there is an edge to an adjacent cell (up/down/left/right) only if it has the exact same character.
+
+To detect any cycle of length >= 4:
+- Use DFS with a visited matrix.
+- For each unvisited cell, start a DFS passing its coordinates and a dummy parent (-1, -1).
+- In DFS for cell (x, y) with parent (px, py):
+  - Mark (x, y) visited.
+  - For every valid neighbor (nx, ny) with the same character:
+    - If it is already visited and is not the immediate parent, a cycle is found (return true).
+    - If it is not visited, recursively explore it passing the current cell as the new parent.
+- If any DFS call detects a cycle, the answer is true; otherwise false after checking all components.
+
+The parent check precisely enforces "you cannot move to the cell that you visited in your last move". Because the grid is 4-connected, any detected cycle will automatically have length >= 4 (no triangles exist). The algorithm runs in O(m * n) time as each cell and edge is processed a constant number of times.
+
+Time Complexity: O(m * n)
+Space Complexity: O(m * n) for the visited matrix (plus recursion stack O(m * n) worst-case).
+"""
