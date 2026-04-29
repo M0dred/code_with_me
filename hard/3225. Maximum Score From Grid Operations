@@ -1,0 +1,70 @@
+class Solution:
+    def maximumScore(self, grid: List[List[int]]) -> int:
+        n = len(grid)
+        if n == 0:
+            return 0
+        prefix = [[0] * (n + 1) for _ in range(n)]
+        for c in range(n):
+            for r in range(n):
+                prefix[c][r + 1] = prefix[c][r] + grid[r][c]
+        NEG_INF = -10**18
+        dp = [[NEG_INF] * (n + 1) for _ in range(n + 1)]
+        for h in range(n + 1):
+            dp[0][h] = 0
+        for col in range(1, n):
+            my_col_idx = col - 1
+            p = prefix[my_col_idx]
+            new_dp = [[NEG_INF] * (n + 1) for _ in range(n + 1)]
+            for my_h in range(n + 1):
+                max_up_to = [NEG_INF] * (n + 1)
+                curmax = NEG_INF
+                for left in range(n + 1):
+                    curmax = max(curmax, dp[left][my_h])
+                    max_up_to[left] = curmax
+                suffix = [NEG_INF] * (n + 2)
+                for left in range(n, -1, -1):
+                    add = p[left] - p[my_h] if left > my_h else 0
+                    val = dp[left][my_h] + add
+                    suffix[left] = max(suffix[left + 1], val)
+                for curr_h in range(n + 1):
+                    cand1 = NEG_INF
+                    if max_up_to[curr_h] != NEG_INF:
+                        add = p[max(curr_h, my_h)] - p[my_h] if max(curr_h, my_h) > my_h else 0
+                        cand1 = max_up_to[curr_h] + add
+                    cand2 = suffix[curr_h + 1]
+                    best = max(cand1, cand2)
+                    if best != NEG_INF:
+                        new_dp[my_h][curr_h] = max(new_dp[my_h][curr_h], best)
+            dp = new_dp
+        # finalize last column
+        ans = 0
+        last_col = n - 1
+        p = prefix[last_col]
+        for left_h in range(n + 1):
+            for my_h in range(n + 1):
+                if dp[left_h][my_h] == NEG_INF:
+                    continue
+                add = p[max(left_h, 0)] - p[my_h] if max(left_h, 0) > my_h else 0
+                total = dp[left_h][my_h] + add
+                ans = max(ans, total)
+        return ans
+
+"""
+Approach & Reasoning:
+For each column the contribution (sum of white cells that have at least one horizontally adjacent black cell) can be determined only after the heights of its left and right neighbors are known.
+
+We therefore maintain dp[left_h][my_h] = maximum score obtainable after deciding the heights of the first col columns, where the (col-1)-th column has height left_h and the col-th column has height my_h (all contributions of columns 0..col-2 are already included).
+
+When introducing column col with height curr_h:
+- The contribution of the just-finalized column (my_h) becomes known because we now know both its left neighbor left_h and its right neighbor curr_h.
+- This contribution equals the sum of grid values from row my_h to max(left_h, curr_h) - 1 (the white cells covered by at least one black neighbor).
+- To avoid O(n) work per transition we precompute, for each fixed my_h:
+  - max_up_to[curr_h] = maximum dp[left_h][my_h] over all left_h <= curr_h
+  - suffix[curr_h] = maximum (dp[left_h][my_h] + contribution when right height >= curr_h) over all left_h >= curr_h
+- These two arrays allow each transition to be performed in O(1) time, reducing the overall complexity from O(n^4) to O(n^3).
+
+After processing all columns we finalize the contribution of the last column (its right neighbor height is 0) and take the global maximum.
+
+Time Complexity: O(n^3)
+Space Complexity: O(n^2)
+"""
