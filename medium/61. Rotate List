@@ -1,0 +1,47 @@
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
+class Solution:
+    def rotateRight(self, head: Optional[ListNode], k: int) -> Optional[ListNode]:
+        if not head or not head.next or k == 0:
+            return head
+        
+        # Compute length and find tail
+        length = 1
+        tail = head
+        while tail.next:
+            tail = tail.next
+            length += 1
+        
+        # Effective rotations
+        k = k % length
+        if k == 0:
+            return head
+        
+        # Find new tail: the node at position (length - k - 1)
+        new_tail = head
+        for _ in range(length - k - 1):
+            new_tail = new_tail.next
+        
+        new_head = new_tail.next
+        new_tail.next = None
+        tail.next = head
+        return new_head
+
+"""
+Approach & Reasoning:
+A right rotation by k places moves the last k nodes to the front while preserving order.
+
+1. If the list is empty, has only one node, or k == 0, no work is needed.
+2. Traverse the list once to compute its length and locate the tail node.
+3. Reduce k to k % length (because rotating a full cycle returns the original list).
+4. The new tail is the node at index (length - k - 1) (0-based). The node immediately after it becomes the new head.
+5. Break the link at the new tail and attach the old tail to the original head, forming the rotated list.
+
+All operations are performed with a constant number of passes over the list (O(n) time, O(1) extra space). The modular reduction guarantees efficiency even when k is up to 2·10^9.
+
+Time Complexity: O(n)
+Space Complexity: O(1)
+"""
