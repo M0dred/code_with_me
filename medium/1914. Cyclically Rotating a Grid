@@ -1,0 +1,68 @@
+class Solution:
+    def rotateGrid(self, grid: List[List[int]], k: int) -> List[List[int]]:
+        m, n = len(grid), len(grid[0])
+        layers = min(m, n) // 2
+        for l in range(layers):
+            # Compute perimeter length for this layer
+            rows = m - 2 * l
+            cols = n - 2 * l
+            perimeter = 2 * (rows + cols - 2)
+            if perimeter == 0:
+                continue
+            rot = k % perimeter
+            
+            # Collect cycle in clockwise order
+            cycle = []
+            # top row left -> right (exclude last)
+            for j in range(l, n - l - 1):
+                cycle.append(grid[l][j])
+            # right column top -> bottom (exclude last)
+            for i in range(l, m - l - 1):
+                cycle.append(grid[i][n - l - 1])
+            # bottom row right -> left (exclude last)
+            for j in range(n - l - 1, l, -1):
+                cycle.append(grid[m - l - 1][j])
+            # left column bottom -> top (exclude last)
+            for i in range(m - l - 1, l, -1):
+                cycle.append(grid[i][l])
+            
+            # Rotate counter-clockwise by rot positions (shift left)
+            rotated = cycle[rot:] + cycle[:rot]
+            
+            # Put back
+            idx = 0
+            # top
+            for j in range(l, n - l - 1):
+                grid[l][j] = rotated[idx]
+                idx += 1
+            # right
+            for i in range(l, m - l - 1):
+                grid[i][n - l - 1] = rotated[idx]
+                idx += 1
+            # bottom
+            for j in range(n - l - 1, l, -1):
+                grid[m - l - 1][j] = rotated[idx]
+                idx += 1
+            # left
+            for i in range(m - l - 1, l, -1):
+                grid[i][l] = rotated[idx]
+                idx += 1
+        return grid
+
+"""
+Approach & Reasoning:
+Each layer of the matrix is an independent cycle. The perimeter length of layer l is 2 * ((m-2l) + (n-2l) - 2). Because k can be up to 10^9, we reduce the required rotations to effective_rot = k % perimeter for each layer.
+
+We collect the perimeter elements of a layer in clockwise order starting from the top-left corner:
+- top row left to right (excluding corner)
+- right column top to bottom (excluding corner)
+- bottom row right to left (excluding corner)
+- left column bottom to top (excluding corner)
+
+A counter-clockwise rotation by one step corresponds to shifting this list left by one position. Therefore, for effective_rot steps we shift the collected list left by effective_rot positions and write the rotated list back into the grid using the same traversal order.
+
+This correctly simulates exactly k counter-clockwise cyclic rotations per layer while running in O(m * n) time overall (each cell is visited a constant number of times).
+
+Time Complexity: O(m * n)
+Space Complexity: O(m + n) (temporary cycle list per layer)
+"""
