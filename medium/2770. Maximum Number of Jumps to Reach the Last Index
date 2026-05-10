@@ -1,0 +1,27 @@
+class Solution:
+    def maximumJumps(self, nums: List[int], target: int) -> int:
+        n = len(nums)
+        dp = [-1] * n
+        dp[0] = 0
+        for i in range(n):
+            if dp[i] != -1:
+                for j in range(i + 1, n):
+                    if abs(nums[j] - nums[i]) <= target:
+                        dp[j] = max(dp[j], dp[i] + 1)
+        return dp[n-1]
+
+"""
+Approach & Reasoning:
+We model the problem as finding the longest path in a DAG where nodes are indices 0 to n-1, and there is an edge from i to j (j > i) if abs(nums[j] - nums[i]) <= target.
+
+Use dynamic programming: dp[i] = maximum number of jumps to reach index i from 0 (or -1 if unreachable).
+
+Initialize dp[0] = 0.
+
+Process indices in order from left to right. For each reachable i, try jumping to every possible j > i that satisfies the difference constraint, updating dp[j].
+
+Since we only use earlier i to update later j, the updates are correct and we get the global maximum jumps.
+
+Time Complexity: O(n²) which is acceptable for n <= 1000.
+Space Complexity: O(n)
+"""
