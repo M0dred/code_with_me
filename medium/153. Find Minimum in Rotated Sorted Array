@@ -1,0 +1,27 @@
+class Solution:
+    def findMin(self, nums: List[int]) -> int:
+        low, high = 0, len(nums) - 1
+        while low < high:
+            mid = (low + high) // 2
+            if nums[mid] > nums[high]:
+                low = mid + 1
+            else:
+                high = mid
+        return nums[low]
+
+"""
+Approach & Reasoning:
+The array is sorted in ascending order but rotated at some unknown pivot. Because all elements are unique, we can use binary search to locate the minimum element (the pivot) in O(log n) time.
+
+Maintain two pointers `low` and `high` that initially point to the first and last index. At each step:
+- Compute the middle index `mid`.
+- If `nums[mid] > nums[high]`, the minimum must lie in the right half (the rotation point is after `mid`), so set `low = mid + 1`.
+- Otherwise the minimum lies in the left half (including `mid`), so set `high = mid`.
+
+When the loop ends `low == high` and this index points to the smallest element in the rotated array.
+
+This works because the array is composed of two monotonically increasing segments; the comparison with the right boundary always tells us which segment contains the global minimum.
+
+Time Complexity: O(log n)
+Space Complexity: O(1)
+"""
