@@ -1,0 +1,27 @@
+class Solution:
+    def findThePrefixCommonArray(self, A: List[int], B: List[int]) -> List[int]:
+        n = len(A)
+        C = [0] * n
+        sa = set()
+        sb = set()
+        for i in range(n):
+            sa.add(A[i])
+            sb.add(B[i])
+            C[i] = len(sa & sb)
+        return C
+
+"""
+Approach & Reasoning:
+Since A and B are permutations of 1 to n, each number appears exactly once in each array. The prefix common array C requires counting how many numbers have appeared in both prefixes A[0..i] and B[0..i].
+
+Use two sets (sa and sb) to track the elements seen so far in A and B respectively:
+- Iterate from i = 0 to n-1.
+- Add A[i] to sa and B[i] to sb.
+- The size of their intersection (sa & sb) gives exactly the count of common numbers up to index i.
+- Store this count in C[i].
+
+This works because sets automatically handle uniqueness, and the intersection size directly answers the definition of C[i]. The approach is simple, correct, and runs in O(n²) worst-case time due to set operations (but n ≤ 50 makes it negligible). Space is O(n).
+
+Time Complexity: O(n²)
+Space Complexity: O(n)
+"""
