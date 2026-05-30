@@ -1,0 +1,134 @@
+from typing import List
+from sortedcontainers import SortedList
+
+
+class Solution:
+    def getResults(self, queries: List[List[int]]) -> List[bool]:
+        # Use a sentinel strictly greater than every possible x.
+        # We cannot use 50000 directly because x can also be 50000.
+        LIMIT = max(q[1] for q in queries) + 1
+
+        seg = [0] * (4 * (LIMIT + 1))
+        obstacles = SortedList([0, LIMIT])
+
+        def update(idx: int, val: int, p: int, l: int, r: int) -> None:
+            if l == r:
+                seg[p] = val
+                return
+
+            mid = (l + r) // 2
+
+            if idx <= mid:
+                update(idx, val, p * 2, l, mid)
+            else:
+                update(idx, val, p * 2 + 1, mid + 1, r)
+
+            seg[p] = max(seg[p * 2], seg[p * 2 + 1])
+
+        def query(L: int, R: int, p: int, l: int, r: int) -> int:
+            if L > R:
+                return 0
+
+            if L <= l and r <= R:
+                return seg[p]
+
+            mid = (l + r) // 2
+            res = 0
+
+            if L <= mid:
+                res = max(res, query(L, R, p * 2, l, mid))
+
+            if R > mid:
+                res = max(res, query(L, R, p * 2 + 1, mid + 1, r))
+
+            return res
+
+        # Initially, the whole range [0, LIMIT] is free.
+        # Store this gap at its right endpoint LIMIT.
+        update(LIMIT, LIMIT, 1, 0, LIMIT)
+
+        ans = []
+
+        for q in queries:
+            if q[0] == 1:
+                x = q[1]
+
+                # Find the current gap that contains x.
+                idx = obstacles.bisect_right(x)
+                right = obstacles[idx]
+                left = obstacles[idx - 1]
+
+                # Split the old gap [left, right] into two smaller gaps.
+                update(x, x - left, 1, 0, LIMIT)
+                update(right, right - x, 1, 0, LIMIT)
+
+                obstacles.add(x)
+
+            else:
+                x, sz = q[1], q[2]
+
+                # Find the nearest obstacle at or before x.
+                idx = obstacles.bisect_right(x)
+                prev_obstacle = obstacles[idx - 1]
+
+                # Largest fully completed gap before or at prev_obstacle.
+                best_before = query(0, prev_obstacle, 1, 0, LIMIT)
+
+                # Possible tail gap from prev_obstacle to x.
+                best_tail = x - prev_obstacle
+
+                max_space = max(best_before, best_tail)
+
+                ans.append(max_space >= sz)
+
+        return ans
+"""
+Approach & Reasoning:
+
+We need to process two types of queries:
+1. Add an obstacle at position x.
+2. Check whether a block of size sz can fit somewhere inside [0, x].
+
+Key idea:
+- Obstacles split the number line into free gaps.
+- For a query [2, x, sz], we only need to know the largest available gap inside [0, x].
+- If the largest gap is at least sz, then the block can be placed.
+
+Data structures:
+1. SortedList:
+    - Maintains all obstacle positions in sorted order.
+    - Also contains two sentinels:
+        - 0, representing the left boundary.
+        - LIMIT, representing a fake right boundary beyond all possible x values.
+    - This allows us to quickly find the predecessor and successor of any new obstacle.
+
+2. Segment Tree:
+    - Stores gap lengths by their right endpoint.
+    - If there is a gap from obstacle l to obstacle r, we store its length r - l at index r.
+    - The segment tree supports:
+        - Point update when a gap changes.
+        - Range maximum query to find the largest gap ending before or at a position.
+
+When adding an obstacle x:
+- Find its current left and right neighboring obstacles.
+- The old gap [left, right] is split into:
+    - [left, x], length x - left
+    - [x, right], length right - x
+- Update the segment tree at positions x and right.
+
+When checking [2, x, sz]:
+- Find the nearest obstacle <= x, called prev_obstacle.
+- The largest usable space in [0, x] is the max of:
+    1. The largest completed gap ending at or before prev_obstacle.
+    2. The tail gap from prev_obstacle to x.
+- If that value >= sz, return True.
+
+Time Complexity:
+- Each query takes O(log C), where C is the coordinate range.
+- SortedList operations also take O(log n).
+- Total: O(n log C)
+
+Space Complexity:
+- O(C) for the segment tree.
+- O(n) for the SortedList.
+"""
