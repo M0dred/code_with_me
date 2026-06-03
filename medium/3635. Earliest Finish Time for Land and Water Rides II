@@ -1,0 +1,102 @@
+from typing import List
+import bisect
+
+class Solution:
+    def earliestFinishTime(self, landStartTime: List[int], landDuration: List[int], waterStartTime: List[int], waterDuration: List[int]) -> int:
+        n = len(landStartTime)
+        m = len(waterStartTime)
+        
+        # Precompute land finish times T = Ls + Ld
+        T_land = [landStartTime[i] + landDuration[i] for i in range(n)]
+        min_T = min(T_land)
+        
+        # Sort T_land for binary search
+        T_land_sorted = sorted(T_land)
+        
+        # For land first: compute min A and B
+        min_land_first = float('inf')
+        
+        # B: min Fw where Ws > min_T
+        min_Fw_B = float('inf')
+        for j in range(m):
+            if waterStartTime[j] > min_T:
+                Fw = waterStartTime[j] + waterDuration[j]
+                if Fw < min_Fw_B:
+                    min_Fw_B = Fw
+        if min_Fw_B != float('inf'):
+            min_land_first = min(min_land_first, min_Fw_B)
+        
+        # A: for each j, min T >= Ws[j] + Wd[j]
+        for j in range(m):
+            Ws = waterStartTime[j]
+            Wd = waterDuration[j]
+            idx = bisect.bisect_left(T_land_sorted, Ws)
+            if idx < n:
+                T = T_land_sorted[idx]
+                finish = T + Wd
+                if finish < min_land_first:
+                    min_land_first = finish
+        
+        # Now for water first
+        # Sort lands by Ls
+        land_pairs = sorted(zip(landStartTime, landDuration))  # sorted by Ls
+        sorted_Ls = [p[0] for p in land_pairs]
+        sorted_Ld = [p[1] for p in land_pairs]
+        
+        # prefix min Ld[0..k] meaning min of first k lands (indices 0 to k-1)
+        prefix_min_Ld = [float('inf')] * (n + 1)
+        current_min = float('inf')
+        for k in range(1, n + 1):
+            current_min = min(current_min, sorted_Ld[k - 1])
+            prefix_min_Ld[k] = current_min
+        
+        # suffix min T from k to n-1
+        suffix_min_T = [float('inf')] * (n + 1)
+        current_min_T = float('inf')
+        for k in range(n - 1, -1, -1):
+            T = sorted_Ls[k] + sorted_Ld[k]
+            current_min_T = min(current_min_T, T)
+            suffix_min_T[k] = current_min_T
+        
+        min_water_first = float('inf')
+        for j in range(m):
+            Ws = waterStartTime[j]
+            Wd = waterDuration[j]
+            Fw = Ws + Wd
+            # idx = number of lands with Ls <= Fw
+            idx = bisect.bisect_right(sorted_Ls, Fw)
+            cand1 = float('inf')
+            if idx > 0:
+                min_ld = prefix_min_Ld[idx]
+                cand1 = Fw + min_ld
+            cand2 = float('inf')
+            if idx < n:
+                min_t_suf = suffix_min_T[idx]
+                cand2 = min_t_suf
+            min_for_j = min(cand1, cand2)
+            if min_for_j < min_water_first:
+                min_water_first = min_for_j
+        
+        ans = min(min_land_first, min_water_first)
+        return ans
+
+"""
+Approach & Reasoning:
+For every possible pair of one land ride and one water ride, we need to consider both possible orders and compute the earliest finish time the tourist can achieve.
+
+Because n and m can be up to 5×10⁴, a direct double loop over all pairs would be too slow. Instead we optimize each direction separately:
+
+• Land ride first, then water ride:
+  We pre-compute all land finish times T_i = landStartTime[i] + landDuration[i] and sort them.
+  For each water ride j we use binary search on the sorted T list to quickly find the smallest land finish time that is ≥ waterStartTime[j], giving us the best possible start time for that water ride.
+  We also handle in a single pass the cases where every land finish time is earlier than the water ride's opening time (the tourist simply waits for the water ride).
+
+• Water ride first, then land ride:
+  We sort the land rides by their opening times and pre-compute prefix minimum durations and suffix minimum finish times.
+  For each water ride we binary-search the sorted land list to find the split point and evaluate the two candidate finish times (using the best land ride before/after the water finish time).
+
+We keep the global minimum among all these candidate finish times. The algorithm runs in O((n + m) log n) time thanks to sorting and binary search on each of the m water rides.
+
+Time Complexity: O((n + m) log n)
+Space Complexity: O(n + m)
+"""
