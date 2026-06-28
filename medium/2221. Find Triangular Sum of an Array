@@ -1,0 +1,25 @@
+class Solution:
+    def triangularSum(self, nums: List[int]) -> int:
+        n = len(nums)
+        result = 0
+        # Compute binomial coefficient for each position
+        coef = 1  # Starts with C(n-1,0)
+        for i in range(n):
+            # Add nums[i] * C(n-1,i) % 10 to result
+            result = (result + nums[i] * coef) % 10
+            # Update coef to C(n-1,i+1) = C(n-1,i) * (n-1-i) / (i+1)
+            coef = (coef * (n - 1 - i)) // (i + 1)
+        return result
+
+'''
+Approach:
+- Recognize that the triangular sum process results in a single number that is a linear combination of the input array elements, weighted by binomial coefficients modulo 10.
+- For an array of length n, the final element is sum(nums[i] * C(n-1,i)) % 10 for i from 0 to n-1, where C(n-1,i) is the binomial coefficient.
+- Initialize result as 0 and coef as 1 (C(n-1,0)).
+- Iterate over i from 0 to n-1:
+  - Add nums[i] * coef % 10 to result, taking modulo 10.
+  - Update coef to C(n-1,i+1) = C(n-1,i) * (n-1-i) / (i+1) using integer division.
+- Return result % 10.
+- Time Complexity: O(n) where n is the length of nums, as we perform one pass through the array with constant-time operations per element.
+- Space Complexity: O(1) excluding input storage, as we only use a few variables.
+'''

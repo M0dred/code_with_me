@@ -1,0 +1,39 @@
+class Solution:
+    def get(self, num: int) -> int:
+        i = 1
+        base = 1
+        cnt = 0
+        while base <= num:
+            # Number of operations for numbers in range [2^(i-1), 2^i - 1] is (i + 1) // 2
+            # Count of numbers in this range up to num: min(2^i - 1, num) - 2^(i-1) + 1
+            cnt += ((i + 1) // 2) * (min(base * 2 - 1, num) - base + 1)
+            i += 1
+            base *= 2
+        return cnt
+    
+    def minOperations(self, queries: List[List[int]]) -> int:
+        res = 0
+        for l, r in queries:
+            # Operations for range [l, r] is (sum of ceil(log_4(x)) + 1) // 2
+            res += (self.get(r) - self.get(l - 1) + 1) // 2
+        return res
+
+"""
+Approach:
+The solution computes the minimum number of operations to reduce all elements in the array [l, r] to zero for each query and sums them:
+1. Define a helper function `get(num)` to compute the sum of ceil(log_4(x)) for all x from 1 to num:
+   - For each i, numbers x where 2^(i-1) <= x < 2^i require (i + 1) // 2 operations.
+   - Count such numbers: min(2^i - 1, num) - 2^(i-1) + 1.
+   - Sum the operations: ((i + 1) // 2) * (count of numbers).
+2. For each query [l, r]:
+   - Compute the sum of ceil(log_4(x)) for x in [l, r] as get(r) - get(l-1).
+   - Add 1 and divide by 2 (with ceiling) to account for pairing two numbers per operation: (get(r) - get(l-1) + 1) // 2.
+3. Sum the operations across all queries and return the total.
+
+Time Complexity:
+- O(q * log r), where q is the number of queries (≤ 10^5) and r ≤ 10^9. The get(num) function iterates up to log_2(num) times (since base = 2^i), and each iteration is O(1). Called twice per query.
+
+Space Complexity:
+- O(1), as only a constant amount of extra space is used for variables.
+
+"""

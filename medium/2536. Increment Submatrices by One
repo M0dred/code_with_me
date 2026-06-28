@@ -1,0 +1,39 @@
+from typing import List
+
+class Solution:
+    def rangeAddQueries(self, n: int, queries: List[List[int]]) -> List[List[int]]:
+        # Difference array for 2D range updates
+        diff = [[0] * (n + 1) for _ in range(n + 1)]
+        
+        # Apply all queries using inclusion-exclusion on the difference array
+        for r1, c1, r2, c2 in queries:
+            diff[r1][c1] += 1
+            diff[r1][c2 + 1] -= 1
+            diff[r2 + 1][c1] -= 1
+            diff[r2 + 1][c2 + 1] += 1
+        
+        # Reconstruct the final matrix using 2D prefix sum
+        mat = [[0] * n for _ in range(n)]
+        for i in range(n):
+            for j in range(n):
+                # Compute prefix sum: mat[i][j] = diff[i][j] + left + above - diagonal
+                left = mat[i][j - 1] if j > 0 else 0
+                above = mat[i - 1][j] if i > 0 else 0
+                diag = mat[i - 1][j - 1] if i > 0 and j > 0 else 0
+                mat[i][j] = diff[i][j] + left + above - diag
+        
+        return mat
+
+'''
+Approach:
+- Use a 2D difference array (size (n+1) x (n+1)) to mark range updates in O(1) per query.
+- For each query [r1, c1, r2, c2], increment diff[r1][c1], decrement at boundaries:
+      diff[r1][c2+1] -= 1
+      diff[r2+1][c1] -= 1
+      diff[r2+1][c2+1] += 1
+- Reconstruct the final matrix by computing 2D prefix sums on the difference array.
+- This avoids TLE by reducing total time from O(q * n²) to O(n² + q).
+
+Time Complexity:  O(n² + q) — O(q) for processing queries, O(n²) for prefix sum.
+Space Complexity: O(n²) — for the difference array and result matrix.
+'''

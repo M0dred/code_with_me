@@ -1,0 +1,33 @@
+from typing import List
+
+class Solution:
+    def minimumDifference(self, nums: List[int], k: int) -> int:
+        if k <= 1:
+            return 0
+
+        nums.sort()
+        best = float("inf")
+        for i in range(len(nums) - k + 1):
+            best = min(best, nums[i + k - 1] - nums[i])
+        return best
+
+"""
+Approach & Reasoning:
+
+We need to choose k scores such that (max - min) is minimized.
+
+Key idea:
+After sorting, the best group of k scores must form a contiguous window in the sorted array.
+For any chosen k elements, the minimum and maximum are some two elements; in sorted order,
+taking exactly the elements between them gives a contiguous window of size k with the same
+(or smaller) max-min range.
+
+Steps:
+1) Sort nums.
+2) Slide a window of length k across the sorted array.
+    For each window [i .. i+k-1], difference = nums[i+k-1] - nums[i].
+3) Return the minimum difference found.
+
+Time Complexity: O(n log n) for sorting + O(n) scan.
+Space Complexity: O(1) extra (or O(n) depending on sorting implementation).
+"""

@@ -1,0 +1,46 @@
+class Solution:
+    def numberOfPairs(self, points: List[List[int]]) -> int:
+        count = 0
+        n = len(points)
+        
+        for i in range(n):
+            for j in range(n):
+                if i == j:
+                    continue
+                x1, y1 = points[i]
+                x2, y2 = points[j]
+                
+                # Check if point i is upper-left of point j
+                if x1 <= x2 and y1 >= y2:
+                    valid = True
+                    # Check all other points to ensure none lie in or on the rectangle
+                    for k in range(n):
+                        if k == i or k == j:
+                            continue
+                        x, y = points[k]
+                        # Check if point k is within or on the rectangle boundaries
+                        if x1 <= x <= x2 and y2 <= y <= y1:
+                            valid = False
+                            break
+                    if valid:
+                        count += 1
+        
+        return count
+
+"""
+Approach:
+The solution counts the number of valid pairs (A, B) where A is upper-left of B and no other points lie within or on the rectangle (including borders) formed by A and B:
+1. Iterate through all possible pairs of points (i, j).
+2. For each pair, check if point i (x1, y1) is upper-left of point j (x2, y2), i.e., x1 <= x2 and y1 >= y2.
+3. If the condition is met, verify that no other point k lies within or on the rectangle defined by:
+   - x1 <= x <= x2 (x-coordinate between or equal to A and B)
+   - y2 <= y <= y1 (y-coordinate between or equal to A and B)
+4. If no such point k exists, increment the count of valid pairs.
+5. Return the total count.
+
+Time Complexity:
+- O(n^3), where n is the number of points. We check all pairs (O(n^2)) and for each pair, verify all other points (O(n)).
+
+Space Complexity:
+- O(1), as we only use a constant amount of extra space for variables, regardless of input size.
+"""

@@ -1,0 +1,50 @@
+class Solution:
+    def maxCollectedFruits(self, fruits: List[List[int]]) -> int:
+        n = len(fruits)
+        ans = sum(fruits[i][i] for i in range(n))  # Child 1: diagonal path (0,0) -> (1,1) -> ... -> (n-1,n-1)
+        
+        def dp():
+            prev = [float("-inf")] * n  # Max fruits at (i-1,j) after i-1 moves
+            curr = [float("-inf")] * n  # Max fruits at (i,j) after i moves
+            prev[n - 1] = fruits[0][n - 1]  # Child 2 starts at (0,n-1)
+            for i in range(1, n - 1):  # Process rows 1 to n-2
+                for j in range(max(n - 1 - i, i + 1), n):  # Valid columns for (i,j)
+                    best = prev[j]  # Move from (i-1,j) to (i,j)
+                    if j - 1 >= 0:
+                        best = max(best, prev[j - 1])  # Move from (i-1,j-1)
+                    if j + 1 < n:
+                        best = max(best, prev[j + 1])  # Move from (i-1,j+1)
+                    curr[j] = best + fruits[i][j]
+                prev, curr = curr, prev
+            return prev[n - 1]  # Max fruits at (n-1,n-1)
+        
+        ans += dp()  # Child 2: from (0,n-1) to (n-1,n-1)
+        for i in range(n):
+            for j in range(i):
+                fruits[i][j], fruits[j][i] = fruits[j][i], fruits[i][j]  # Transpose matrix
+        ans += dp()  # Child 3: from (n-1,0) to (n-1,n-1) in transposed matrix
+        return ans
+
+'''
+Approach:
+This solution maximizes fruits collected by three children in an n x n grid:
+1. Child 1 follows the fixed diagonal path (0,0) -> (1,1) -> ... -> (n-1,n-1), collecting fruits[i][i].
+2. For Child 2 (from (0,n-1) to (n-1,n-1)), use dynamic programming:
+    - State: prev[j] stores the maximum fruits collected reaching (i-1,j) after i-1 moves.
+    - Transitions: From (i-1,j-1) (diagonal), (i-1,j) (down), or (i-1,j+1) (left) to (i,j).
+    - Base case: prev[n-1] = fruits[0][n-1] for position (0,n-1).
+    - Column range: j from max(n-1-i, i+1) to n-1 ensures valid positions reachable in i moves.
+    - Loop from i=1 to n-2, with final position (n-1,n-1) handled in return.
+3. For Child 3 (from (n-1,0) to (n-1,n-1)), transpose the matrix (swap fruits[i][j] with fruits[j][i]) and reuse the same DP logic.
+4. Sum the fruits from Child 1’s diagonal path and the DP results for Child 2 and Child 3. The fixed diagonal path and separate DP optimizations prevent double-counting.
+
+Time Complexity: O(n^2)
+- Diagonal sum for Child 1: O(n)
+- Each DP call (Child 2 and Child 3): O(n^2) (n-1 rows, up to n columns per row)
+- Matrix transpose: O(n^2)
+- Total: O(n^2)
+
+Space Complexity: O(n)
+- Two DP arrays (prev and curr) of size n
+- No additional significant memory usage
+'''

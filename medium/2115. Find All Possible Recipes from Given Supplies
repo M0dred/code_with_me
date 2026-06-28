@@ -1,0 +1,58 @@
+from collections import defaultdict, deque
+from typing import List
+
+class Solution:
+    def findAllRecipes(self, recipes: List[str], ingredients: List[List[str]], supplies: List[str]) -> List[str]:
+        # Create a graph that represents dependencies between ingredients and recipes
+        graph = defaultdict(list)
+        
+        # in_degree tracks the number of required ingredients for each recipe
+        in_degree = {}
+        
+        # Initialize in_degree with the number of ingredients each recipe needs
+        for i, recipe in enumerate(recipes):
+            in_degree[recipe] = len(ingredients[i])
+            for ingredient in ingredients[i]:
+                graph[ingredient].append(recipe)
+        
+        # Initialize queue with supplies since we already have them
+        queue = deque(supplies)
+        
+        # Result list to collect available recipes
+        res = []
+        
+        # BFS traversal
+        while queue:
+            item = queue.popleft()
+            
+            # Check recipes that depend on this item
+            for recipe in graph[item]:
+                # Reduce the number of remaining ingredients needed
+                in_degree[recipe] -= 1
+                
+                # If no more ingredients needed, we can make this recipe
+                if in_degree[recipe] == 0:
+                    queue.append(recipe)
+                    res.append(recipe)
+        
+        return res
+
+'''
+Approach:
+1. We model the dependencies between ingredients and recipes using a directed graph (graph).
+   - If recipe A depends on ingredient B, we create an edge from B to A.
+   
+2. We use an in_degree dictionary to count how many ingredients each recipe still needs to be completed.
+
+3. We initialize our BFS queue with all items in supplies since we already have an infinite supply of them.
+
+4. We perform BFS:
+   - For each available ingredient/item, we reduce the in_degree count for each dependent recipe.
+   - If the in_degree count becomes zero, it means we have all ingredients to make this recipe.
+     We add the recipe to the queue and the result list.
+
+5. The process repeats until we exhaust all available ingredients and recipes that can be made from them.
+
+Time Complexity: O(n * m), where n is the number of recipes and m is the average number of ingredients per recipe.
+Space Complexity: O(n + m), for the graph and in_degree storage.
+'''

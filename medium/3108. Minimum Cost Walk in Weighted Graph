@@ -1,0 +1,62 @@
+class Solution:
+    def minimumCost(self, n: int, edges: List[List[int]], query: List[List[int]]) -> List[int]:
+        # Initialize Union-Find structure
+        parent = list(range(n))
+
+        # Initialize an array to store the bitwise AND of weights in each connected component
+        min_path_cost = [-1] * n  # Start with all bits set to 1s (effectively ~0)
+
+        # Find the root of a node with path compression
+        def find_root(node: int) -> int:
+            if parent[node] != node:
+                parent[node] = find_root(parent[node])
+            return parent[node]
+
+        # Union edges and track the minimum path cost using bitwise AND
+        for source, target, weight in edges:
+            source_root = find_root(source)
+            target_root = find_root(target)
+
+            # If both are in the same set, just update the AND value
+            if source_root == target_root:
+                min_path_cost[target_root] &= weight
+            else:
+                # Merge sets and AND their min_path_cost with weight
+                merged_and = min_path_cost[source_root] & min_path_cost[target_root] & weight
+                parent[source_root] = target_root
+                min_path_cost[target_root] = merged_and
+
+        # Process each query
+        result = []
+        for start, end in query:
+            if start == end:
+                result.append(0)
+            elif find_root(start) != find_root(end):
+                result.append(-1)
+            else:
+                result.append(min_path_cost[find_root(start)])
+
+        return result
+
+'''
+Approach:
+1. Union-Find (Disjoint Set Union) is used to manage connected components in the graph.
+2. For each connected component, we track the minimum possible bitwise AND (min_path_cost) of weights in the component.
+3. Initially, each node is its own parent and min_path_cost is set to -1 (representing all bits set for AND operations).
+4. As we process edges:
+   - If two nodes are already connected, we update their min_path_cost with the new edge weight.
+   - If they are in different components, we merge them and update min_path_cost for the merged component by ANDing both components' min_path_costs and the current edge weight.
+5. For each query:
+   - If start and end are the same node, the minimal cost is 0.
+   - If they are not connected, return -1.
+   - If they are connected, return the min_path_cost of their component.
+6. Time Complexity:
+   - Union-Find operations (find/union) are O(log n) amortized.
+   - Processing edges is O(E log n).
+   - Answering queries is O(Q log n).
+7. Space Complexity: O(n), where n is the number of nodes, for the parent and min_path_cost arrays.
+
+Note:
+- This solution assumes we track the minimal AND value of all edges within each connected component.
+- It may not handle cycles effectively in reducing the AND cost to 0 unless zero-weight edges are explicitly processed.
+'''

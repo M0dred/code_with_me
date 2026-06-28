@@ -1,0 +1,44 @@
+class Solution:
+    def myAtoi(self, s: str) -> int:
+        # Initialize variables
+        result = 0
+        sign = 1
+        index = 0
+        n = len(s)
+
+        # Step 1: Ignore leading whitespace
+        while index < n and s[index] == ' ':
+            index += 1
+
+        # Step 2: Check for sign
+        if index < n and s[index] in ['+', '-']:
+            sign = -1 if s[index] == '-' else 1
+            index += 1
+
+        # Step 3: Convert number and read digits
+        while index < n and s[index].isdigit():
+            digit = int(s[index])
+            # Check for overflow
+            if result > (2**31 - 1 - digit) // 10:
+                return 2**31 - 1 if sign == 1 else -2**31
+            result = result * 10 + digit
+            index += 1
+
+        # Step 4: Apply sign and check for underflow/overflow
+        result *= sign
+        return max(min(result, 2**31 - 1), -2**31)
+
+'''
+Approach:
+1. The problem requires converting a string to a 32-bit signed integer.
+2. We first ignore any leading whitespace.
+3. We then check for a sign ('+' or '-') and set the sign accordingly.
+4. We read the integer, ignoring leading zeros, until a non-digit character is encountered or the end of the string is reached.
+5. We check for overflow during the conversion and adjust the result to stay within the 32-bit signed integer range if necessary.
+
+Time Complexity: O(n), where n is the length of the input string.
+- We iterate through the string once, performing constant-time operations for each character.
+
+Space Complexity: O(1)
+- We use a constant amount of extra space to store the result and other variables.
+'''

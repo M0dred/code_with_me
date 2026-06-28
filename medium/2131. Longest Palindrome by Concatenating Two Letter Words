@@ -1,0 +1,49 @@
+from collections import Counter
+
+class Solution:
+    def longestPalindrome(self, words: List[str]) -> int:
+        # Count frequency of each word
+        freq = Counter(words)
+        length = 0
+        central = 0
+        
+        # Process each unique word
+        for word in freq:
+            # Get reverse of the word
+            rev = word[::-1]
+            # If word is its own reverse (e.g., "aa", "bb")
+            if word == rev:
+                # Use all pairs of this word (each pair adds 4 to length)
+                length += (freq[word] // 2) * 4
+                # If odd count, one can be used in the center
+                if freq[word] % 2 == 1:
+                    central = 2
+            else:
+                # For non-self-palindromic words, pair with reverse
+                # Use minimum of word and its reverse count
+                if rev in freq:
+                    pairs = min(freq[word], freq[rev])
+                    length += pairs * 4
+                    # Mark reverse as processed by setting to 0
+                    freq[rev] = 0
+        
+        # Add central palindrome if any
+        return length + central
+
+'''
+Approach:
+1. Use Counter to count frequency of each word in words.
+2. Initialize length (total length of palindrome) and central (length of central self-palindromic word, if any).
+3. For each unique word in freq:
+   - Compute its reverse (rev = word[::-1]).
+   - If word == rev (self-palindromic, e.g., "aa"):
+     - Use all pairs: (freq[word] // 2) * 4 (each pair is word+word, length 4).
+     - If odd count, one word can be central (add 2 to length).
+   - If word != rev (e.g., "ab" with "ba"):
+     - Find min(freq[word], freq[rev]) to form pairs.
+     - Each pair adds 4 to length (word+rev).
+     - Set freq[rev] = 0 to avoid double-counting.
+4. Return length + central (include central word if present).
+Time Complexity: O(n) - where n is len(words), as we process each word once.
+Space Complexity: O(1) - Counter uses O(1) space (26*26 possible two-letter words).
+'''

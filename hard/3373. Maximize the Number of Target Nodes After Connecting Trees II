@@ -1,0 +1,41 @@
+from typing import List
+
+class Solution:
+    def count(self, edges: List[List[int]]) -> Tuple[List[List[int]], List[int]]:
+        g = [[] for _ in range(len(edges) + 1)]
+        for x, y in edges:
+            g[x].append(y)
+            g[y].append(x)
+
+        cnt = [0, 0]
+        def dfs(x: int, fa: int, d: int) -> None:
+            cnt[d] += 1
+            for y in g[x]:
+                if y != fa:
+                    dfs(y, x, d ^ 1)
+        dfs(0, -1, 0)
+        return g, cnt
+
+    def maxTargetNodes(self, edges1: List[List[int]], edges2: List[List[int]]) -> List[int]:
+        _, cnt2 = self.count(edges2)
+        max2 = max(cnt2)
+
+        g, cnt1 = self.count(edges1)
+        ans = [max2] * len(g)
+        def dfs(x: int, fa: int, d: int) -> None:
+            ans[x] += cnt1[d]
+            for y in g[x]:
+                if y != fa:
+                    dfs(y, x, d ^ 1)
+        dfs(0, -1, 0)
+        return ans
+
+'''
+Approach
+1. Build adjacency lists for both trees from edges1 and edges2 to enable DFS traversal.
+2. Compute the number of even and odd distance nodes in tree 2 using DFS from a root node, storing counts in an array.
+3. Compute the number of even and odd distance nodes in tree 1 using DFS from a root node, and initialize the answer array with the maximum count from tree 2.
+4. Perform DFS on tree 1 to add even or odd distance counts to each node’s answer based on its parity relative to the root, and return the answer array.
+Time Complexity: O(n + m), where n and m are the number of nodes in tree 1 and tree 2, as each tree is traversed once with DFS.
+Space Complexity: O(n + m) for adjacency lists, recursion stack, and count arrays.
+'''

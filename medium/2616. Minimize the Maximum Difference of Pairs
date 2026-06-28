@@ -1,0 +1,48 @@
+class Solution:
+    def minimizeMax(self, nums: List[int], p: int) -> int:
+        if p == 0:
+            return 0
+        
+        # Sort the array to consider adjacent pairs
+        nums.sort()
+        n = len(nums)
+        
+        # Binary search on the maximum difference
+        left, right = 0, nums[-1] - nums[0]
+        
+        while left < right:
+            mid = (left + right) // 2
+            # Count how many pairs have difference <= mid
+            count = 0
+            i = 0
+            while i < n - 1:
+                if nums[i + 1] - nums[i] <= mid:
+                    count += 1
+                    i += 2  # Skip both indices
+                else:
+                    i += 1
+            
+            if count >= p:
+                right = mid  # Try a smaller difference
+            else:
+                left = mid + 1  # Need a larger difference
+        
+        return left
+
+'''
+Approach:
+1. If p is 0, return 0 as no pairs are needed.
+2. Sort nums to ensure optimal pairs are adjacent, as larger gaps increase differences.
+3. Use binary search to find the minimum maximum difference:
+   - Set left to 0 and right to the maximum possible difference (nums[-1] - nums[0]).
+   - For each mid difference:
+     - Count pairs with difference <= mid by iterating through sorted nums.
+     - If nums[i+1] - nums[i] <= mid, form a pair and skip both indices (i += 2).
+     - Otherwise, skip the current index (i += 1).
+   - If count >= p, the current mid is sufficient, so try a smaller difference (right = mid).
+   - Otherwise, need a larger difference (left = mid + 1).
+4. Return left as the minimum maximum difference that allows forming p pairs.
+
+Time Complexity: O(n log n + n log M), where n is the length of nums and M is the maximum difference (nums[-1] - nums[0]). Sorting takes O(n log n), and binary search involves O(log M) iterations, each with an O(n) pass to count pairs.
+Space Complexity: O(1), excluding the input array, as we only use a constant amount of extra space for variables.
+'''

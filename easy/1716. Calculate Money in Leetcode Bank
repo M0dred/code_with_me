@@ -1,0 +1,35 @@
+class Solution:
+    def totalMoney(self, n: int) -> int:
+        # Each full week contributes a known pattern:
+        # Week 1: 1+2+3+4+5+6+7 = 28
+        # Week 2: 2+3+4+5+6+7+8 = 35
+        # Week i: (1+2+...+7) + 7*(i-1) = 28 + 7*(i-1)
+        # So total for full weeks w = sum_{i=0}^{w-1} (28 + 7*i)
+        full_weeks = n // 7
+        extra_days = n % 7
+        
+        # sum of full weeks
+        total = 28 * full_weeks + 7 * (full_weeks - 1) * full_weeks // 2
+        
+        # remaining days in the next week
+        start = full_weeks + 1
+        for i in range(extra_days):
+            total += start + i
+        
+        return total
+
+'''
+Approach:
+- Group days into weeks of 7.
+- Each week starts with $week_number on Monday and increases by $1 per day:
+  - Week 1 total = 28, Week 2 = 35, Week 3 = 42, etc.
+  - Week i total = 28 + 7 * (i - 1).
+- Compute total for all complete weeks using arithmetic series.
+- Then add the remaining days from the next week manually.
+
+Time Complexity:
+- O(1): just a few arithmetic operations.
+
+Space Complexity:
+- O(1): uses constant extra space.
+'''

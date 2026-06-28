@@ -1,0 +1,45 @@
+class Solution:
+    def gridGame(self, grid: List[List[int]]) -> int:
+        row0 = grid[0]
+        row1 = grid[1]
+        n = len(row0)
+        
+        # Compute prefix sums for row1 (bottom row)
+        prefix_row1 = [0] * n
+        prefix_row1[0] = row1[0]
+        for i in range(1, n):
+            prefix_row1[i] = prefix_row1[i-1] + row1[i]
+        
+        # Compute suffix sums for row0 (top row)
+        suffix_row0 = [0] * (n + 1)
+        for i in range(n-1, -1, -1):
+            suffix_row0[i] = suffix_row0[i+1] + row0[i]
+        
+        min_max = float('inf')
+        for k in range(n):
+            # Calculate the sum of the bottom row's prefix up to k-1
+            left_sum = prefix_row1[k-1] if k > 0 else 0
+            # Calculate the sum of the top row's suffix starting from k+1
+            right_sum = suffix_row0[k+1]
+            current_max = max(left_sum, right_sum)
+            min_max = min(min_max, current_max)
+        
+        return min_max
+
+'''
+Approach:
+1. The problem involves two robots moving on a 2xN grid, where the first robot aims to minimize the points collected by the second robot.
+2. The first robot's path splits the grid into two regions: the bottom row's prefix (up to column k-1) and the top row's suffix (from column k+1).
+3. We use prefix sums for the bottom row and suffix sums for the top row to efficiently compute the points available in these regions.
+4. For each possible transition column k, calculate the maximum points the second robot can collect from either the bottom row's prefix or the top row's suffix.
+5. The first robot chooses the transition column k that minimizes this maximum value, ensuring the second robot collects as few points as possible.
+
+Time Complexity: O(n)
+- We compute prefix sums and suffix sums in O(n) time.
+- We iterate over all possible transition columns k in O(n) time.
+- Overall, the solution runs in linear time with respect to the grid size.
+
+Space Complexity: O(n)
+- We use additional space for prefix sums and suffix sums, each of size O(n).
+- The total space complexity is O(n).
+'''

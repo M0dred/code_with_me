@@ -1,0 +1,25 @@
+from typing import List
+
+class Solution:
+    def zeroFilledSubarray(self, nums: List[int]) -> int:
+        ans = 0
+        run = 0
+        for x in nums:
+            if x == 0:
+                run += 1      # extend current zero run
+                ans += run    # each new zero adds `run` subarrays ending here
+            else:
+                run = 0       # reset when non-zero
+        return ans
+
+
+"""
+Approach:
+1. Traverse the array while maintaining a counter `run` for consecutive zeros.
+2. Each time we see a zero, increment `run` and add it to the total answer 
+   (because each zero extends all previous zero-subarrays by one).
+3. When a non-zero element is encountered, reset `run` to zero.
+
+Time Complexity: O(n) — we scan the array once.
+Space Complexity: O(1) — only a few variables are used.
+"""

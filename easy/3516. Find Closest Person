@@ -1,0 +1,30 @@
+class Solution:
+    def findClosest(self, x: int, y: int, z: int) -> int:
+        # Calculate distances from Person 1 and Person 2 to Person 3
+        dist1 = abs(x - z)
+        dist2 = abs(y - z)
+        
+        # Compare distances to determine who arrives first
+        if dist1 < dist2:
+            return 1
+        elif dist2 < dist1:
+            return 2
+        else:
+            return 0
+
+"""
+Approach:
+The solution determines which person reaches Person 3 first by comparing the distances:
+1. Calculate the absolute distance from Person 1 (at x) to Person 3 (at z): |x - z|.
+2. Calculate the absolute distance from Person 2 (at y) to Person 3 (at z): |y - z|.
+3. Since both move at the same speed, the person with the shorter distance arrives first:
+   - If |x - z| < |y - z|, return 1 (Person 1 arrives first).
+   - If |y - z| < |x - z|, return 2 (Person 2 arrives first).
+   - If |x - z| = |y - z|, return 0 (they arrive at the same time).
+
+Time Complexity:
+- O(1), as the solution involves only constant-time operations (absolute value and comparison).
+
+Space Complexity:
+- O(1), as only a constant amount of extra space is used for variables.
+"""

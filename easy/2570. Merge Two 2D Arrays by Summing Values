@@ -1,0 +1,39 @@
+from typing import List
+
+class Solution:
+    def mergeArrays(self, nums1: List[List[int]], nums2: List[List[int]]) -> List[List[int]]:
+        """
+        Merges two sorted arrays of (id, value) pairs into one sorted array, summing values for common ids.
+        """
+        merged = {}
+        
+        # Insert values from nums1
+        for id1, val1 in nums1:
+            merged[id1] = merged.get(id1, 0) + val1
+        
+        # Insert values from nums2
+        for id2, val2 in nums2:
+            merged[id2] = merged.get(id2, 0) + val2
+        
+        # Convert dictionary to sorted list
+        return sorted([[id, val] for id, val in merged.items()])
+
+# Example Usage:
+# obj = Solution()
+# result = obj.mergeArrays([[1,2],[2,3],[4,5]], [[1,4],[3,2],[4,1]])  # Output: [[1,6],[2,3],[3,2],[4,6]]
+# print(result)
+
+'''
+Approach:
+1. Use a dictionary `merged` to store id-value pairs.
+2. Iterate through `nums1`, adding its values to the dictionary.
+3. Iterate through `nums2`, updating the dictionary by adding values for existing ids or inserting new ids.
+4. Convert the dictionary back to a sorted list.
+
+Time Complexity: O(n log n)
+- Iterating through `nums1` and `nums2` takes O(n).
+- Sorting the dictionary takes O(n log n).
+
+Space Complexity: O(n)
+- Dictionary stores all unique ids.
+'''

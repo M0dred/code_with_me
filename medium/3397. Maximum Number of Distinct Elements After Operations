@@ -1,0 +1,37 @@
+from typing import List
+
+class Solution:
+    def maxDistinctElements(self, nums: List[int], k: int) -> int:
+        # Each number x can be moved anywhere in the interval [x-k, x+k].
+        # Greedy: sort by x, and for each interval, place it at the smallest
+        # integer >= current 'next_free' that still lies inside the interval.
+        # If we can place it, we "use" that integer and advance next_free.
+        nums.sort()
+        next_free = -10**20  # any very small integer works
+        ans = 0
+        
+        for x in nums:
+            L = x - k
+            R = x + k
+            # place at the earliest available integer
+            place = max(next_free, L)
+            if place <= R:
+                ans += 1
+                next_free = place + 1   # next distinct integer must be strictly larger
+            # else: cannot place this interval without collision; skip
+        
+        return ans
+
+'''
+Approach:
+- Each element x gives an interval [x−k, x+k] of integers it can become.
+- We want to assign an integer to as many intervals as possible with all assigned integers distinct ⇒ classic “maximum number of non-overlapping point assignments” on intervals.
+- Greedy rule: process intervals in increasing order of their centers (here, sorting by x is enough). For each interval, assign the smallest integer ≥ next_free that still lies within the interval. If it fits, count it and move next_free to that integer + 1.
+- This packs assignments as early as possible, leaving room for later intervals.
+
+Time Complexity:
+- O(n log n) for sorting; the scan is O(n).
+
+Space Complexity:
+- O(1) extra (ignoring input sort); we keep only a few scalars.
+'''

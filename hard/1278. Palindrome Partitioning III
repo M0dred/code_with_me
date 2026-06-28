@@ -1,0 +1,67 @@
+from functools import lru_cache
+
+class Solution:
+    def palindromePartition(self, s: str, k: int) -> int:
+        """
+        Returns the minimum number of changes needed to partition s into k palindromic substrings.
+        """
+        n = len(s)
+
+        # Step 1: Precompute the cost to make any substring a palindrome
+        def min_changes_to_palindrome(l, r):
+            changes = 0
+            while l < r:
+                if s[l] != s[r]:
+                    changes += 1
+                l += 1
+                r -= 1
+            return changes
+
+        cost = [[0] * n for _ in range(n)]
+        for i in range(n):
+            for j in range(i, n):
+                cost[i][j] = min_changes_to_palindrome(i, j)
+
+        # Step 2: Use DP to find the minimum number of changes
+        @lru_cache(None)
+        def dp(i, k):
+            """
+            Returns the minimum number of changes required to partition s[i:] into k palindromes.
+            """
+            if k == 1:  # Base case: One partition left, make the whole substring palindrome
+                return cost[i][n - 1]
+
+            min_changes = float('inf')
+            for j in range(i, n - k + 1):  # Ensure at least k substrings remain
+                min_changes = min(min_changes, cost[i][j] + dp(j + 1, k - 1))
+
+            return min_changes
+
+        return dp(0, k)
+
+# Example Usage:
+# obj = Solution()
+# result = obj.palindromePartition("abc", 2)  # Output: 1
+# print(result)
+
+'''
+Approach:
+1. Precompute the cost to convert any substring `s[l:r]` into a palindrome.
+   - Use a helper function `min_changes_to_palindrome(l, r)` to count the character replacements needed.
+   - Store results in a `cost` table.
+
+2. Use Dynamic Programming to minimize the total cost:
+   - Define `dp(i, k)`: The minimum cost to partition `s[i:]` into `k` palindromes.
+   - Base case: If `k == 1`, return `cost[i][n-1]` (make the entire remaining substring a palindrome).
+   - Recurrence relation:
+     - Iterate through possible split points `j`, ensuring at least `k` partitions.
+     - Compute `cost[i][j] + dp(j + 1, k - 1)`, taking the minimum.
+
+Time Complexity: O(n^2 + n^2 * k) ≈ O(n^2 * k)
+- Precomputing palindrome costs: O(n^2).
+- DP recursion with memoization: O(n^2 * k).
+
+Space Complexity: O(n^2 + n * k)
+- `cost` table: O(n^2).
+- DP memoization: O(n * k).
+'''

@@ -1,0 +1,158 @@
+from typing import List
+from collections import defaultdict
+
+class Solution:
+    def canPartitionGrid(self, grid: List[List[int]]) -> bool:
+        m, n = len(grid), len(grid[0])
+
+        total = 0
+        row_sum = [0] * m
+        col_sum = [0] * n
+        all_cnt = defaultdict(int)
+
+        for i in range(m):
+            s = 0
+            for j in range(n):
+                v = grid[i][j]
+                s += v
+                col_sum[j] += v
+                all_cnt[v] += 1
+            row_sum[i] = s
+            total += s
+
+        def exists_in_horizontal_top(i: int, diff: int, cnt) -> bool:
+            h, w = i + 1, n
+            if h == 1 and w == 1:
+                return False
+            if h == 1:
+                return grid[0][0] == diff or grid[0][n - 1] == diff
+            if w == 1:
+                return grid[0][0] == diff or grid[i][0] == diff
+            return cnt.get(diff, 0) > 0
+
+        def exists_in_horizontal_bottom(i: int, diff: int, cnt) -> bool:
+            start = i + 1
+            h, w = m - start, n
+            if h == 1 and w == 1:
+                return False
+            if h == 1:
+                return grid[start][0] == diff or grid[start][n - 1] == diff
+            if w == 1:
+                return grid[start][0] == diff or grid[m - 1][0] == diff
+            return cnt.get(diff, 0) > 0
+
+        def exists_in_vertical_left(j: int, diff: int, cnt) -> bool:
+            h, w = m, j + 1
+            if h == 1 and w == 1:
+                return False
+            if h == 1:
+                return grid[0][0] == diff or grid[0][j] == diff
+            if w == 1:
+                return grid[0][0] == diff or grid[m - 1][0] == diff
+            return cnt.get(diff, 0) > 0
+
+        def exists_in_vertical_right(j: int, diff: int, cnt) -> bool:
+            start = j + 1
+            h, w = m, n - start
+            if h == 1 and w == 1:
+                return False
+            if h == 1:
+                return grid[0][start] == diff or grid[0][n - 1] == diff
+            if w == 1:
+                return grid[0][start] == diff or grid[m - 1][start] == diff
+            return cnt.get(diff, 0) > 0
+
+        # Check horizontal cuts
+        top_cnt = defaultdict(int)
+        bottom_cnt = all_cnt.copy()
+        top_sum = 0
+        bottom_sum = total
+
+        for i in range(m - 1):
+            top_sum += row_sum[i]
+            bottom_sum -= row_sum[i]
+            for j in range(n):
+                v = grid[i][j]
+                top_cnt[v] += 1
+                bottom_cnt[v] -= 1
+                if bottom_cnt[v] == 0:
+                    del bottom_cnt[v]
+
+            if top_sum == bottom_sum:
+                return True
+
+            if top_sum > bottom_sum:
+                if exists_in_horizontal_top(i, top_sum - bottom_sum, top_cnt):
+                    return True
+            else:
+                if exists_in_horizontal_bottom(i, bottom_sum - top_sum, bottom_cnt):
+                    return True
+
+        # Check vertical cuts
+        left_cnt = defaultdict(int)
+        right_cnt = all_cnt.copy()
+        left_sum = 0
+        right_sum = total
+
+        for j in range(n - 1):
+            left_sum += col_sum[j]
+            right_sum -= col_sum[j]
+            for i in range(m):
+                v = grid[i][j]
+                left_cnt[v] += 1
+                right_cnt[v] -= 1
+                if right_cnt[v] == 0:
+                    del right_cnt[v]
+
+            if left_sum == right_sum:
+                return True
+
+            if left_sum > right_sum:
+                if exists_in_vertical_left(j, left_sum - right_sum, left_cnt):
+                    return True
+            else:
+                if exists_in_vertical_right(j, right_sum - left_sum, right_cnt):
+                    return True
+
+        return False
+
+
+"""
+Approach & Reasoning:
+
+We try every possible single horizontal cut and every possible single vertical cut.
+
+For a cut:
+- Let sumA and sumB be the sums of the two sections.
+- If sumA == sumB, the cut is immediately valid.
+- Otherwise, only the larger side can be discounted.
+  If diff = |sumA - sumB|, then we need to remove exactly one cell with value diff
+  from the larger section.
+
+So each cut reduces to:
+1) compute the two section sums
+2) if unequal, check whether the larger section contains a cell with value diff
+3) if such a cell is removed, the remaining cells of that section must still be connected
+
+Connectivity after removing one cell:
+- If the section has at least 2 rows and at least 2 columns, removing any one cell
+  keeps it connected.
+- If the section is a single row, only an endpoint can be removed.
+- If the section is a single column, only an endpoint can be removed.
+- If the section is 1x1, removing its only cell is invalid.
+
+To support fast “does this section contain value diff?” queries:
+- For horizontal cuts, we sweep rows from top to bottom and maintain:
+  - top section counts
+  - bottom section counts
+  - top sum / bottom sum
+- For vertical cuts, we sweep columns from left to right and maintain:
+  - left section counts
+  - right section counts
+  - left sum / right sum
+
+This lets us evaluate each cut in overall O(total cells) time.
+
+Time Complexity: O(mn)
+Space Complexity: O(mn) in the worst case for value-frequency maps
+"""

@@ -1,0 +1,57 @@
+class ExamRoom:
+
+    def __init__(self, n: int):
+        # Initialize the exam room with n seats
+        self.n = n
+        # List to store the indices of occupied seats
+        self.seats = []
+
+    def seat(self) -> int:
+        # Determine the seat for the next student
+        if not self.seats:
+            # If no one is in the room, the first student sits at seat 0
+            student = 0
+        else:
+            # Initialize maximum distance and the seat to assign
+            max_distance = self.seats[0]
+            student = 0
+
+            # Iterate through the occupied seats to find the maximum distance
+            for i in range(1, len(self.seats)):
+                prev, curr = self.seats[i - 1], self.seats[i]
+                distance = (curr - prev) // 2
+                if distance > max_distance:
+                    max_distance = distance
+                    student = prev + distance
+
+            # Check the distance to the last seat
+            if self.n - 1 - self.seats[-1] > max_distance:
+                student = self.n - 1
+
+        # Add the new student to the list of occupied seats and sort the list
+        self.seats.append(student)
+        self.seats.sort()
+        return student
+
+    def leave(self, p: int) -> None:
+        # Remove the student from seat p
+        self.seats.remove(p)
+
+'''
+Approach:
+1. Maintain a sorted list of occupied seats.
+2. When a student arrives (seat method):
+   - If the room is empty, seat them at 0.
+   - Otherwise, calculate the maximum distance for each interval between occupied seats and select the seat that maximizes the distance.
+   - If the last seat offers a greater distance, place the student there.
+   - Insert the seat into the sorted list.
+3. When a student leaves (leave method):
+   - Remove the seat from the sorted list.
+
+Time Complexity:
+- seat(): O(k), where k is the number of occupied seats (to find the seat and maintain sorting).
+- leave(): O(k) (to remove the seat from the list).
+
+Space Complexity:
+- O(k), where k is the number of occupied seats.
+'''

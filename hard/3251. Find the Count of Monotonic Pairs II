@@ -1,0 +1,60 @@
+from typing import List
+
+class Solution:
+    def countOfPairs(self, nums: List[int]) -> int:
+        mod = 10 ** 9 + 7
+        n, m = len(nums), max(nums)
+
+        # Initialize the DP table
+        dp = [[0] * (m + 1) for _ in range(n)]
+
+        # Base case: Initialize for the first index
+        for a in range(nums[0] + 1):
+            dp[0][a] = 1
+
+        # Fill the DP table for the remaining indices
+        for i in range(1, n):
+            d = max(0, nums[i] - nums[i - 1])
+            prefix_sum = 0  # Track prefix sums for cumulative updates
+            for j in range(nums[i] + 1):
+                if j - d >= 0:
+                    prefix_sum = (prefix_sum + dp[i - 1][j - d]) % mod
+                dp[i][j] = prefix_sum
+
+        # Sum all valid states for the last index
+        return sum(dp[n - 1][:nums[-1] + 1]) % mod
+
+'''
+Steps to Solve
+
+Dynamic Programming Table:
+Create a table where each cell represents the count of valid configurations at a specific index and value of the first array.
+Each row corresponds to a position in the input array, and each column corresponds to a possible value in the first array.
+
+Initialization:
+For the first element of the input array, any value within the allowed range is valid because there are no constraints yet.
+Initialize the first row of the table with all ones for valid values.
+
+Iterate Through the Input Array:
+For each element in the input array, calculate the count of valid configurations for the current position:
+Use the previous row of the table to find all valid configurations from earlier positions.
+Ensure that the first array stays non-decreasing and the second array stays non-increasing.
+Maintain a cumulative sum of the previous row's values to make the calculations faster.
+
+Cumulative Sum Optimization:
+Instead of recalculating sums repeatedly for each position, keep a running total of values from the previous row. This allows for quick lookups and avoids redundant computations.
+
+Apply Modulo Operation:
+Since the result can be very large, use a modulo operation to keep the numbers manageable and prevent overflow.
+
+Final Result:
+After processing all elements, sum up the last row of the table to get the total number of valid configurations.
+'''
+
+'''
+Key Points
+Use a dynamic programming table to keep track of configurations at each step.
+Optimize computations using cumulative sums to avoid redundant calculations.
+Apply the constraints of the problem (non-decreasing and non-increasing arrays) during the transitions.
+Use a modulo operation to handle large results efficiently.
+'''

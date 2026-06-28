@@ -1,0 +1,35 @@
+from typing import List
+from collections import defaultdict
+
+class Solution:
+    def countBadPairs(self, nums: List[int]) -> int:
+        n = len(nums)
+        total_pairs = n * (n - 1) // 2  # Total number of pairs
+        count_map = defaultdict(int)
+        good_pairs = 0
+
+        for i, num in enumerate(nums):
+            key = num - i
+            good_pairs += count_map[key]
+            count_map[key] += 1
+        
+        return total_pairs - good_pairs
+
+'''
+Approach:
+1. **Understanding the Condition:**
+   - A pair `(i, j)` is a bad pair if `j - i != nums[j] - nums[i]`.
+   - This simplifies to `nums[j] - j != nums[i] - i`.
+   - We define `key = nums[i] - i`, so a pair is good if they have the same key.
+
+2. **Efficient Counting Using a HashMap:**
+   - Instead of checking all pairs (which is O(n²)), use a dictionary (`count_map`) to track occurrences of each `key`.
+   - If `key` has appeared before, all previous occurrences contribute to good pairs.
+   - Subtract good pairs from total pairs to get bad pairs.
+
+Time Complexity:
+- O(n), where `n` is the length of `nums`, since we iterate through the array once.
+
+Space Complexity:
+- O(n), for storing counts in the dictionary.
+'''

@@ -1,0 +1,21 @@
+class Solution:
+    def isArraySpecial(self, nums: List[int]) -> bool:
+        for i in range(len(nums) - 1):
+            if nums[i] % 2 == nums[i + 1] % 2:
+                return False
+        return True
+
+'''
+Approach:
+1. The problem requires checking if every pair of adjacent elements in the array has different parity.
+2. We iterate through the array from the first element to the second-to-last element.
+3. For each pair of adjacent elements, we check if their parities are the same by using the modulo operator (`%`).
+4. If we find any pair with the same parity, we return `False`.
+5. If we finish the loop without finding any such pair, we return `True`.
+
+Time Complexity: O(n), where n is the length of the array.
+- We iterate through the array once, performing constant-time operations for each element.
+
+Space Complexity: O(1)
+- We use a constant amount of extra space.
+'''

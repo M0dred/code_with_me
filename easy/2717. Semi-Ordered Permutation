@@ -1,0 +1,29 @@
+class Solution:
+    def semiOrderedPermutation(self, nums: List[int]) -> int:
+        n = len(nums)
+        pos_1 = nums.index(1)  # Find the index of 1
+        pos_n = nums.index(n)  # Find the index of n
+
+        # If 1 is before n, calculate the operations directly
+        if pos_1 < pos_n:
+            return pos_1 + (n - 1 - pos_n)
+        # If 1 is after n, account for the overlap
+        else:
+            return pos_1 + (n - 1 - pos_n) - 1
+
+"""
+Approach:
+1. Identify the positions of the smallest number (1) and the largest number (n) in the array.
+2. Two cases arise:
+   - If 1 appears before n in the array:
+     - Move 1 to the start: Requires `pos_1` swaps.
+     - Move n to the end: Requires `(n - 1 - pos_n)` swaps.
+     - Total moves = `pos_1 + (n - 1 - pos_n)`.
+   - If 1 appears after n in the array:
+     - When moving both 1 and n, there is one overlap in the swaps.
+     - Adjust the total moves by subtracting 1: `pos_1 + (n - 1 - pos_n) - 1`.
+3. Return the computed number of swaps.
+4. Complexity:
+   - Time Complexity: \(O(n)\) to find the positions of 1 and n.
+   - Space Complexity: \(O(1)\) since no additional data structures are used.
+"""

@@ -1,0 +1,66 @@
+from heapq import heappush, heappop
+
+class Solution:
+    def maxRemoval(self, nums: List[int], queries: List[List[int]]) -> int:
+        n = len(nums)
+        q = len(queries)
+        
+        # Check if array is already all zeros
+        if all(x == 0 for x in nums):
+            return q  # All queries can be removed
+        
+        # Sort queries by left index for processing in order
+        queries.sort(key=lambda x: x[0])
+        
+        # Initialize min-heap to store negated right indices (to get max right index)
+        heap = []
+        # Difference array to track operations applied
+        deltaArray = [0] * (n + 1)
+        operations = 0  # Cumulative operations at current index
+        j = 0  # Index for queries
+        
+        # Process each index in nums
+        for i, num in enumerate(nums):
+            # Update operations with delta at current index
+            operations += deltaArray[i]
+            
+            # Add all queries starting at index i to heap
+            while j < q and queries[j][0] == i:
+                heappush(heap, -queries[j][1])  # Negate ri for max-heap behavior
+                j += 1
+            
+            # Use queries with right index >= i to cover num
+            while operations < num and heap and -heap[0] >= i:
+                operations += 1  # Apply one operation
+                ri = -heappop(heap)  # Get right index of query
+                if ri + 1 < n:
+                    deltaArray[ri + 1] -= 1  # Decrement operations after ri
+            # If not enough operations to zero nums[i], impossible
+            if operations < num:
+                return -1
+        
+        # Number of queries left in heap = removable queries
+        return len(heap)
+
+'''
+Approach:
+1. Check if nums is initially all zeros; if so, return len(queries) (all removable).
+2. Sort queries by left index to process in order of starting range.
+3. Initialize:
+   - Min-heap to store negated right indices of queries (simulates max-heap for ri).
+   - Difference array deltaArray to track operations added/removed at each index.
+   - operations to track cumulative operations available at current index.
+   - j to iterate through sorted queries.
+4. For each index i in nums:
+   - Update operations with deltaArray[i].
+   - Add all queries with li == i to heap (store -ri for max-heap).
+   - While operations < nums[i] and heap has queries with ri >= i:
+     - Increment operations (use one query).
+     - Pop query with largest ri, reduce deltaArray[ri + 1] to end its effect.
+   - If operations < nums[i] after exhausting valid queries, return -1.
+5. Return len(heap) (number of unused queries = removable queries).
+Time Complexity: O(n + q log q)
+   - Sorting queries: O(q log q).
+   - Processing n indices and q queries: O(n + q log q) due to heap operations.
+Space Complexity: O(n + q) - O(n) for deltaArray, O(q) for heap.
+'''

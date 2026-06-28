@@ -1,0 +1,29 @@
+class Solution:
+    def maxCount(self, m: int, n: int, ops: List[List[int]]) -> int:
+        if not ops:
+            return m * n
+        
+        min_row = m
+        min_col = n
+        
+        for op in ops:
+            min_row = min(min_row, op[0])
+            min_col = min(min_col, op[1])
+        
+        return min_row * min_col
+
+'''
+Approach:
+1. The problem requires counting the number of maximum integers in the matrix after performing all operations.
+2. The maximum value in the matrix will be at the intersection of all rectangles defined by the operations.
+3. The intersection rectangle's size is determined by the smallest `ai` and `bi` values in the `ops` array.
+4. If there are no operations, the entire matrix remains at 0, so the number of maximum integers is `m * n`.
+5. Otherwise, we iterate through the `ops` array to find the smallest `ai` and `bi`, which define the size of the intersection rectangle.
+6. The number of maximum integers is the area of this intersection rectangle, `min_row * min_col`.
+
+Time Complexity: O(k), where k is the length of the `ops` array.
+- We iterate through the `ops` array once to find the minimum `ai` and `bi`.
+
+Space Complexity: O(1)
+- We use a constant amount of extra space to store `min_row` and `min_col`.
+'''

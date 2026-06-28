@@ -1,0 +1,49 @@
+class Solution:
+    def longestCycle(self, edges: List[int]) -> int:
+        n = len(edges)
+        visited = [False] * n  # Track globally visited nodes
+        longest_cycle = -1  # Stores the maximum cycle length
+
+        for i in range(n):
+            if visited[i]:  # Skip nodes already visited
+                continue
+
+            node_to_step = {}  # Track nodes in the current DFS traversal
+            steps = 0
+            curr = i
+
+            while curr != -1:  # Traverse the graph
+                if curr in node_to_step:  # Cycle detected
+                    cycle_length = steps - node_to_step[curr]
+                    longest_cycle = max(longest_cycle, cycle_length)
+                    break
+
+                if visited[curr]:  # If the node was visited in another traversal, stop
+                    break
+
+                node_to_step[curr] = steps
+                visited[curr] = True  # Mark as visited globally
+                steps += 1
+                curr = edges[curr]  # Move to next node
+
+        return longest_cycle
+
+'''
+Approach:
+1. Iterate Through Each Node:
+   - Start a DFS traversal from each unvisited node.
+   - Keep track of visited nodes globally to avoid redundant work.
+   
+2. Cycle Detection Using Hash Map:
+   - Use a dictionary (node_to_step) to store step counts for nodes in the current traversal.
+   - If a node is encountered again, calculate the cycle length as steps - node_to_step[curr].
+
+3. Track Longest Cycle:
+   - Whenever a cycle is found, update longest_cycle.
+
+4. Time Complexity: O(n):
+   - Each node is visited only once, making the solution efficient.
+
+5. Space Complexity: O(n):
+   - We store global visited nodes and use a dictionary for cycle tracking.
+'''

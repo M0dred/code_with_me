@@ -1,0 +1,199 @@
+from typing import List
+import heapq
+
+class Solution:
+    def minimumCost(self, nums: List[int], k: int, dist: int) -> int:
+        n = len(nums)
+        need = k - 2
+        last_i = n - k + 1  # i (start of 2nd subarray) must satisfy i <= n-k+1
+
+        if need == 0:
+            # Only starts are 0 and i1, so minimize nums[0] + nums[i]
+            return nums[0] + min(nums[1:last_i + 1])
+
+        # small: max-heap via (-value, idx), holds the smallest `need` values in window
+        # large: min-heap via (value, idx), holds the rest
+        small, large = [], []
+        delayed_small, delayed_large = {}, {}
+        in_small = [False] * n
+        small_size = 0
+        large_size = 0
+        sum_small = 0
+
+        def prune(heap, delayed):
+            while heap:
+                _, idx = heap[0]
+                if idx in delayed:
+                    heapq.heappop(heap)
+                    delayed[idx] -= 1
+                    if delayed[idx] == 0:
+                        del delayed[idx]
+                else:
+                    break
+
+        def move_small_to_large():
+            nonlocal small_size, large_size, sum_small
+            prune(small, delayed_small)
+            neg_v, idx = heapq.heappop(small)
+            v = -neg_v
+            in_small[idx] = False
+            small_size -= 1
+            sum_small -= v
+            heapq.heappush(large, (v, idx))
+            large_size += 1
+
+        def move_large_to_small():
+            nonlocal small_size, large_size, sum_small
+            prune(large, delayed_large)
+            if not large:  # safety guard
+                return
+            v, idx = heapq.heappop(large)
+            in_small[idx] = True
+            large_size -= 1
+            heapq.heappush(small, (-v, idx))
+            small_size += 1
+            sum_small += v
+
+        def rebalance():
+            # Keep size invariant: small_size == need
+            prune(small, delayed_small)
+            prune(large, delayed_large)
+            while small_size > need:
+                move_small_to_large()
+                prune(small, delayed_small)
+                prune(large, delayed_large)
+            while small_size < need:
+                if not large:
+                    break
+                move_large_to_small()
+                prune(small, delayed_small)
+                prune(large, delayed_large)
+
+            # Keep order invariant: max(small) <= min(large)
+            while True:
+                prune(small, delayed_small)
+                prune(large, delayed_large)
+                if not small or not large:
+                    break
+                max_small = -small[0][0]
+                min_large = large[0][0]
+                if max_small <= min_large:
+                    break
+
+                neg_vs, idxs = heapq.heappop(small)
+                vs = -neg_vs
+                vl, idxl = heapq.heappop(large)
+
+                # swap them
+                in_small[idxs] = False
+                in_small[idxl] = True
+                sum_small += (vl - vs)
+
+                heapq.heappush(small, (-vl, idxl))
+                heapq.heappush(large, (vs, idxs))
+
+        def add(idx: int):
+            nonlocal small_size, large_size, sum_small
+            v = nums[idx]
+
+            prune(small, delayed_small)
+            prune(large, delayed_large)
+
+            # If small not full, push to small; else decide by comparing with max(small)
+            if small_size < need:
+                heapq.heappush(small, (-v, idx))
+                in_small[idx] = True
+                small_size += 1
+                sum_small += v
+            else:
+                max_small = -small[0][0]
+                if v < max_small:
+                    heapq.heappush(small, (-v, idx))
+                    in_small[idx] = True
+                    small_size += 1
+                    sum_small += v
+                else:
+                    heapq.heappush(large, (v, idx))
+                    in_small[idx] = False
+                    large_size += 1
+
+            rebalance()
+
+        def remove(idx: int):
+            nonlocal small_size, large_size, sum_small
+            v = nums[idx]
+            if in_small[idx]:
+                delayed_small[idx] = delayed_small.get(idx, 0) + 1
+                in_small[idx] = False
+                small_size -= 1
+                sum_small -= v
+            else:
+                delayed_large[idx] = delayed_large.get(idx, 0) + 1
+                large_size -= 1
+
+            prune(small, delayed_small)
+            prune(large, delayed_large)
+            rebalance()
+
+        # Initialize for i = 1: window is indices [2 .. 1+dist] (clipped to n-1)
+        L = 2
+        R = min(n - 1, 1 + dist)
+        for idx in range(L, R + 1):
+            add(idx)
+
+        ans = nums[0] + nums[1] + sum_small
+
+        # Slide i from 2 .. last_i
+        for i in range(2, last_i + 1):
+            # Window changes from [i .. i-1+dist] to [i+1 .. i+dist]
+            out_idx = i
+            in_idx = i + dist
+
+            remove(out_idx)
+            if in_idx <= n - 1:
+                add(in_idx)
+
+            ans = min(ans, nums[0] + nums[i] + sum_small)
+
+        return ans
+
+
+"""
+Approach & Reasoning:
+
+We split nums into k contiguous subarrays. The cost of each subarray is its first element, so the total
+cost is the sum of the k chosen “start values”:
+    nums[0] + nums[i1] + nums[i2] + ... + nums[i_{k-1}]
+where i1 is the start index of the 2nd subarray and i_{k-1} is the start index of the k-th subarray.
+
+Constraint:
+    i_{k-1} - i1 <= dist
+So if we fix i1 = i, then all remaining starts (i2..i_{k-1}) must lie inside:
+    [i+1 .. i+dist]
+
+For each fixed i:
+- i must be included (it is the start of the 2nd subarray),
+- and we must choose (k-2) indices from [i+1 .. i+dist] to minimize the sum of their nums values.
+Thus we need the sum of the (k-2) smallest numbers in that window.
+
+So the answer is:
+    nums[0] + min over i ( nums[i] + sum_{(k-2) smallest in window [i+1..i+dist]} )
+
+We compute this efficiently with a sliding window and two heaps:
+- Maintain window W = [i+1 .. i+dist].
+- Keep the smallest (k-2) elements of W in a max-heap “small”.
+- Keep the rest in a min-heap “large”.
+- Track sum_small = sum of elements currently in “small”.
+- Use lazy deletion to remove outgoing indices when the window slides.
+
+After each add/remove we enforce:
+1) Size invariant: small has exactly (k-2) active elements.
+2) Order invariant: every value in small is <= every value in large.
+
+For each i, the candidate cost is:
+    nums[0] + nums[i] + sum_small
+and we take the minimum across all valid i.
+
+Time Complexity: O(n log n)
+Space Complexity: O(n)
+"""

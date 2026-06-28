@@ -1,0 +1,35 @@
+class Solution:
+    def minimumDistance(self, nums: List[int]) -> int:
+        from collections import defaultdict
+        pos = defaultdict(list)
+        for i, num in enumerate(nums):
+            pos[num].append(i)
+        
+        min_dist = float('inf')
+        for p in pos.values():
+            if len(p) >= 3:
+                # sliding window of 3 indices
+                for i in range(len(p) - 2):
+                    span = p[i + 2] - p[i]
+                    min_dist = min(min_dist, 2 * span)
+        
+        return min_dist if min_dist != float('inf') else -1
+
+"""
+Approach & Reasoning:
+For any three indices i < j < k where nums[i] == nums[j] == nums[k], the distance simplifies to:
+abs(i-j) + abs(j-k) + abs(k-i) = 2 * (k - i).
+
+Thus, the minimum distance for a fixed value equals twice the smallest span (k - i) among any three occurrences of that value.
+
+We group indices by their value using a dictionary of lists (indices are naturally sorted as we iterate left-to-right).
+
+For each value appearing at least three times, scan its index list with a sliding window of size 3 and compute the minimum (p[i+2] - p[i]).
+
+The overall answer is the minimum such value across all groups, or -1 if no group has ≥3 occurrences.
+
+This is optimal because the smallest possible span for any three positions is always achieved by some consecutive triple in the sorted index list.
+
+Time Complexity: O(n) — each index is visited once when building the map and once when scanning windows.
+Space Complexity: O(n) in the worst case (all elements distinct or one value repeated many times).
+"""

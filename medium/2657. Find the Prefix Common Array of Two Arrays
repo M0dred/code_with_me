@@ -1,0 +1,46 @@
+class Solution:
+    def findThePrefixCommonArray(self, A: List[int], B: List[int]) -> List[int]:
+        n = len(A)
+        C = [0] * n  # Initialize the result array
+        seen = set()  # To track the elements seen in A and B
+        common_count = 0  # To track the count of common elements
+
+        for i in range(n):
+            # Add elements from A and B to the seen set
+            if A[i] in seen:
+                common_count += 1
+            seen.add(A[i])
+
+            if B[i] in seen:
+                common_count += 1
+            seen.add(B[i])
+
+            # Update the result array
+            C[i] = common_count
+
+        return C
+
+'''
+Approach:
+1. **Initialize Variables:**
+   - Create an array `C` of size `n` to store the prefix common counts.
+   - Use a `set` to track elements seen in both `A` and `B`.
+   - Use a `common_count` variable to count elements that are common in the prefix.
+
+2. **Iterate Through A and B:**
+   - For each index `i`, check if `A[i]` or `B[i]` has already been seen.
+   - If an element is in the `seen` set, it means it is common, so increment `common_count`.
+   - Add the current elements `A[i]` and `B[i]` to the `seen` set.
+
+3. **Update Result Array:**
+   - Assign `common_count` to `C[i]` for the current index.
+
+4. **Return Result:**
+   - After processing all indices, return the array `C`.
+
+Time Complexity:
+- O(n), where `n` is the length of the array, as we iterate through `A` and `B` once.
+
+Space Complexity:
+- O(n), for the `seen` set.
+'''

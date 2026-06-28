@@ -1,0 +1,39 @@
+class Solution:
+    def xorAllNums(self, nums1: List[int], nums2: List[int]) -> int:
+        xor1, xor2 = 0, 0
+
+        # Compute XOR of all elements in nums1 and nums2
+        for num in nums1:
+            xor1 ^= num
+        for num in nums2:
+            xor2 ^= num
+
+        # Compute the result based on the parity of nums1 and nums2 lengths
+        result = 0
+        if len(nums2) % 2 == 1:
+            result ^= xor1
+        if len(nums1) % 2 == 1:
+            result ^= xor2
+
+        return result
+
+'''
+Approach:
+1. **Observation:**
+   - Each element in `nums1` contributes to the XOR result as many times as the length of `nums2`.
+   - Similarly, each element in `nums2` contributes as many times as the length of `nums1`.
+
+2. **Key Insight:**
+   - If the length of `nums2` is odd, every element in `nums1` is XORed once into the result.
+   - If the length of `nums1` is odd, every element in `nums2` is XORed once into the result.
+
+3. **Efficient Calculation:**
+   - Compute the XOR of all elements in `nums1` (`xor1`) and all elements in `nums2` (`xor2`).
+   - Based on the parities of the lengths of `nums1` and `nums2`, determine the final result.
+
+4. **Time Complexity:**
+   - O(n + m), where `n` is the length of `nums1` and `m` is the length of `nums2`.
+
+5. **Space Complexity:**
+   - O(1), as no additional data structures are used.
+'''

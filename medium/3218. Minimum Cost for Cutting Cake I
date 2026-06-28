@@ -1,0 +1,53 @@
+class Solution:
+    def minimumCost(self, m: int, n: int, horizontalCut: List[int], verticalCut: List[int]) -> int:
+        # Sort the cuts in descending order for a greedy approach
+        horizontalCut.sort(reverse=True)
+        verticalCut.sort(reverse=True)
+
+        h_pieces, v_pieces = 1, 1  # Start with one piece each
+        total_cost = 0
+
+        # Use two pointers to traverse horizontal and vertical cuts
+        h, v = 0, 0
+
+        while h < len(horizontalCut) and v < len(verticalCut):
+            if horizontalCut[h] >= verticalCut[v]:
+                # Take the horizontal cut
+                total_cost += horizontalCut[h] * v_pieces
+                h_pieces += 1
+                h += 1
+            else:
+                # Take the vertical cut
+                total_cost += verticalCut[v] * h_pieces
+                v_pieces += 1
+                v += 1
+
+        # Add remaining horizontal cuts
+        while h < len(horizontalCut):
+            total_cost += horizontalCut[h] * v_pieces
+            h_pieces += 1
+            h += 1
+
+        # Add remaining vertical cuts
+        while v < len(verticalCut):
+            total_cost += verticalCut[v] * h_pieces
+            v_pieces += 1
+            v += 1
+
+        return total_cost
+
+'''
+Approach:
+1. Sort both horizontalCut and verticalCut in descending order to ensure the most expensive cuts are made when they affect the maximum number of pieces.
+2. Use a greedy strategy to decide whether to make a horizontal or vertical cut based on the higher cost at each step.
+3. Keep track of the number of horizontal and vertical pieces already created to calculate the total cost for subsequent cuts.
+4. After processing both arrays, handle any remaining cuts by multiplying their cost by the respective number of pieces.
+
+Time Complexity:
+- Sorting: O((m + n) log(m + n))
+- Processing cuts: O(m + n)
+- Total: O((m + n) log(m + n))
+
+Space Complexity:
+- O(1) additional space.
+'''

@@ -1,0 +1,36 @@
+class Solution:
+    def minOperations(self, s: str) -> int:
+        mismatch1 = 0  # pattern "010101..."
+        mismatch2 = 0  # pattern "101010..."
+
+        for i, ch in enumerate(s):
+            expected1 = '0' if i % 2 == 0 else '1'
+            expected2 = '1' if i % 2 == 0 else '0'
+
+            if ch != expected1:
+                mismatch1 += 1
+            if ch != expected2:
+                mismatch2 += 1
+
+        return min(mismatch1, mismatch2)
+
+
+"""
+Approach & Reasoning:
+
+An alternating string can only have two valid patterns:
+
+1) "010101..."
+2) "101010..."
+
+We compute how many flips are needed to convert s into each pattern.
+
+For each index i:
+- For pattern1: expected = '0' if i even else '1'
+- For pattern2: expected = '1' if i even else '0'
+
+Count mismatches for both patterns and return the smaller one.
+
+Time Complexity: O(n)
+Space Complexity: O(1)
+"""

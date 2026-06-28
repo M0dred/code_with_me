@@ -1,0 +1,26 @@
+class Solution:
+    def minPartitions(self, n: str) -> int:
+        return max(ord(ch) - ord("0") for ch in n)
+
+
+"""
+Approach & Reasoning:
+
+A deci-binary number has only digits 0 or 1.
+
+If we sum x deci-binary numbers, then in any digit position:
+- the maximum digit we can create is x (by having 1 in that position in all x numbers).
+
+So if n has a digit 'd', we need at least d deci-binary numbers to form that digit.
+Therefore, the minimum required is at least the maximum digit in n.
+
+It is also always achievable:
+- Use exactly max_digit numbers.
+- For each position, put 1s in exactly as many numbers as the digit requires.
+
+Thus, the answer is simply:
+    max digit in n
+
+Time Complexity: O(len(n))
+Space Complexity: O(1)
+"""

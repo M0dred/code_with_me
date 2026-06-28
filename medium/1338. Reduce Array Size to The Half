@@ -1,0 +1,51 @@
+from collections import Counter
+from heapq import heappush, heappop
+
+class Solution:
+    def minSetSize(self, arr: List[int]) -> int:
+        # Count the frequency of each element
+        freq = Counter(arr)
+        
+        # Create a max-heap based on frequencies
+        max_heap = []
+        for count in freq.values():
+            heappush(max_heap, -count)  # Use negative to simulate a max-heap
+        
+        # Calculate the minimum set size
+        total_removed = 0
+        set_size = 0
+        half_size = len(arr) // 2
+        
+        while total_removed < half_size:
+            most_frequent = -heappop(max_heap)  # Pop the largest frequency
+            total_removed += most_frequent
+            set_size += 1
+        
+        return set_size
+
+"""
+Approach:
+1. Count Frequencies:
+   - Use `collections.Counter` to count the frequency of each element in the array.
+
+2. Max-Heap:
+   - Use a max-heap to prioritize elements with the highest frequencies for removal.
+   - Since Python's `heapq` is a min-heap by default, store negative frequencies to simulate a max-heap.
+
+3. Remove Elements:
+   - Iteratively remove elements with the highest frequencies.
+   - Keep track of the total number of elements removed and the size of the set used for removal.
+
+4. Termination:
+   - Stop once at least half of the array's elements have been removed.
+
+5. Return Result:
+   - Return the size of the set required to remove at least half of the array's elements.
+
+Complexity:
+- Time Complexity: O(n log n):
+  - Counting frequencies takes O(n).
+  - Heap operations take O(log n) for each frequency, and there are O(n) frequencies in the worst case.
+- Space Complexity: O(n):
+  - Space is used for the frequency dictionary and the heap.
+"""

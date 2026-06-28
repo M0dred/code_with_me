@@ -1,0 +1,34 @@
+from typing import List
+
+class Solution:
+    def hasIncreasingSubarrays(self, nums: List[int], k: int) -> bool:
+        n = len(nums)
+        if 2 * k > n:
+            return False
+        
+        # inc_run[i] = length of strictly increasing run ending at i
+        inc_run = [1] * n
+        for i in range(1, n):
+            if nums[i-1] < nums[i]:
+                inc_run[i] = inc_run[i-1] + 1
+        
+        # Check adjacent windows [a..a+k-1] and [a+k..a+2k-1]
+        # A window [L..R] is strictly increasing iff inc_run[R] >= (R-L+1) = k
+        for a in range(0, n - 2*k + 1):
+            if inc_run[a + k - 1] >= k and inc_run[a + 2*k - 1] >= k:
+                return True
+        return False
+'''
+Approach:
+- Precompute inc_run[i] = length of the strictly increasing run ending at index i.
+- A subarray [L..R] of length k is strictly increasing iff inc_run[R] ≥ k.
+- For each possible start a from 0 to n - 2k:
+  - Check if both inc_run[a + k - 1] ≥ k and inc_run[a + 2k - 1] ≥ k.
+  - If yes, the two length-k windows [a..a+k-1] and [a+k..a+2k-1] are strictly increasing and adjacent.
+
+Time Complexity:
+- O(n): one pass to build inc_run and one pass to test all starts a.
+
+Space Complexity:
+- O(n) for the inc_run array (can be reduced to O(1) with a sliding window counter if desired).
+'''

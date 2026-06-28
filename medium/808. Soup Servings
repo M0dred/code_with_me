@@ -1,0 +1,58 @@
+class Solution:
+    def soupServings(self, n: int) -> float:
+        # If n is very large, probability approaches 1
+        if n >= 5000:
+            return 1.0
+            
+        # Normalize n to work with smaller numbers
+        n = (n + 24) // 25  # Ceiling division by 25
+        
+        # dp[a][b] represents probability that A empties first + 0.5 * probability both empty
+        dp = {}
+        
+        def solve(a: int, b: int) -> float:
+            # Base cases
+            if a <= 0 and b <= 0:
+                return 0.5  # Both empty at same time
+            if a <= 0:
+                return 1.0  # A empties first
+            if b <= 0:
+                return 0.0  # B empties first
+            
+            # Check if already computed
+            if (a, b) in dp:
+                return dp[(a, b)]
+            
+            # Calculate probability for all 4 operations
+            prob = 0.25 * (
+                solve(max(0, a-4), b) +      # 100ml A, 0ml B (4 units A, 0 units B)
+                solve(max(0, a-3), max(0, b-1)) +  # 75ml A, 25ml B (3 units A, 1 unit B)
+                solve(max(0, a-2), max(0, b-2)) +  # 50ml A, 50ml B (2 units A, 2 units B)
+                solve(max(0, a-1), max(0, b-3))   # 25ml A, 75ml B (1 unit A, 3 units B)
+            )
+            
+            dp[(a, b)] = prob
+            return prob
+        
+        # Convert ml to units (divide by 25)
+        return solve(n, n)
+    
+'''
+Approach:
+1. For large n (≥5000), return 1.0 as probability approaches 1 due to asymmetry in operations.
+2. Normalize input n by dividing by 25 (ceiling division) to work with units, reducing state space.
+3. Use dynamic programming with memoization to compute probability:
+   - State: (a, b) representing remaining units of soups A and B.
+   - Base cases: 
+     - Both empty (a≤0, b≤0): return 0.5
+     - A empty (a≤0): return 1.0
+     - B empty (b≤0): return 0.0
+   - For each state, compute probability as 0.25 * sum of probabilities for four operations:
+     - (100,0) → (a-4,b)
+     - (75,25) → (a-3,b-1)
+     - (50,50) → (a-2,b-2)
+     - (25,75) → (a-1,b-3)
+   - Use max(0,x) to handle pouring more than available.
+4. Memoize results in dp dictionary to avoid recomputation.
+5. Time complexity: O(n²/625), Space complexity: O(n²/625) after normalization.
+'''

@@ -1,0 +1,30 @@
+class Solution:
+    def findMin(self, nums: List[int]) -> int:
+        low, high = 0, len(nums) - 1
+        while low < high:
+            mid = (low + high) // 2
+            if nums[mid] > nums[high]:
+                low = mid + 1
+            elif nums[mid] < nums[high]:
+                high = mid
+            else:
+                high -= 1
+        return nums[low]
+
+"""
+Approach & Reasoning:
+Use a variant of binary search to find the smallest element in a rotated sorted array that may contain duplicates.
+
+Maintain two pointers `low` and `high`. At each step:
+- Compute mid.
+- If nums[mid] > nums[high], the minimum must be in the right half (rotation point is after mid).
+- If nums[mid] < nums[high], the minimum is in the left half (including mid).
+- If nums[mid] == nums[high], we cannot decide, so shrink the search space by decrementing high (this handles duplicates).
+
+The loop continues until low == high, at which point nums[low] is the minimum element.
+
+This algorithm guarantees correctness even with duplicates, though the worst-case time complexity becomes O(n) when all elements are equal.
+
+Time Complexity: O(log n) on average, O(n) worst case
+Space Complexity: O(1)
+"""

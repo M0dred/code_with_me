@@ -1,0 +1,56 @@
+from typing import List
+import heapq
+
+class Solution:
+    def countPaths(self, n: int, roads: List[List[int]]) -> int:
+        MOD = 10 ** 9 + 7
+        
+        # Build adjacency list
+        graph = [[] for _ in range(n)]
+        for u, v, time in roads:
+            graph[u].append((v, time))
+            graph[v].append((u, time))
+        
+        # Dijkstra's Algorithm setup
+        min_time = [float('inf')] * n
+        ways = [0] * n
+        min_time[0] = 0
+        ways[0] = 1
+        
+        heap = [(0, 0)]  # (time, node)
+        
+        while heap:
+            time, node = heapq.heappop(heap)
+            
+            # If we've already found a shorter time to this node, skip it
+            if time > min_time[node]:
+                continue
+            
+            for neighbor, t in graph[node]:
+                total_time = time + t
+                
+                # Found a shorter time
+                if total_time < min_time[neighbor]:
+                    min_time[neighbor] = total_time
+                    ways[neighbor] = ways[node]
+                    heapq.heappush(heap, (total_time, neighbor))
+                
+                # Found another way with the same shortest time
+                elif total_time == min_time[neighbor]:
+                    ways[neighbor] = (ways[neighbor] + ways[node]) % MOD
+        
+        return ways[n - 1] % MOD
+
+'''
+Approach:
+1. Build an adjacency list to represent the graph with travel times.
+2. Initialize Dijkstra's algorithm with a min-heap to track the minimum travel times from node 0 to all other nodes.
+3. Track the number of ways to reach each node with an array 'ways'. Initially, ways[0] = 1 because there's one way to reach node 0.
+4. For each node processed in the heap:
+   a. Iterate through its neighbors.
+   b. If a shorter path to a neighbor is found, update its shortest time and set its ways to the current node's ways.
+   c. If another path with the same shortest time is found, add the current node's ways to the neighbor's ways.
+5. The result is ways[n - 1], representing the number of ways to reach node n - 1 in the shortest time.
+Time Complexity: O((N + E) * log N), where N is the number of nodes and E is the number of edges.
+Space Complexity: O(N + E), to store the graph and other helper arrays.
+'''

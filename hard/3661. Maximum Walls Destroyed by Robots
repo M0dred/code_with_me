@@ -1,0 +1,110 @@
+class Solution:
+    def maxWalls(self, robots: List[int], distance: List[int], walls: List[int]) -> int:
+        n = len(robots)
+        if n == 0:
+            return 0
+        # Sort robots with their distances
+        robots_with_dist = sorted(zip(robots, distance))
+        robot_pos = [p for p, d in robots_with_dist]
+        D = [d for p, d in robots_with_dist]
+        
+        # Sorted walls
+        w = sorted(walls)
+        
+        # Count own walls (at robot positions)
+        robot_set = set(robot_pos)
+        own = sum(1 for ww in walls if ww in robot_set)
+        
+        # Precompute gap covers
+        ptr = 0
+        m = len(w)
+        
+        # Left gap
+        left_cover = 0
+        if n > 0:
+            l_reach = robot_pos[0] - D[0]
+            while ptr < m and w[ptr] < robot_pos[0]:
+                if w[ptr] >= l_reach:
+                    left_cover += 1
+                ptr += 1
+            # Skip own wall at robot 0
+            while ptr < m and w[ptr] == robot_pos[0]:
+                ptr += 1
+        
+        # Internal gaps
+        gap_left = [0] * (n - 1)
+        gap_right = [0] * (n - 1)
+        gap_both = [0] * (n - 1)
+        for k in range(n - 1):
+            L_reach = robot_pos[k] + D[k]
+            R_reach = robot_pos[k + 1] - D[k + 1]
+            lcnt = rcnt = bcnt = 0
+            while ptr < m and w[ptr] < robot_pos[k + 1]:
+                ww = w[ptr]
+                cl = (ww <= L_reach)
+                cr = (ww >= R_reach)
+                if cl:
+                    lcnt += 1
+                if cr:
+                    rcnt += 1
+                if cl or cr:
+                    bcnt += 1
+                ptr += 1
+            gap_left[k] = lcnt
+            gap_right[k] = rcnt
+            gap_both[k] = bcnt
+            # Skip own wall at robot[k+1]
+            while ptr < m and w[ptr] == robot_pos[k + 1]:
+                ptr += 1
+        
+        # Right gap
+        right_cover = 0
+        if n > 0:
+            r_reach = robot_pos[-1] + D[-1]
+            while ptr < m and w[ptr] <= r_reach:
+                right_cover += 1
+                ptr += 1
+        
+        # DP
+        dp_L = left_cover  # robot 0 chooses L
+        dp_R = 0           # robot 0 chooses R
+        
+        for k in range(n - 1):
+            # new_L: robot (k+1) chooses L
+            # new_R: chooses R
+            new_L = dp_L + gap_right[k]  # from prev L, only right fire
+            new_R = dp_L                 # from prev L, no fires -> 0 add
+            # from prev R
+            new_L = max(new_L, dp_R + gap_both[k])
+            new_R = max(new_R, dp_R + gap_left[k])
+            dp_L = new_L
+            dp_R = new_R
+        
+        # Final
+        max_gaps = max(dp_L, dp_R + right_cover)
+        return own + max_gaps
+
+"""
+Approach & Reasoning:
+Sort the robots by position. Count walls located exactly at robot positions (own walls); these can always be destroyed by their respective robots firing in either direction.
+
+Non-coincident walls fall into gaps: left of first robot, between consecutive robots, or right of last robot.
+
+- Left gap walls are only coverable by first robot firing left (up to its distance).
+- Right gap walls only by last robot firing right.
+- Internal gap walls between robot k and k+1 can be covered by robot k firing right (prefix up to reach) and/or robot k+1 firing left (suffix from right).
+
+Use a pointer on sorted walls to linearly classify and count, for each gap, the number of walls coverable from left, from right, and from both (union). This is O(m + n).
+
+Then, dynamic programming along the sorted robots:
+dp_L / dp_R represent the maximum walls covered in gaps processed so far when the current robot chooses left/right direction.
+
+Transitions add the coverage for the intervening gap based on whether the previous robot fires right and current fires left.
+
+Finally, consider the right gap contribution if the last robot fires right.
+
+This ensures each robot is assigned exactly one direction optimally to maximize unique walls destroyed, respecting blocking by other robots.
+
+Time Complexity: O((n + m) log (n + m)) for sorting + O(n + m) processing.
+Space Complexity: O(n + m)
+"""

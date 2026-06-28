@@ -1,0 +1,20 @@
+class Solution:
+    def repeatedNTimes(self, nums: List[int]) -> int:
+        seen = set()
+        for num in nums:
+            if num in seen:
+                return num
+            seen.add(num)
+        return -1  # unreachable per constraints
+
+"""
+Approach & Reasoning:
+
+Since exactly one number appears n times, and all others appear once:
+- The repeated number must appear at least twice.
+- We can track seen numbers in a set.
+- The first number we encounter that is already in the set is the repeated one.
+
+Time Complexity : O(n)
+Space Complexity: O(n)
+"""

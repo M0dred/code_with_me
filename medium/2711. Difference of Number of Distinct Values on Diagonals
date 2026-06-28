@@ -1,0 +1,56 @@
+from typing import List
+
+class Solution:
+    def differenceOfDistinctValues(self, grid: List[List[int]]) -> List[List[int]]:
+        m, n = len(grid), len(grid[0])
+        answer = [[0] * n for _ in range(m)]
+        
+        # To handle each diagonal, we can use the sum of indices r - c as a key.
+        diagonals = {}
+
+        # Step 1: group values by diagonals
+        for r in range(m):
+            for c in range(n):
+                if r - c not in diagonals:
+                    diagonals[r - c] = []
+                diagonals[r - c].append(grid[r][c])
+        
+        # Step 2: process each diagonal
+        for key in diagonals:
+            diag = diagonals[key]
+            left_set = set()
+            right_counts = []
+            right_set = set()
+            
+            # Build right_counts in reverse
+            for val in reversed(diag):
+                right_counts.append(set(right_set))
+                right_set.add(val)
+            right_counts.reverse()
+            
+            # Compute result for each cell on the diagonal
+            for i in range(len(diag)):
+                left_count = len(left_set)
+                right_count = len(right_counts[i])
+                # Find the exact row and col
+                if key >= 0:
+                    r, c = key + i, i
+                else:
+                    r, c = i, i - key
+                answer[r][c] = abs(left_count - right_count)
+                left_set.add(diag[i])
+        
+        return answer
+
+'''
+Approach:
+1. Diagonals in a matrix can be grouped by using the key r - c.
+2. For each diagonal:
+   - Track unique values to the left of each element using a set.
+   - Precompute unique values to the right using reverse traversal.
+3. For each element, calculate |leftDistinct - rightDistinct| and store it.
+4. Return the final answer matrix.
+
+Time Complexity: O(m * n)
+Space Complexity: O(m * n)
+'''

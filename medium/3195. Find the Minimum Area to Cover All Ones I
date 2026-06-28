@@ -1,0 +1,45 @@
+class Solution:
+    def minimumArea(self, grid: List[List[int]]) -> int:
+        # Get grid dimensions
+        m, n = len(grid), len(grid[0])
+        
+        # Initialize boundaries for the rectangle
+        min_row = m  # Smallest row index with a 1
+        max_row = 0  # Largest row index with a 1
+        min_col = n  # Smallest column index with a 1
+        max_col = 0  # Largest column index with a 1
+        
+        # Iterate through the grid to find boundaries of 1's
+        for i in range(m):
+            for j in range(n):
+                if grid[i][j] == 1:
+                    # Update minimum row index
+                    min_row = min(min_row, i)
+                    # Update maximum row index
+                    max_row = max(max_row, i)
+                    # Update minimum column index
+                    min_col = min(min_col, j)
+                    # Update maximum column index
+                    max_col = max(max_col, j)
+        
+        # Calculate width and height of the rectangle
+        width = max_col - min_col + 1
+        height = max_row - min_row + 1
+        
+        # Return the area of the rectangle
+        return width * height
+
+'''
+Approach:
+This solution finds the smallest rectangle that encloses all 1's in the grid by computing the bounding box.
+1. Initialize variables to track the minimum and maximum row and column indices where 1's appear.
+2. Iterate through the grid to find all 1's:
+   - Update min_row to the smallest row index with a 1.
+   - Update max_row to the largest row index with a 1.
+   - Update min_col to the smallest column index with a 1.
+   - Update max_col to the largest column index with a 1.
+3. Compute the rectangle's width as (max_col - min_col + 1) and height as (max_row - min_row + 1).
+4. Return the area as width * height.
+Time Complexity: O(m * n), where m and n are the grid dimensions, as we scan each cell once.
+Space Complexity: O(1), as we only use a constant amount of extra space for the boundary variables.
+'''

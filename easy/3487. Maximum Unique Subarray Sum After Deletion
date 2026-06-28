@@ -1,0 +1,25 @@
+class Solution:
+    def maxSum(self, nums: List[int]) -> int:
+        st = set(x for x in nums if x >= 0)  # Create a set of unique non-negative numbers from nums
+        return sum(st) if st else max(nums)  # Return sum of non-negative numbers if set is non-empty, else return maximum element
+
+'''
+Approach:
+The solution aims to find the maximum sum of a subarray with unique elements by:
+1. Constructing a set `st` that includes all non-negative numbers from the input array `nums`, automatically removing duplicates by using a set.
+2. Checking if `st` is non-empty (i.e., there are non-negative numbers):
+   - If `st` is non-empty, compute and return the sum of all elements in `st`.
+   - If `st` is empty (i.e., all numbers in `nums` are negative), return the maximum element in `nums`, representing a single-element subarray.
+3. The approach assumes that the maximum sum is achieved by summing all unique non-negative numbers, or selecting the largest number if all are negative.
+
+Time Complexity:
+- Creating the set `st` involves iterating over `nums` once: O(n), where n is the length of nums.
+- Summing the elements in `st` takes O(n) in the worst case.
+- Finding `max(nums)` (when `st` is empty) takes O(n).
+- Total time complexity: O(n).
+
+Space Complexity:
+- The set `st` stores at most n unique non-negative numbers: O(n) space.
+- No additional significant space is used.
+- Total space complexity: O(n).
+'''

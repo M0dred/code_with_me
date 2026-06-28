@@ -1,0 +1,58 @@
+from collections import deque
+from sortedcontainers import SortedList
+
+class Solution:
+    def minReverseOperations(self, n: int, p: int, banned: List[int], k: int) -> List[int]:
+        # Combine banned positions and the starting position into a set for O(1) lookup
+        ban = set(banned) | {p}
+        
+        # Maintain two SortedLists: one for even indices, one for odd indices
+        indices = [SortedList(), SortedList()]
+        
+        # Initialize SortedLists with positions not banned and not starting point
+        for i in range(n):
+            if i not in ban:
+                indices[i % 2].add(i)
+        
+        # Add sentinel values to avoid index out of range when searching
+        indices[0].add(n)
+        indices[1].add(n)
+
+        # Initialize the result list with -1. The starting point p requires 0 operations.
+        ans = [-1] * n
+        ans[p] = 0
+        
+        # BFS queue initialized with the starting position p
+        q = deque([p])
+
+        while q:
+            i = q.popleft()
+
+            # Compute the valid subarray starting positions for reverse operations
+            mn = max(i - k + 1, k - i - 1)
+            mx = min(i + k - 1, n * 2 - k - i - 1)
+
+            # Select the list of available indices with the same parity
+            sl = indices[mn % 2]
+            
+            # Binary search for the first valid index >= mn
+            idx = sl.bisect_left(mn)
+            
+            # Process all positions in range [mn, mx]
+            while sl[idx] <= mx:
+                j = sl.pop(idx)  # pop(idx) removes the element and shifts subsequent elements left
+                ans[j] = ans[i] + 1  # increment step count
+                q.append(j)
+
+        return ans
+
+'''
+Approach:
+1. We use Breadth-First Search (BFS) starting from position p to explore reachable positions.
+2. Positions are grouped by parity (even or odd) since flipping maintains parity symmetry.
+3. We use SortedList to efficiently manage available positions and quickly find the next valid index within the range [mn, mx].
+4. The BFS traversal visits each node exactly once and performs a logarithmic search and deletion from the SortedList.
+5. Sentinel values are added to avoid bounds checking in the while loop.
+6. Time Complexity: O(n log n) due to the SortedList operations per node.
+7. Space Complexity: O(n) for the result array and SortedList structures.
+'''

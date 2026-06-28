@@ -1,0 +1,27 @@
+from typing import List
+
+class Solution:
+    def getSneakyNumbers(self, nums: List[int]) -> List[int]:
+        n = max(nums) + 1  # or len(nums) - 2
+        seen = [False] * n
+        res: List[int] = []
+        for x in nums:
+            if seen[x]:
+                res.append(x)
+                if len(res) == 2:
+                    return res
+            else:
+                seen[x] = True
+        return res  # fallback; by constraints we'll have returned earlier
+
+'''
+Approach:
+- Every value is in [0, n-1] and should appear once; exactly two values appear twice.
+- Keep a boolean array `seen` of size n.
+- Scan nums: if `seen[x]` is already True, x is one of the sneaky numbers; append to result.
+- Otherwise mark `seen[x] = True`.
+- Return the two collected numbers.
+
+Time Complexity: O(n)
+Space Complexity: O(n)
+'''

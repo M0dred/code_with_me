@@ -1,0 +1,85 @@
+from typing import List
+
+class Solution:
+    def calc_z(self, s: str) -> List[int]:
+        """
+        Compute the Z-array for the string s.
+        Z[i] is the length of the longest substring starting from s[i]
+        that matches a prefix of s.
+        """
+        n = len(s)
+        z = [0] * n
+        box_l = box_r = 0  # Z-box boundaries (left and right, inclusive)
+        
+        for i in range(1, n):
+            if i <= box_r:
+                # Use previously computed Z values to avoid recomputation
+                z[i] = min(z[i - box_l], box_r - i + 1)
+            # Expand Z-box to find the longest match
+            while i + z[i] < n and s[z[i]] == s[i + z[i]]:
+                box_l, box_r = i, i + z[i]
+                z[i] += 1
+        return z
+
+    def jump(self, max_jumps: List[int]) -> int:
+        """
+        Find the minimum number of "jumps" to reach the end using a greedy approach.
+        The max_jumps array gives the maximum range of jumps from each position.
+        """
+        ans = 0
+        cur_r = 0  # Rightmost endpoint of the current "bridge"
+        nxt_r = 0  # Furthest reachable endpoint for the next "bridge"
+
+        for i, max_jump in enumerate(max_jumps):
+            nxt_r = max(nxt_r, i + max_jump)  # Update the furthest reachable point
+            if i == cur_r:  # Reached the current bridge's endpoint
+                if i == nxt_r:  # If we cannot extend further, return -1
+                    return -1
+                cur_r = nxt_r  # Move to the next bridge
+                ans += 1  # Increment the jump count
+        return ans
+
+    def minValidStrings(self, words: List[str], target: str) -> int:
+        """
+        Compute the minimum number of valid strings from 'words'
+        that can be concatenated to form 'target'.
+        """
+        n = len(target)
+        max_jumps = [0] * n  # max_jumps[i] stores the maximum prefix length ending at position i
+
+        # For each word, compute its Z-array to find where it can match the target
+        for word in words:
+            z = self.calc_z(word + "#" + target)  # Combine word and target with a delimiter
+            word_len = len(word) + 1  # Offset due to the delimiter "#"
+            for i in range(n):
+                max_jumps[i] = max(max_jumps[i], z[word_len + i])
+
+        # Use the greedy jump function to find the minimum jumps
+        return self.jump(max_jumps)
+
+"""
+Approach:
+1. **Z-Algorithm**:
+   - For each word in the input list, compute its Z-array combined with the target string.
+   - The Z-array efficiently calculates the longest prefix match of the word starting at each position in the target string.
+
+2. **Build max_jumps**:
+   - For each position in the target, track the maximum jump length (prefix match length) ending at that position.
+   - This helps us determine how far we can move forward using the current word as a valid prefix.
+
+3. **Greedy Jump**:
+   - Use a greedy approach to minimize the number of jumps needed to traverse the target string.
+   - Treat each position in the target as a potential starting point and use the maximum jump length at that position to "bridge" the target.
+   - If it is not possible to reach the end, return `-1`.
+
+4. **Result**:
+   - Return the minimum number of jumps needed to traverse the entire target string using the valid prefixes.
+
+**Complexity**:
+- Time Complexity: O(n * m), where:
+   - \(n\) is the length of the target string.
+   - \(m\) is the average length of words in the list `words`.
+- Space Complexity: O(n + p), where:
+   - \(n\) is for the DP array `max_jumps`.
+   - \(p\) is for the total number of valid prefixes generated using the Z-algorithm.
+"""

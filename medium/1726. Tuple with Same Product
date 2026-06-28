@@ -1,0 +1,36 @@
+from typing import List
+from collections import defaultdict
+
+class Solution:
+    def tupleSameProduct(self, nums: List[int]) -> int:
+        product_count = defaultdict(int)
+        count = 0
+        
+        # Compute all possible products of pairs
+        for i in range(len(nums)):
+            for j in range(i + 1, len(nums)):
+                product = nums[i] * nums[j]
+                product_count[product] += 1
+        
+        # Count valid tuples
+        for freq in product_count.values():
+            if freq > 1:
+                count += (freq * (freq - 1) // 2) * 8  # Each pair contributes to 8 valid tuples
+        
+        return count
+
+'''
+Approach:
+1. **Store Product Frequencies:**
+   - Compute all possible products of pairs and store their frequencies in a dictionary.
+
+2. **Count Valid Tuples:**
+   - If a product appears `freq` times, we can choose two pairs in `freq * (freq - 1) / 2` ways.
+   - Each valid pair contributes to 8 valid tuples.
+
+Time Complexity:
+- O(n^2), where `n` is the length of `nums`, due to nested loops for computing products.
+
+Space Complexity:
+- O(n^2), for storing product frequencies.
+'''

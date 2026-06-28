@@ -1,0 +1,61 @@
+from typing import List
+import heapq
+
+class Solution:
+    def minCost(self, n: int, edges: List[List[int]]) -> int:
+        # Build augmented graph:
+        # - keep original directed edge u -> v with cost w
+        # - for each original edge u -> v with cost w, add "switch-reversal" edge v -> u with cost 2w
+        g = [[] for _ in range(n)]
+        for u, v, w in edges:
+            g[u].append((v, w))
+            g[v].append((u, 2 * w))
+
+        INF = 10**30
+        dist = [INF] * n
+        dist[0] = 0
+        pq = [(0, 0)]  # (cost, node)
+
+        while pq:
+            d, u = heapq.heappop(pq)
+            if d != dist[u]:
+                continue
+            if u == n - 1:
+                return d
+            for v, w in g[u]:
+                nd = d + w
+                if nd < dist[v]:
+                    dist[v] = nd
+                    heapq.heappush(pq, (nd, v))
+
+        return -1
+
+
+"""
+Approach & Reasoning:
+
+At a node u, using its switch once means:
+- pick ONE incoming edge (v -> u) with weight w,
+- temporarily reverse it to (u -> v) and traverse immediately,
+- paying cost 2*w for that move.
+
+Key observation:
+All move costs are strictly positive (w >= 1, so 2*w >= 2). Therefore, an optimal minimum-cost
+route from 0 to n-1 can be assumed to be a SIMPLE path (no repeated nodes), because any cycle
+would strictly increase total cost and can be removed.
+
+On a simple path, we never visit the same node twice, so we can never use a node’s switch twice.
+That means the “at most once per node” constraint does not restrict the shortest-path computation:
+whenever we are at u, its switch is still unused (since u appears at most once).
+
+So we can transform the problem into an ordinary shortest path problem on an augmented graph:
+- Keep every original edge u -> v with cost w (normal moves).
+- For every original edge u -> v with cost w, add an extra edge v -> u with cost 2*w
+  (this represents arriving at v and reversing the incoming edge u -> v into v -> u for one move).
+
+Then the answer is simply the shortest path from 0 to n-1 in this augmented graph,
+which we compute with Dijkstra’s algorithm.
+
+Time Complexity: O((n + m) log n), where m = len(edges) and the augmented graph has O(m) edges.
+Space Complexity: O(n + m)
+"""

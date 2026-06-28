@@ -1,0 +1,22 @@
+class Solution:
+    def rotateString(self, s: str, goal: str) -> bool:
+        if len(s) != len(goal):
+            return False
+        return goal in (s + s)
+
+"""
+Approach & Reasoning:
+A string goal is a rotation of s if and only if:
+- They have exactly the same length.
+- goal appears as a contiguous substring of s + s.
+
+This works because any cyclic shift of s (moving characters from front to back any number of times) will be a substring of length len(s) inside the doubled string s + s. Conversely, any substring of s + s of that length must be a rotation of s.
+
+The check is performed in O(n) time (string search) where n = len(s), which is efficient given the constraints n <= 100.
+
+If lengths differ, immediately return false (no rotation possible).
+If s == goal (0 shifts), goal will appear at the start of s + s, so the condition holds.
+
+Time Complexity: O(n)
+Space Complexity: O(n) for the temporary doubled string
+"""

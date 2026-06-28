@@ -1,0 +1,46 @@
+class Solution:
+    def minimumDifference(self, nums: List[int]) -> int:
+        n3, n = len(nums), len(nums) // 3
+
+        part1 = [0] * (n + 1)
+        # Max heap for first part to maximize sumfirst
+        total = sum(nums[:n])
+        ql = [-x for x in nums[:n]]
+        heapq.heapify(ql)
+        part1[0] = total
+
+        for i in range(n, n * 2):
+            total += nums[i]
+            heapq.heappush(ql, -nums[i])
+            total -= -heapq.heappop(ql)
+            part1[i - (n - 1)] = total
+
+        # Min heap for second part to minimize sumsecond
+        part2 = sum(nums[n * 2:])
+        qr = nums[n * 2:]
+        heapq.heapify(qr)
+        ans = part1[n] - part2
+
+        for i in range(n * 2 - 1, n - 1, -1):
+            part2 += nums[i]
+            heapq.heappush(qr, nums[i])
+            part2 -= heapq.heappop(qr)
+            ans = min(ans, part1[i - n] - part2)
+
+        return ans
+
+'''
+Approach:
+The problem requires minimizing the absolute difference between the sums of two parts (first n elements and next n elements) after removing n elements from a 3n-length array.
+1. Initialize n as len(nums)/3.
+2. For the first part (first n elements after removal):
+   - Use a max-heap to track the n largest elements from the first 2n elements.
+   - Start with the first n elements, then for each index i from n to 2n-1, add nums[i] to the heap and remove the smallest to maximize the sum (part1).
+3. For the second part (next n elements):
+   - Use a min-heap to track the n smallest elements from the last 2n elements.
+   - Start with the last n elements, then for each index i from 2n-1 to n, add nums[i] to the heap and remove the largest to minimize the sum (part2).
+4. Compute the difference part1[i] - part2[i] for each valid split (i elements from first 2n, n-i from last n) and track the minimum.
+5. Return the minimum difference found.
+Time Complexity: O(n log n) for heap operations, where n is len(nums)/3.
+Space Complexity: O(n) for heaps and part1 array.
+'''

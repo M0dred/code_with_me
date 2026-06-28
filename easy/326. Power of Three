@@ -1,0 +1,22 @@
+class Solution:
+    def isPowerOfThree(self, n: int) -> bool:
+        # Handle non-positive numbers
+        if n <= 0:
+            return False
+        # Check if n is a divisor of a large power of 3
+        return (3 ** 30) % n == 0
+
+"""
+Approach:
+1. A number n is a power of 3 if n = 3^x for some integer x >= 0.
+2. Non-positive numbers (n <= 0) cannot be powers of 3, so return False.
+3. To avoid loops/recursion, use the fact that if n is a power of 3, it divides a sufficiently large power of 3 (e.g., 3^30).
+4. Since 3^30 = 205891132094649 is within the constraint range (-2^31 <= n <= 2^31 - 1) and larger than any valid n <= 2^31 - 1, check if 3^30 % n == 0.
+5. This works because if n = 3^k, then 3^30 = n * 3^(30-k), so n divides 3^30. If n is not a power of 3, it has other prime factors, making it not a divisor of 3^30.
+
+Time Complexity:
+- O(1): Constant time for comparison and modulo operation.
+
+Space Complexity:
+- O(1): No extra space used beyond a few variables.
+"""

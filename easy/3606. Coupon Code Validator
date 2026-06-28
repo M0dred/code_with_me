@@ -1,0 +1,50 @@
+class Solution:
+    def validateCoupons(self, code: List[str], businessLine: List[str], isActive: List[bool]) -> List[str]:
+        # Valid business lines in required order
+        order = {"electronics": 0, "grocery": 1, "pharmacy": 2, "restaurant": 3}
+        valid_lines = set(order.keys())
+        
+        valid_coupons = []
+        
+        for c, bl, active in zip(code, businessLine, isActive):
+            # Condition 1: code non-empty and only alphanumeric + underscore
+            if not c or not all(ch.isalnum() or ch == '_' for ch in c):
+                continue
+                
+            # Condition 2: businessLine must be one of the four valid categories
+            if bl not in valid_lines:
+                continue
+                
+            # Condition 3: isActive must be True
+            if not active:
+                continue
+                
+            # All conditions satisfied → add (businessLine_priority, code, original_code)
+            valid_coupons.append((order[bl], c))
+        
+        # Sort by businessLine priority first, then by code lexicographically
+        valid_coupons.sort()
+        
+        # Return only the codes
+        return [c for _, c in valid_coupons]
+
+"""
+Approach & Reasoning:
+
+We iterate through all coupons once and collect only those that satisfy all three conditions:
+
+1. code is non-empty and contains only letters, digits, or underscores
+2. businessLine is one of: "electronics", "grocery", "pharmacy", "restaurant"
+3. isActive is True
+
+We store valid coupons as tuples: (priority, code)
+- priority = predefined order of business lines
+- code = original string
+
+Then sort the list → automatically sorts by businessLine first, then by code.
+
+Finally extract just the codes.
+
+Time Complexity : O(n log n) due to sorting (n ≤ 100 → fine)
+Space Complexity: O(n)
+"""

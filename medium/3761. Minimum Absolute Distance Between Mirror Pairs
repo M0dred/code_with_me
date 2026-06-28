@@ -1,0 +1,28 @@
+class Solution:
+    def minMirrorPairDistance(self, nums: List[int]) -> int:
+        last_producer = {}
+        min_dist = float('inf')
+        for i, num in enumerate(nums):
+            if num in last_producer:
+                min_dist = min(min_dist, i - last_producer[num])
+            y = int(str(num)[::-1])
+            last_producer[y] = i
+        return min_dist if min_dist != float('inf') else -1
+
+"""
+Approach & Reasoning:
+A mirror pair (i, j) with i < j satisfies reverse(nums[i]) == nums[j].
+
+We process the array from left to right while maintaining a dictionary `last_producer`: key = some value Y, value = the rightmost index seen so far such that reverse(nums[index]) == Y.
+
+For each index i:
+- If nums[i] is already in last_producer, there exists a previous index (the latest one) where reverse(nums[previous]) == nums[i]. Compute the distance i - previous and update the global minimum.
+- Then compute Y = reverse(nums[i]) and update last_producer[Y] = i (this position now becomes the newest producer of Y).
+
+Because we always use the rightmost (closest) previous producer for each position, we capture the smallest possible distance for every potential right endpoint. The overall minimum among these distances is the answer. If no such pair is ever found, return -1.
+
+This correctly handles cases where reverse(reverse(x)) != x (e.g., numbers with trailing zeros like 120 → 21 → 12) because we explicitly compute and track what each number actually produces via reversal.
+
+Time Complexity: O(n · d) where d ≈ 10 (maximum number of digits), i.e., O(n)
+Space Complexity: O(n) worst case (all produced reverse values are distinct)
+"""

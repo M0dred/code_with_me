@@ -1,0 +1,57 @@
+class Solution:
+    def numSteps(self, s: str) -> int:
+        steps = 0
+        carry = 0
+
+        # Process from right to left, excluding the first bit
+        for i in range(len(s) - 1, 0, -1):
+            bit = int(s[i]) + carry
+
+            if bit == 1:
+                # odd → add 1, then divide by 2
+                steps += 2
+                carry = 1
+            else:
+                # even → just divide by 2
+                steps += 1
+
+        # If there's a carry left at the most significant bit
+        return steps + carry
+
+
+"""
+Approach & Reasoning:
+
+We simulate the operations directly on the binary string
+without converting it to an integer.
+
+Rules:
+- If even → divide by 2 → just remove last bit (right shift)
+- If odd  → add 1 → then divide by 2
+
+Instead of modifying the string repeatedly,
+we simulate from right to left using a carry.
+
+Let carry represent whether we previously added 1.
+
+For each bit (from right to left, excluding the MSB):
+    bit = current_bit + carry
+
+Case 1: bit == 1 (odd)
+    → one step to add 1
+    → one step to divide by 2
+    → total +2 steps
+    → carry becomes 1
+
+Case 2: bit == 0 or 2 (even)
+    → just divide by 2
+    → +1 step
+    → carry unchanged (if bit == 2, carry stays 1)
+
+After finishing all lower bits,
+if carry remains at the highest bit,
+one extra step is needed.
+
+Time Complexity: O(n)
+Space Complexity: O(1)
+"""

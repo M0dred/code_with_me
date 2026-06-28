@@ -1,0 +1,41 @@
+class Solution:
+    def get_edges(self, fences: List[int], border: int) -> set:
+        points = sorted([1] + fences + [border])
+        return {
+            points[j] - points[i]
+            for i in range(len(points))
+            for j in range(i + 1, len(points))
+        }
+
+    def maximizeSquareArea(
+        self, m: int, n: int, hFences: List[int], vFences: List[int]
+    ) -> int:
+        MOD = 10**9 + 7
+        h_edges = self.get_edges(hFences, m)
+        v_edges = self.get_edges(vFences, n)
+
+        max_edge = max(h_edges & v_edges, default=0)
+        return (max_edge * max_edge) % MOD if max_edge else -1
+
+"""
+Approach & Reasoning:
+
+To form a square hole of side length s (s × s unit cells):
+- Need s+1 consecutive horizontal bars with all inner s bars removed (if removable)
+- The distance between two consecutive kept bars must be s+1
+
+The possible distances (gaps) are all pairwise differences between bar positions:
+- Fixed boundaries: 1 and m+1 (horizontal), 1 and n+1 (vertical)
+- Removable bars from hFences / vFences
+
+After adding boundaries and sorting, compute all possible gaps y - x (y > x)
+
+The possible square side lengths are the common gaps in horizontal and vertical minus 1.
+
+Take the maximum common gap (s+1), then side = s+1 - 1 = s, area = s² % MOD
+
+If no common gap > 1 → impossible → return -1
+
+Time Complexity: O(h² + v²) where h = len(hFences) ≤ 600 → acceptable
+Space Complexity: O(h² + v²)
+"""

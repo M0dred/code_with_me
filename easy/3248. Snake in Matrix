@@ -1,0 +1,20 @@
+from typing import List
+
+class Solution:
+    def finalPositionOfSnake(self, n: int, commands: List[str]) -> int:
+        # Start at cell 0, which corresponds to (0, 0)
+        i, j = 0, 0
+
+        # Process each command
+        for command in commands:
+            if command == "UP":
+                i -= 1
+            elif command == "DOWN":
+                i += 1
+            elif command == "LEFT":
+                j -= 1
+            elif command == "RIGHT":
+                j += 1
+
+        # Calculate the final position in the grid
+        return i * n + j

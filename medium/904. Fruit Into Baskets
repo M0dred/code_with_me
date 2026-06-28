@@ -1,0 +1,41 @@
+class Solution:
+    def totalFruit(self, fruits: List[int]) -> int:
+        # Dictionary to keep track of fruit types in current window
+        basket = {}
+        max_fruits = 0
+        left = 0
+        
+        # Iterate through the array using right pointer
+        for right in range(len(fruits)):
+            # Add current fruit to basket
+            basket[fruits[right]] = basket.get(fruits[right], 0) + 1
+            
+            # If we have more than 2 fruit types, shrink window
+            while len(basket) > 2:
+                basket[fruits[left]] -= 1
+                if basket[fruits[left]] == 0:
+                    del basket[fruits[left]]
+                left += 1
+            
+            # Update max_fruits with current window size
+            max_fruits = max(max_fruits, right - left + 1)
+        
+        return max_fruits
+
+'''
+Approach:
+This solution uses a sliding window approach to find the longest subarray
+with at most two distinct fruit types. We maintain a dictionary (basket) to
+track fruit types and their counts in the current window. Two pointers (left
+and right) define the window:
+1. Move right pointer, adding fruits to basket
+2. If more than 2 fruit types, shrink window from left until valid
+3. Track maximum window size seen
+
+Time Complexity: O(n) where n is the length of fruits array
+- Single pass with right pointer
+- Left pointer moves at most n times total
+
+Space Complexity: O(1)
+- Basket dictionary stores at most 3 fruit types
+'''

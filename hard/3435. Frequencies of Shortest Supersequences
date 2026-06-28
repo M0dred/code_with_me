@@ -1,0 +1,150 @@
+class Solution:
+    def supersequences(self, words: List[str]) -> List[List[int]]:
+        # (1) Compute U = the set of letters that ever appear.
+        U = set()
+        for w in words:
+            U.update(w)
+        U = sorted(U)  # sort for consistency
+        n = len(U)
+        letter_to_index = {c: i for i, c in enumerate(U)}
+        
+        # (2) For each letter, if a self–edge occurs then that letter must appear at least twice.
+        lb = [1] * n
+        for w in words:
+            if w[0] == w[1]:
+                lb[letter_to_index[w[0]]] = 2
+
+        # (3) For our purposes the only “free” letters (those that by default appear once)
+        # are those with lb == 1.
+        free_indices = [i for i in range(n) if lb[i] == 1]
+        free_set = set(free_indices)
+        m = len(free_indices)
+        
+        # (4) Build the list of “edges” coming from words with distinct letters
+        # but only record an edge if both letters are free.
+        free_edges = []  # each edge is (u,v) with u,v in free_indices.
+        for w in words:
+            if w[0] != w[1]:
+                u = letter_to_index[w[0]]
+                v = letter_to_index[w[1]]
+                if u in free_set and v in free_set:
+                    free_edges.append((u, v))
+                    
+        # (5) Our idea is: for each free letter we have a choice – assign it count 1 (the minimum)
+        # or “bump” it to 2. (For a letter with lb == 2 there is no choice.)
+        # If we decide to leave a free letter at 1 then it will have a fixed “position”
+        # in any ordering. (In many cases, if several letters appear only once then they must be
+        # placed in one unique order; but if there is a cycle among them, no ordering is possible.)
+        # We “try” all assignments for free letters.
+        #
+        # Let best_total be the minimum possible total length and valid_masks hold all the
+        # assignments (as bitmasks over free_indices) that achieve that total.
+        best_total = None
+        valid_masks = []
+        
+        # Pre‐compute: for each free letter (global index) its “bit–position”:
+        free_index_to_bit = {i: pos for pos, i in enumerate(free_indices)}
+        
+        # (6) For each bitmask from 0 to 2^m-1,
+        # interpret that if the bit is set then the free letter gets bumped (count 2);
+        # if not, it stays at 1.
+        for mask in range(1 << m):
+            total_free = 0
+            F1 = []  # free letters that remain at 1
+            for pos in range(m):
+                i = free_indices[pos]
+                if mask & (1 << pos):
+                    total_free += 2
+                else:
+                    total_free += 1
+                    F1.append(i)
+            # For letters that are not free (they already must be 2) add their counts:
+            nonfree_total = sum(lb[i] for i in range(n) if i not in free_set)
+            total = total_free + nonfree_total
+            
+            # (7) Check the “only–once” free letters. Notice:
+            # if a two–letter word w = xy with x,y free appears and both x and y have been left at 1,
+            # then the only possible ordering of these letters is unique.
+            # In such a situation if we have both x->y and y->x (from different words)
+            # then there is no ordering of those letters and the assignment is rejected.
+            #
+            # (We do this by “building” the induced graph on F1 from our free_edges and checking
+            # that it is acyclic.)
+            graph = {v: [] for v in F1}
+            for (u, v) in free_edges:
+                if u in graph and v in graph:
+                    graph[u].append(v)
+            if not self._is_acyclic(graph):
+                continue  # reject this assignment
+            
+            # (8) Record the assignment if its total length is minimal.
+            if best_total is None or total < best_total:
+                best_total = total
+                valid_masks = [mask]
+            elif total == best_total:
+                valid_masks.append(mask)
+        
+        # (9) Now, for every valid assignment we “know” the frequency of every letter in U.
+        # For a letter in free_set (lb == 1) we set its count to 2 if its bit is set,
+        # and 1 otherwise; for a letter not free we already have lb==2.
+        ret = []
+        for mask in valid_masks:
+            freq = [0] * 26
+            for i in range(n):
+                if i in free_set:
+                    pos = free_index_to_bit[i]
+                    cnt = 2 if (mask & (1 << pos)) else 1
+                else:
+                    cnt = lb[i]  # always 2
+                # U[i] is the letter.
+                freq[ord(U[i]) - ord('a')] = cnt
+            ret.append(freq)
+        return ret
+
+    def _is_acyclic(self, graph: dict) -> bool:
+        # standard DFS–based cycle detection in a directed graph
+        visited = {}
+        def dfs(v):
+            if v in visited:
+                return visited[v] == 2  # if finished, ok; if in stack (==1), then cycle
+            visited[v] = 1  # mark “in–stack”
+            for w in graph.get(v, []):
+                if not dfs(w):
+                    return False
+            visited[v] = 2  # finished
+            return True
+        for v in graph:
+            if v not in visited:
+                if not dfs(v):
+                    return False
+        return True
+
+'''
+Approach:
+-----------
+1. Determine the set of unique letters (U) present in the input words.
+2. For each letter, set a lower bound on its count: if the letter appears as a self-edge (e.g. "aa"),
+   then it must appear at least twice; otherwise, it can appear once.
+3. Identify "free" letters (those with a lower bound of 1) and construct a directed graph using the words 
+   with distinct letters. Only include edges between free letters.
+4. For each free letter, try both possibilities: keeping its count at 1 or "bumping" it to 2.
+   - Each assignment is represented as a bitmask over free letters.
+   - For free letters left at 1, ensure that the induced graph remains acyclic. If it contains a cycle, 
+     the assignment is invalid.
+5. Compute the total length (sum of counts) of the supersequence for each valid assignment.
+6. Track and select assignments that yield the minimal total length (i.e., the shortest common supersequence).
+7. For each minimal assignment, build the frequency array of size 26 (for each lowercase letter) and return all such arrays.
+
+Time Complexity:
+------------------
+- Let m be the number of free letters (m ≤ 16, due to the constraint on unique letters).
+- We iterate over all 2^m possible assignments (at most 2^16 ≈ 65,536 possibilities).
+- For each assignment, checking acyclicity via DFS takes O(V + E), where V ≤ m and E ≤ len(words).
+- Hence, the overall time complexity is O(2^m * (m + len(words))), which is acceptable given the constraints.
+
+Space Complexity:
+-------------------
+- The extra space is used for storing the graph (O(m + len(words))) and recursion stack in DFS.
+- The number of assignments stored is at most O(2^m), but since m is at most 16, this is negligible.
+- Overall, the space complexity is O(m + len(words)), which is effectively constant with respect to the input size.
+'''

@@ -1,0 +1,33 @@
+from typing import List
+
+class Solution:
+    def minOperations(self, nums: List[int]) -> int:
+        n = len(nums)
+        operations = 0
+
+        for i in range(n - 2):  # Ensure we don't go out of bounds
+            if nums[i] == 0:
+                # Flip nums[i], nums[i+1], nums[i+2]
+                nums[i] ^= 1
+                nums[i+1] ^= 1
+                nums[i+2] ^= 1
+                operations += 1
+
+        # Check if all elements are 1 (If last two positions still have 0, return -1)
+        return operations if nums[-2] == 1 and nums[-1] == 1 else -1
+
+'''
+Approach:
+1. Iterate through the array from left to right.
+2. If `nums[i] == 0`, flip `nums[i], nums[i+1], nums[i+2]` and increment `operations`.
+3. After processing, check if all elements are `1`.
+   - If the last two elements still have `0`, return `-1`.
+   - Otherwise, return the total number of operations.
+
+Time Complexity: O(n)
+- Each index is visited **at most once**.
+- Flipping is O(1), making the entire process **O(n)**.
+
+Space Complexity: O(1)
+- The operation is done in-place with a few integer variables.
+'''

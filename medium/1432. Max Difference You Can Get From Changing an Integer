@@ -1,0 +1,45 @@
+class Solution:
+    def maxDiff(self, num: int) -> int:
+        # Convert num to string for digit manipulation
+        s = str(num)
+        
+        # Find maximum value (a)
+        a = num
+        for x in s:
+            # Try replacing first non-9 digit with 9
+            if x != '9':
+                a = int(s.replace(x, '9'))
+                break
+        
+        # Find minimum value (b)
+        b = num
+        if s[0] != '1' and s[0] != '0':
+            # Replace first digit with 1 to minimize
+            b = int(s.replace(s[0], '1'))
+        else:
+            # If first digit is 1 or 0, replace first non-1, non-0 digit with 0
+            for x in s[1:]:
+                if x != '0' and x != '1':
+                    b = int(s.replace(x, '0'))
+                    break
+        
+        return a - b
+
+'''
+Approach:
+1. Convert num to string s for easier digit manipulation.
+2. To find maximum value (a):
+   - Iterate through digits in s.
+   - Replace the first non-'9' digit with '9' to maximize the number.
+   - Convert the resulting string to an integer.
+   - If no such digit is found, a remains num.
+3. To find minimum value (b):
+   - If the first digit is not '1' or '0', replace all occurrences of the first digit with '1' to minimize without leading zeros.
+   - Otherwise, iterate through digits starting from the second position and replace the first non-'0', non-'1' digit with '0'.
+   - Convert the resulting string to an integer.
+   - If no such digit is found, b remains num.
+4. Return the difference a - b, which is the maximum difference between the two resulting numbers.
+
+Time Complexity: O(l), where l is the number of digits in num (up to 9 for num <= 10^8). String conversion, iteration, and replacement are O(l).
+Space Complexity: O(l) for the string s and temporary strings created during replacement.
+'''

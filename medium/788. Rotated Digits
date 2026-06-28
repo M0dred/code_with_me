@@ -1,0 +1,31 @@
+class Solution:
+    def rotatedDigits(self, n: int) -> int:
+        def is_good(x: int) -> bool:
+            s = str(x)
+            changed = False
+            for c in s:
+                if c in '347':
+                    return False
+                if c in '2569':
+                    changed = True
+            return changed
+        
+        count = 0
+        for i in range(1, n + 1):
+            if is_good(i):
+                count += 1
+        return count
+
+"""
+Approach & Reasoning:
+A number is good if and only if:
+- It contains none of the invalid digits 3,4,7 (these cannot be rotated to any valid digit).
+- It contains at least one of the changing digits 2,5,6,9 (otherwise after rotation the number stays exactly the same).
+
+Because n ≤ 10^4, we simply iterate through every integer from 1 to n. For each number we convert it to a string and check the two conditions above in linear time with respect to the number of digits (≤ 5). The total work is O(n · d) ≈ 5·10^4 operations, which is efficient.
+
+The helper is_good returns True exactly when both conditions hold, and the final answer is the count of such numbers.
+
+Time Complexity: O(n)
+Space Complexity: O(1)
+"""

@@ -1,0 +1,44 @@
+class Solution:
+    def doesValidArrayExist(self, derived: List[int]) -> bool:
+        n = len(derived)
+        
+        # Try starting with original[0] = 0
+        original = [0] * n  # Initialize the original array with zeros
+        original[0] = 0  # Assume the first element is 0
+        for i in range(n - 1):
+            # Compute the next element in the original array using XOR
+            original[i + 1] = original[i] ^ derived[i]
+        # Check if the last element XORed with the first element matches derived[-1]
+        if (original[-1] ^ original[0]) == derived[-1]:
+            return True  # Valid original array exists
+        
+        # Try starting with original[0] = 1
+        original = [0] * n  # Reinitialize the original array with zeros
+        original[0] = 1  # Assume the first element is 1
+        for i in range(n - 1):
+            # Compute the next element in the original array using XOR
+            original[i + 1] = original[i] ^ derived[i]
+        # Check if the last element XORed with the first element matches derived[-1]
+        if (original[-1] ^ original[0]) == derived[-1]:
+            return True  # Valid original array exists
+        
+        # If neither assumption works, return False
+        return False  # No valid original array exists
+
+'''
+Approach:
+1. The derived array is constructed by performing a bitwise XOR operation between adjacent elements of the original array, with the last element XORed with the first element.
+2. To determine if a valid original array exists, we attempt to reconstruct the original array from the derived array.
+3. We start by assuming two possible values for original[0]: 0 and 1.
+4. For each assumption, we compute the rest of the original array using the relationship original[i + 1] = original[i] ^ derived[i].
+5. After reconstructing the original array, we check if the last element XORed with the first element matches the last element of the derived array.
+6. If either assumption leads to a valid original array, we return True. If neither assumption works, we return False.
+
+Time Complexity: O(n)
+- We perform two passes over the derived array, each of size n, to reconstruct the original array for both assumptions (starting with 0 and 1).
+- Each pass involves O(n) operations, so the overall time complexity is O(n).
+
+Space Complexity: O(n)
+- We use an additional array `original` of size n to store the reconstructed array for each assumption.
+- Since we only store one `original` array at a time, the space complexity is O(n).
+'''

@@ -1,0 +1,31 @@
+class Solution:
+    def maxRotateFunction(self, nums: List[int]) -> int:
+        n = len(nums)
+        if n == 0:
+            return 0
+        S = sum(nums)
+        cur = sum(i * nums[i] for i in range(n))
+        max_val = cur
+        for k in range(1, n):
+            cur = cur + S - n * nums[n - k]
+            max_val = max(max_val, cur)
+        return max_val
+
+"""
+Approach & Reasoning:
+Compute F(0) = sum(i * nums[i] for i in range(n)) and the total sum S = sum(nums).
+
+When rotating the array clockwise by one position, the new F value satisfies the recurrence:
+F(k+1) = F(k) + S - n * nums[n-k]
+
+This holds because:
+- Every element's multiplier increases by 1, contributing +S to the total.
+- The element that wraps from position n-1 to position 0 has its multiplier decreased by n (from n-1 to 0), so we subtract n times that element.
+
+Iterating this recurrence from F(0) gives all F(k) values in linear time, allowing us to track the maximum.
+
+The formula works even when values are negative (we simply take the global maximum among all rotations).
+
+Time Complexity: O(n)
+Space Complexity: O(1)
+"""

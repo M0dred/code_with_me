@@ -1,0 +1,28 @@
+class Solution:
+    def maximumTripletValue(self, nums: List[int]) -> int:
+        n = len(nums)
+        max_diff = 0
+        res = 0
+        max_i = nums[0]
+
+        for j in range(1, n - 1):
+            max_diff = max(max_diff, max_i - nums[j])
+            res = max(res, max_diff * nums[j + 1])
+            max_i = max(max_i, nums[j])
+
+        return res
+
+'''
+Approach:
+1. Traverse the array while keeping track of the maximum value seen so far as `max_i`.
+2. For each index j (from 1 to n - 2), calculate the best possible value of (nums[i] - nums[j]) where i < j, by maintaining the maximum difference `max_diff`.
+3. Multiply this `max_diff` by nums[j+1] (which is treated as nums[k] where k > j).
+4. Keep updating the result with the maximum value of (nums[i] - nums[j]) * nums[k] found.
+5. Return 0 if no such valid triplet gives a positive value.
+
+Time Complexity: O(n)
+- We iterate over the array once, maintaining values with constant time operations.
+
+Space Complexity: O(1)
+- Only a few variables are used for tracking, no extra space required.
+'''

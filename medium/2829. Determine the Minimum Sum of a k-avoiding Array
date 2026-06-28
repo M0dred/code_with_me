@@ -1,0 +1,25 @@
+class Solution:
+    def minimumSum(self, n: int, k: int) -> int:
+        used = set()
+        result = 0
+        current = 1
+        
+        while len(used) < n:
+            if k - current not in used:
+                used.add(current)
+                result += current
+            current += 1
+            
+        return result
+
+'''
+Approach:
+1. We want to construct an array of `n` distinct positive integers such that no two numbers sum to `k`.
+2. We iterate starting from 1, and keep adding a number to our result only if its complement with respect to k (i.e., k - current) is not already used.
+3. This ensures we never add a number that forms a pair summing to k with a previously added number.
+4. We continue this process until we collect n valid numbers.
+5. Finally, return the total sum of the collected numbers.
+
+Time Complexity: O(n)
+Space Complexity: O(n)
+'''

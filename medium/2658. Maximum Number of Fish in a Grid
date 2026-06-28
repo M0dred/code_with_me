@@ -1,0 +1,49 @@
+class Solution:
+    def findMaxFish(self, grid: List[List[int]]) -> int:
+        from collections import deque
+
+        def bfs(r, c):
+            queue = deque([(r, c)])
+            total_fish = 0
+            grid[r][c] = 0  # Mark the starting cell as visited
+
+            while queue:
+                x, y = queue.popleft()
+                total_fish += original_grid[x][y]
+                for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+                    nx, ny = x + dx, y + dy
+                    if 0 <= nx < m and 0 <= ny < n and grid[nx][ny] > 0:
+                        queue.append((nx, ny))
+                        grid[nx][ny] = 0  # Mark the cell as visited
+
+            return total_fish
+
+        m, n = len(grid), len(grid[0])
+        max_fish = 0
+        original_grid = [row[:] for row in grid]  # Keep a copy of the grid
+
+        for i in range(m):
+            for j in range(n):
+                if grid[i][j] > 0:
+                    max_fish = max(max_fish, bfs(i, j))
+
+        return max_fish
+
+'''
+Approach:
+1. **Breadth-First Search (BFS):**
+   - For each water cell (grid[r][c] > 0), start a BFS to explore all reachable water cells.
+   - Collect fish from each visited cell and mark cells as visited by setting `grid[r][c] = 0`.
+
+2. **Iterate Through the Grid:**
+   - Traverse all cells in the grid to find water cells as potential starting points.
+
+3. **Track Maximum Fish:**
+   - Use a variable `max_fish` to store the maximum fish collected among all BFS traversals.
+
+Time Complexity:
+- O(m * n), where `m` and `n` are the dimensions of the grid, as each cell is visited at most once.
+
+Space Complexity:
+- O(m * n), for the BFS queue in the worst case.
+'''

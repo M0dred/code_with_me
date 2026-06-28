@@ -1,0 +1,21 @@
+class Solution:
+    def removeOccurrences(self, s: str, part: str) -> str:
+        # Step 1: Use a loop to repeatedly remove occurrences of 'part' from 's'
+        while part in s:
+            s = s.replace(part, "", 1)  # Remove the leftmost occurrence of 'part'
+        return s
+
+'''
+Approach:
+1. We use a loop to check if the substring `part` exists in `s`.
+2. Whenever `part` is found, we use `replace(part, "", 1)` to remove only the first occurrence.
+3. We continue this process until `part` no longer exists in `s`.
+4. Finally, return the modified string `s`.
+
+Time Complexity: O(N*M) 
+   - N is the length of `s`, and M is the length of `part`.
+   - In the worst case, we may have to scan `s` multiple times.
+
+Space Complexity: O(1) 
+   - We perform in-place modifications without using extra space.
+'''

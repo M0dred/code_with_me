@@ -1,0 +1,53 @@
+from typing import List
+
+class Solution:
+    def minSwaps(self, grid: List[List[int]]) -> int:
+        n = len(grid)
+
+        # For each row, compute how many trailing zeros it has.
+        trailing = []
+        for r in range(n):
+            j = n - 1
+            while j >= 0 and grid[r][j] == 0:
+                j -= 1
+            trailing.append(n - 1 - j)
+
+        swaps = 0
+        for i in range(n):
+            need = n - 1 - i  # row i must have at least this many trailing zeros
+
+            j = i
+            while j < n and trailing[j] < need:
+                j += 1
+            if j == n:
+                return -1
+
+            # Bubble row j up to position i
+            while j > i:
+                trailing[j], trailing[j - 1] = trailing[j - 1], trailing[j]
+                swaps += 1
+                j -= 1
+
+        return swaps
+
+
+"""
+Approach & Reasoning:
+
+The grid is valid if every cell above the main diagonal is 0.
+For row i (0-indexed), all columns j > i must be 0.
+That means row i must have at least (n-1-i) trailing zeros.
+
+Steps:
+1) Convert each row into a single number: trailingZeros[row]
+   = count of consecutive zeros from the right end of the row.
+2) Greedy placement from top to bottom:
+   For each position i:
+   - we need a row with trailingZeros >= (n-1-i)
+   - find the first such row at or below i
+   - bubble it up using adjacent swaps (this is optimal and minimal)
+3) If no such row exists for some i, return -1.
+
+Time Complexity: O(n^2) (worst-case bubble swaps / searching)
+Space Complexity: O(n)
+"""

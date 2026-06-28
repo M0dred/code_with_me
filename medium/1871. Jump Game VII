@@ -1,0 +1,44 @@
+class Solution:
+    def canReach(self, s: str, minJump: int, maxJump: int) -> bool:
+        n = len(s)
+        if n == 0 or s[-1] == '1':
+            return False
+        prefix = [0] * (n + 1)
+        reachable = [False] * n
+        reachable[0] = True
+        prefix[1] = 1
+        for i in range(1, n):
+            if s[i] == '1':
+                reachable[i] = False
+                prefix[i + 1] = prefix[i]
+                continue
+            left = max(0, i - maxJump)
+            right = i - minJump
+            count = 0
+            if right >= left:
+                count = prefix[right + 1] - prefix[left]
+            reachable[i] = count > 0
+            prefix[i + 1] = prefix[i] + (1 if reachable[i] else 0)
+        return reachable[n - 1]
+
+"""
+Approach & Reasoning:
+Use dynamic programming with a prefix-sum array to achieve O(n) time.
+
+- `reachable[i]` is true if index i can be reached (and s[i] == '0').
+- `prefix[i+1]` stores the cumulative count of reachable positions from 0 to i.
+
+For each position i (if s[i] == '0'):
+- The possible previous positions that can jump to i are in the sliding window [max(0, i - maxJump), i - minJump].
+- Query the number of reachable positions in that window using the prefix sum in O(1).
+- If the count > 0, set reachable[i] = true.
+
+Update the prefix array after deciding reachability for i.
+
+This correctly enforces the jump range constraints [minJump, maxJump] while only landing on '0's.
+
+If the last index is reachable, return true.
+
+Time Complexity: O(n)
+Space Complexity: O(n)
+"""

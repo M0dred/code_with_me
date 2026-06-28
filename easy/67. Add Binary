@@ -1,0 +1,43 @@
+class Solution:
+    def addBinary(self, a: str, b: str) -> str:
+        i, j = len(a) - 1, len(b) - 1
+        carry = 0
+        res = []
+
+        while i >= 0 or j >= 0 or carry:
+            total = carry
+            if i >= 0:
+                total += ord(a[i]) - ord('0')
+                i -= 1
+            if j >= 0:
+                total += ord(b[j]) - ord('0')
+                j -= 1
+
+            res.append(str(total % 2))
+            carry = total // 2
+
+        return ''.join(reversed(res))
+
+
+"""
+Approach & Reasoning:
+
+We simulate binary addition from right to left, just like manual addition.
+
+Maintain:
+- i pointer for string a (from end)
+- j pointer for string b (from end)
+- carry from previous addition
+
+At each step:
+1) Add corresponding bits (if indices valid) plus carry.
+2) Append (total % 2) to result.
+3) Update carry = total // 2.
+
+Continue until both strings are processed and carry is zero.
+
+Finally, reverse the collected digits to form the correct binary string.
+
+Time Complexity: O(max(len(a), len(b)))
+Space Complexity: O(max(len(a), len(b)))
+"""

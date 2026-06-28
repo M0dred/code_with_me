@@ -1,0 +1,63 @@
+class Solution:
+    def getHappyString(self, n: int, k: int) -> str:
+        total = 3 * (1 << (n - 1))
+        if k > total:
+            return ""
+
+        res = []
+        prev = ""
+
+        for i in range(n):
+            for ch in "abc":
+                if ch == prev:
+                    continue
+
+                cnt = 1 << (n - i - 1)
+                if i == 0:
+                    cnt = 1 << (n - 1)
+
+                if k > cnt:
+                    k -= cnt
+                else:
+                    res.append(ch)
+                    prev = ch
+                    break
+
+        return "".join(res)
+
+
+"""
+Approach & Reasoning:
+
+A happy string:
+- uses only 'a', 'b', 'c'
+- has no equal adjacent characters
+
+Count of happy strings:
+- First position: 3 choices
+- Every next position: 2 choices (anything except previous char)
+So total number of happy strings of length n is:
+    3 * 2^(n-1)
+
+If k is larger than this total, return "".
+
+To build the k-th lexicographical happy string directly:
+At each position, try characters in lexicographical order: 'a', 'b', 'c'.
+Skip any character equal to the previous chosen character.
+
+If we fix one valid character at position i:
+- the remaining positions each have 2 choices
+- so the number of happy strings with this prefix is:
+    2^(remaining_length)
+
+Thus:
+1) Try each valid character in order.
+2) Let cnt = number of happy strings starting with that choice.
+3) If k > cnt, skip this whole block and do k -= cnt.
+4) Otherwise, choose that character and continue to the next position.
+
+This constructs the exact k-th happy string without generating all strings.
+
+Time Complexity: O(n)
+Space Complexity: O(n)
+"""

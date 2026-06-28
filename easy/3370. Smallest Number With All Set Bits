@@ -1,0 +1,22 @@
+class Solution:
+    def smallestNumber(self, n: int) -> int:
+        # Find the smallest number >= n whose binary form is all '1's.
+        # These numbers are of the form 1, 3, 7, 15, 31, 63, ...
+        # i.e., (1 << k) - 1 for some k >= 1.
+        x = 1
+        while (1 << x) - 1 < n:
+            x += 1
+        return (1 << x) - 1
+
+'''
+Approach:
+- A number whose binary representation has only 1’s is always of the form (2^k − 1).
+- Iterate over k from 1 upward until (2^k − 1) ≥ n.
+- Return that value.
+
+Time Complexity:
+- O(log n), since we increase k until 2^k ≥ n.
+
+Space Complexity:
+- O(1), using only a few integer variables.
+'''

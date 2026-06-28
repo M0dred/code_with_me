@@ -1,0 +1,48 @@
+class OrderedStream:
+
+    def __init__(self, n: int):
+        """
+        Initializes the OrderedStream with n elements.
+        """
+        self.stream = [None] * (n + 1)  # Create a list of size n+1 (1-based index)
+        self.ptr = 1  # Pointer to track the next expected ID
+
+    def insert(self, idKey: int, value: str) -> List[str]:
+        """
+        Inserts the pair (idKey, value) into the stream and returns the largest chunk of values
+        starting from the pointer that are now available in increasing order.
+        """
+        self.stream[idKey] = value  # Store the value in the stream
+        
+        # If the inserted idKey is not at the pointer position, return an empty list
+        if idKey != self.ptr:
+            return []
+        
+        # Collect the chunk of consecutive available values
+        result = []
+        while self.ptr < len(self.stream) and self.stream[self.ptr] is not None:
+            result.append(self.stream[self.ptr])
+            self.ptr += 1  # Move the pointer to the next unfilled position
+
+        return result
+
+# Your OrderedStream object will be instantiated and called as such:
+# obj = OrderedStream(n)
+# param_1 = obj.insert(idKey,value)
+
+'''
+Approach:
+1. Use an array (self.stream) of size n+1 (1-based indexing) to store values at their respective positions.
+2. Maintain a pointer (self.ptr) to track the next expected position in the stream.
+3. When inserting a new (idKey, value):
+   - Store the value in self.stream at index idKey.
+   - If idKey does not match self.ptr, return an empty list since we must maintain order.
+   - Otherwise, collect all consecutive available values starting from self.ptr and update self.ptr accordingly.
+4. Return the collected chunk of values.
+
+Time Complexity: O(n) across n insertions.
+- Each insert operation takes O(1) on average, with O(n) in total for processing the entire list.
+
+Space Complexity: O(n)
+- Uses a list of size n+1 to store values.
+'''

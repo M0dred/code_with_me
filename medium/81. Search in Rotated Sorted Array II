@@ -1,0 +1,47 @@
+class Solution:
+    def search(self, nums: List[int], target: int) -> bool:
+        left, right = 0, len(nums) - 1
+        
+        while left <= right:
+            mid = (left + right) // 2
+            
+            if nums[mid] == target:
+                return True
+            
+            # If left half is sorted
+            if nums[left] < nums[mid]:
+                if nums[left] <= target < nums[mid]:
+                    right = mid - 1
+                else:
+                    left = mid + 1
+            # If right half is sorted
+            elif nums[mid] < nums[right]:
+                if nums[mid] < target <= nums[right]:
+                    left = mid + 1
+                else:
+                    right = mid - 1
+            # If we can't tell which half is sorted (duplicates)
+            else:
+                if nums[left] == nums[mid]:
+                    left += 1
+                if nums[right] == nums[mid]:
+                    right -= 1
+        
+        return False
+
+'''
+Approach:
+1. The problem requires finding if a target exists in a rotated sorted array with possible duplicates.
+2. We use a modified binary search algorithm to efficiently search for the target.
+3. At each step, we determine which half of the array is sorted and check if the target is within that sorted half.
+4. If the middle element equals the target, we return True.
+5. If the left half is sorted, we check if the target is in this range. If so, we search the left half; otherwise, we search the right half.
+6. If the right half is sorted, we check if the target is in this range. If so, we search the right half; otherwise, we search the left half.
+7. If the middle element is equal to either the left or right element, we handle it by moving the pointers to reduce the search space.
+
+Time Complexity: O(log n), where n is the length of the array.
+- The binary search algorithm halves the search space in each iteration, but in the worst case with many duplicates, it might degrade to O(n).
+
+Space Complexity: O(1)
+- We use only a constant amount of extra space for the pointers.
+'''

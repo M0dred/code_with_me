@@ -1,0 +1,27 @@
+class Solution:
+    def clearDigits(self, s: str) -> str:
+        stack = []
+        for char in s:
+            if char.isdigit():
+                if stack:
+                    stack.pop()  # Remove the closest non-digit character to the left
+            else:
+                stack.append(char)  # Add non-digit characters to the stack
+        return ''.join(stack)
+
+'''
+Approach:
+1. The problem requires removing all digits from the string by repeatedly deleting the first digit and the closest non-digit character to its left.
+2. We use a stack to keep track of the characters in the string.
+3. As we iterate through the string, we check each character:
+   - If the character is a digit, we remove the last character from the stack (which represents the closest non-digit character to the left of the digit).
+   - If the character is not a digit, we add it to the stack.
+4. After processing all characters, the stack will contain the resulting string with all digits removed.
+5. We convert the stack back to a string and return it.
+
+Time Complexity: O(n), where n is the length of the string.
+- We iterate through the string once, performing constant-time operations for each character.
+
+Space Complexity: O(n)
+- The stack can grow up to the size of the input string in the worst case.
+'''

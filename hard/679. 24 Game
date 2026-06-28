@@ -1,0 +1,49 @@
+class Solution:
+    def judgePoint24(self, cards: List[int]) -> bool:
+        def solve(nums: List[float]) -> bool:
+            if len(nums) == 1:
+                # Check if the final number is close to 24 (accounting for floating-point precision)
+                return abs(nums[0] - 24.0) < 1e-6
+            
+            # Try all pairs of numbers
+            for i in range(len(nums)):
+                for j in range(i + 1, len(nums)):
+                    a, b = nums[i], nums[j]
+                    # Create new list excluding the two numbers used
+                    next_nums = [nums[k] for k in range(len(nums)) if k != i and k != j]
+                    
+                    # Try all possible operations
+                    # Addition
+                    if solve(next_nums + [a + b]):
+                        return True
+                    # Subtraction (both directions)
+                    if solve(next_nums + [a - b]) or solve(next_nums + [b - a]):
+                        return True
+                    # Multiplication
+                    if solve(next_nums + [a * b]):
+                        return True
+                    # Division (both directions, avoid division by zero)
+                    if b != 0 and solve(next_nums + [a / b]):
+                        return True
+                    if a != 0 and solve(next_nums + [b / a]):
+                        return True
+            return False
+        
+        # Convert integers to floats to handle real division
+        return solve([float(card) for card in cards])
+
+'''
+Approach:
+1. Use a recursive backtracking approach to try all possible combinations of numbers and operators.
+2. Define a helper function `solve` that takes a list of floating-point numbers.
+3. Base case: If only one number remains, check if it's approximately 24 (within 1e-6 for floating-point precision).
+4. Recursive case: For each pair of numbers, apply all operators (+, -, *, /) in both directions (except division by zero).
+5. Create a new list excluding the chosen pair, add the operation result, and recurse.
+6. Convert input integers to floats to ensure real division.
+7. Return True if any combination yields 24, False otherwise.
+This handles all constraints: uses only +, -, *, /; performs real division; avoids unary minus and number concatenation.
+
+Time Complexity: O(1) since the input is fixed at 4 numbers. The number of possible expressions is finite (4! permutations × 4^3 operator combinations × different parenthesizations).
+
+Space Complexity: O(1) since the recursion depth is at most 4, and the space used is constant.
+'''

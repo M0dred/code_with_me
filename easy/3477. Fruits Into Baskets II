@@ -1,0 +1,35 @@
+class Solution:
+    def numOfUnplacedFruits(self, fruits: List[int], baskets: List[int]) -> int:
+        n = len(fruits)
+        used_baskets = [False] * n  # Track which baskets are used
+        unplaced = 0  # Count of unplaced fruit types
+        
+        # Iterate through each fruit type
+        for i in range(n):
+            placed = False
+            # Try to place fruit in leftmost available basket with enough capacity
+            for j in range(n):
+                if not used_baskets[j] and baskets[j] >= fruits[i]:
+                    used_baskets[j] = True
+                    placed = True
+                    break
+            if not placed:
+                unplaced += 1
+        
+        return unplaced
+
+'''
+Approach:
+This solution uses a greedy approach to place each fruit type in the leftmost available basket with sufficient capacity:
+1. Initialize a boolean array to track used baskets and a counter for unplaced fruits.
+2. For each fruit type (in order), scan baskets from left to right.
+3. Place the fruit in the first unused basket with enough capacity, marking it as used.
+4. If no suitable basket is found, increment the unplaced counter.
+5. Return the count of unplaced fruit types.
+
+Time Complexity: O(n^2) where n is the length of the fruits array
+- For each of the n fruit types, we may need to scan all n baskets.
+
+Space Complexity: O(n)
+- We use a boolean array of size n to track used baskets.
+'''

@@ -1,0 +1,40 @@
+class Solution:
+    def minimumCost(self, nums: List[int]) -> int:
+        n = len(nums)
+        ans = float('inf')
+        
+        # Try all possible positions for the two splits
+        # First subarray: [0 .. i]
+        # Second subarray: [i+1 .. j]
+        # Third subarray: [j+1 .. n-1]
+        for i in range(n-2):
+            cost1 = nums[0]  # cost of first subarray is its first element
+            
+            for j in range(i+1, n-1):
+                cost2 = nums[i+1]   # cost of second subarray
+                cost3 = nums[j+1]   # cost of third subarray
+                
+                ans = min(ans, cost1 + cost2 + cost3)
+        
+        return ans
+
+"""
+Approach & Reasoning:
+We need to split the array into exactly 3 non-empty contiguous subarrays, and minimize the sum of their costs, where the cost of a subarray is its first element.
+
+Since n ≤ 50 is very small, we can brute-force all possible split positions:
+- Choose the end of the first subarray at index i (0 <= i <= n-3)
+- Choose the end of the second subarray at index j (i+1 <= j <= n-2)
+- The third subarray is from j+1 to n-1
+
+For each pair (i, j):
+- Cost of first = nums[0]
+- Cost of second = nums[i+1]
+- Cost of third = nums[j+1]
+- Total cost = nums[0] + nums[i+1] + nums[j+1]
+
+Find the minimum among all such totals.
+
+Time Complexity: O(n²) = O(50²) = 2500 → very fast
+Space Complexity: O(1)
+"""

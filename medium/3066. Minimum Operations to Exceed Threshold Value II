@@ -1,0 +1,50 @@
+import heapq
+
+class Solution:
+    def minOperations(self, nums: List[int], k: int) -> int:
+        # Convert nums into a min-heap
+        heapq.heapify(nums)
+        operations = 0
+
+        while len(nums) > 1 and nums[0] < k:
+            # Extract the two smallest elements
+            x = heapq.heappop(nums)
+            y = heapq.heappop(nums)
+
+            # Combine the elements
+            new_element = min(x, y) * 2 + max(x, y)
+            heapq.heappush(nums, new_element)
+
+            # Increment the operation count
+            operations += 1
+
+        # Check if the remaining smallest element is still less than k
+        if nums[0] < k:
+            return operations + 1
+
+        return operations
+
+'''
+Approach:
+1. **Heap Initialization:**
+   - Convert the input list `nums` into a min-heap using `heapq.heapify(nums)`. This allows efficient extraction of the two smallest elements.
+
+2. **Combine Elements:**
+   - While the smallest element in the heap is less than `k` and the heap has at least two elements:
+     - Extract the two smallest elements (`x` and `y`).
+     - Combine them into a new element: `min(x, y) * 2 + max(x, y)`.
+     - Push the new element back into the heap.
+     - Increment the operation counter.
+
+3. **Final Check:**
+   - After the loop, if the smallest element is still less than `k`, perform one final operation to ensure all elements meet the condition.
+
+4. **Return Result:**
+   - Return the total number of operations performed.
+
+Time Complexity:
+- O(n log n), where `n` is the length of `nums`, as we repeatedly push and pop from the heap.
+
+Space Complexity:
+- O(n), for storing the heap.
+'''

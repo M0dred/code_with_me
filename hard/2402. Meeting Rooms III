@@ -1,0 +1,64 @@
+import heapq
+
+class Solution:
+    def mostBooked(self, n: int, meetings: List[List[int]]) -> int:
+        # Sort meetings by start time
+        meetings.sort()
+        
+        # Track number of meetings per room
+        room_count = [0] * n
+        
+        # Priority queue for free rooms: (room_number)
+        free_rooms = list(range(n))
+        heapq.heapify(free_rooms)
+        
+        # Priority queue for used rooms: (end_time, room_number)
+        used_rooms = []
+        
+        # Process each meeting
+        for start, end in meetings:
+            duration = end - start
+            
+            # Free up rooms that have ended by current start time
+            while used_rooms and used_rooms[0][0] <= start:
+                end_time, room = heapq.heappop(used_rooms)
+                heapq.heappush(free_rooms, room)
+            
+            # If no free rooms, wait for earliest used room to free up
+            if not free_rooms:
+                end_time, room = heapq.heappop(used_rooms)
+                start = end_time  # Delay meeting to when room is free
+            else:
+                room = heapq.heappop(free_rooms)
+            
+            # Assign meeting to room
+            room_count[room] += 1
+            # Add room to used_rooms with new end time
+            heapq.heappush(used_rooms, (start + duration, room))
+        
+        # Find room with max meetings, lowest index in case of tie
+        max_meetings = max(room_count)
+        for i in range(n):
+            if room_count[i] == max_meetings:
+                return i
+        
+        return 0
+
+'''
+Approach:
+1. Sort meetings by start time to process in order and respect priority rule.
+2. Initialize two heaps:
+   - free_rooms: min-heap of available room numbers, initially all rooms (0 to n-1).
+   - used_rooms: min-heap of (end_time, room_number) for occupied rooms.
+3. Track meeting counts per room in room_count array.
+4. For each meeting [start, end]:
+   - Pop rooms from used_rooms that are free by start time (end_time <= start) and add to free_rooms.
+   - If no free rooms, delay meeting to earliest end_time from used_rooms.
+   - Assign meeting to lowest-numbered free room (or freed room after delay).
+   - Increment room's meeting count and add to used_rooms with new end time (start + duration).
+5. Return lowest room index with maximum meetings.
+6. Time Complexity: O(m log m + m log n) where m is number of meetings, n is number of rooms.
+   - Sorting: O(m log m).
+   - Heap operations: O(log n) per meeting, total O(m log n).
+7. Space Complexity: O(n) for heaps and room_count.
+'''

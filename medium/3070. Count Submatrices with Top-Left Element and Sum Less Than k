@@ -1,0 +1,80 @@
+from typing import List
+
+class Solution:
+    def countSubmatrices(self, grid: List[List[int]], k: int) -> int:
+        m, n = len(grid), len(grid[0])
+        ans = 0
+
+        # Build 2D prefix sum directly on grid-sized array
+        prefix = [[0] * n for _ in range(m)]
+
+        for i in range(m):
+            for j in range(n):
+                top = prefix[i - 1][j] if i > 0 else 0
+                left = prefix[i][j - 1] if j > 0 else 0
+                diag = prefix[i - 1][j - 1] if i > 0 and j > 0 else 0
+
+                prefix[i][j] = grid[i][j] + top + left - diag
+
+                # Every submatrix must contain the top-left cell,
+                # so it is uniquely determined by its bottom-right corner (i, j).
+                if prefix[i][j] <= k:
+                    ans += 1
+
+        return ans
+
+
+"""
+Approach & Reasoning:
+
+We only count submatrices that contain the top-left cell (0, 0).
+
+Key observation:
+Any submatrix that contains the top-left element must start at (0, 0).
+So such a submatrix is completely determined by choosing its bottom-right corner (i, j).
+
+That means:
+- For every cell (i, j),
+  the relevant submatrix is exactly:
+      grid[0..i][0..j]
+- Its sum is the prefix sum from the top-left corner to (i, j)
+
+So the problem becomes:
+Count how many prefix submatrices have sum <= k.
+
+Step 1: Build 2D prefix sums
+Let prefix[i][j] be the sum of the rectangle from (0, 0) to (i, j).
+
+Formula:
+    prefix[i][j] = grid[i][j]
+                 + prefix[i-1][j]
+                 + prefix[i][j-1]
+                 - prefix[i-1][j-1]
+
+The subtraction is needed because the overlapping top-left region
+gets added twice.
+
+Step 2: Count valid prefix submatrices
+Since each valid submatrix is exactly one prefix rectangle,
+for each (i, j):
+- if prefix[i][j] <= k, increment the answer
+
+Why this works:
+Every submatrix containing the top-left corner must have:
+- top row = 0
+- left column = 0
+
+So there is a one-to-one match between:
+- valid submatrices containing (0, 0)
+and
+- bottom-right corners (i, j)
+
+Thus, checking all prefix sums is enough.
+
+Time Complexity:
+O(m * n)
+
+Space Complexity:
+O(m * n)
+for the prefix sum table
+"""

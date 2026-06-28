@@ -1,0 +1,50 @@
+class Solution:
+    def queryResults(self, limit: int, queries: List[List[int]]) -> List[int]:
+        ball_colors = {}  # Dictionary to store the color of each ball
+        color_counts = {}  # Dictionary to store the count of each color
+        distinct_color_count = 0
+        result = []  # List to store the number of distinct colors after each query
+
+        for query in queries:
+            ball_label, color = query[0], query[1]
+            old_color = ball_colors.get(ball_label)
+
+            if old_color is not None:
+                color_counts[old_color] -= 1
+                if color_counts[old_color] == 0:
+                    distinct_color_count -= 1
+
+            ball_colors[ball_label] = color
+            color_counts[color] = color_counts.get(color, 0) + 1
+            if color_counts[color] == 1:
+                distinct_color_count += 1
+
+            result.append(distinct_color_count)
+
+        return result
+
+'''
+Approach:
+1. Initialize a dictionary `ball_colors` to store the current color of each ball.
+2. Initialize a dictionary `color_counts` to store the frequency of each color.
+3. Initialize `distinct_color_count` to 0 to keep track of the number of distinct colors.
+4. Initialize `result` list to store the count of distinct colors after each query.
+5. Iterate through each query in the `queries` list.
+6. For each query [ball_label, color]:
+    - Get the old color of the ball from `ball_colors`.
+    - If the ball was already colored (old_color is not None):
+        - Decrement the count of the old color in `color_counts`.
+        - If the count of the old color becomes 0, decrement `distinct_color_count`.
+    - Update the color of the ball in `ball_colors` to the new color.
+    - Increment the count of the new color in `color_counts`.
+    - If the count of the new color becomes 1, increment `distinct_color_count`.
+    - Append the current `distinct_color_count` to the `result` list.
+7. Return the `result` list.
+
+Time Complexity: O(n), where n is the number of queries.
+    - For each query, we perform constant time operations on dictionaries and counters.
+
+Space Complexity: O(n)
+    - In the worst case, the `ball_colors` dictionary and `color_counts` dictionary can store up to n key-value pairs.
+    - The `result` list stores n integers.
+'''

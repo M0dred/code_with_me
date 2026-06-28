@@ -1,0 +1,60 @@
+class Solution:
+    def setZeroes(self, matrix: List[List[int]]) -> None:
+        """
+        Do not return anything, modify matrix in-place instead.
+        """
+        m, n = len(matrix), len(matrix[0])
+        # Variable to track if first column needs to be zeroed
+        first_col_zero = False
+        
+        # Step 1: Check first row and column for zeros
+        # Check first row
+        first_row_has_zero = any(matrix[0][j] == 0 for j in range(n))
+        # Check first column
+        for i in range(m):
+            if matrix[i][0] == 0:
+                first_col_zero = True
+                break
+        
+        # Step 2: Use first row and column as markers
+        # Scan rest of matrix to mark rows and columns
+        for i in range(1, m):
+            for j in range(1, n):
+                if matrix[i][j] == 0:
+                    matrix[i][0] = 0  # Mark row
+                    matrix[0][j] = 0  # Mark column
+        
+        # Step 3: Zero out rows based on markers in first column
+        for i in range(1, m):
+            if matrix[i][0] == 0:
+                for j in range(1, n):
+                    matrix[i][j] = 0
+        
+        # Step 4: Zero out columns based on markers in first row
+        for j in range(1, n):
+            if matrix[0][j] == 0:
+                for i in range(1, m):
+                    matrix[i][j] = 0
+        
+        # Step 5: Handle first row
+        if first_row_has_zero:
+            for j in range(n):
+                matrix[0][j] = 0
+        
+        # Step 6: Handle first column
+        if first_col_zero:
+            for i in range(m):
+                matrix[i][0] = 0
+
+'''
+Approach:
+1. Use first row and column as markers to track which rows/columns need zeroing, with a boolean for first column.
+2. Check for zeros in first row (store in first_row_has_zero) and first column (store in first_col_zero).
+3. Scan matrix[1:][1:] for zeros, marking first cell of respective row (matrix[i][0]) and column (matrix[0][j]).
+4. Zero rows (i≥1) based on matrix[i][0] = 0.
+5. Zero columns (j≥1) based on matrix[0][j] = 0.
+6. Zero first row if first_row_has_zero is True.
+7. Zero first column if first_col_zero is True.
+Time Complexity: O(m * n) - two passes through the matrix.
+Space Complexity: O(1) - uses one boolean and matrix itself.
+'''

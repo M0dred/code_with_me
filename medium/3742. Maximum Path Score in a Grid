@@ -1,0 +1,65 @@
+class Solution:
+    def maxPathScore(self, grid: List[List[int]], k: int) -> int:
+        if not grid or not grid[0]:
+            return -1
+        m, n = len(grid), len(grid[0])
+        INF = float('inf')
+        dp = [[[-INF] * (k + 1) for _ in range(n)] for _ in range(m)]
+        dp[0][0][0] = 0
+        # Fill first row
+        for j in range(1, n):
+            val = grid[0][j]
+            cost_add = 1 if val > 0 else 0
+            score_add = val
+            for prev_c in range(k - cost_add + 1):
+                if dp[0][j - 1][prev_c] != -INF:
+                    new_c = prev_c + cost_add
+                    if new_c <= k:
+                        dp[0][j][new_c] = max(dp[0][j][new_c], dp[0][j - 1][prev_c] + score_add)
+        # Fill first column
+        for i in range(1, m):
+            val = grid[i][0]
+            cost_add = 1 if val > 0 else 0
+            score_add = val
+            for prev_c in range(k - cost_add + 1):
+                if dp[i - 1][0][prev_c] != -INF:
+                    new_c = prev_c + cost_add
+                    if new_c <= k:
+                        dp[i][0][new_c] = max(dp[i][0][new_c], dp[i - 1][0][prev_c] + score_add)
+        # Fill the rest of the grid
+        for i in range(1, m):
+            for j in range(1, n):
+                val = grid[i][j]
+                cost_add = 1 if val > 0 else 0
+                score_add = val
+                for prev_c in range(k - cost_add + 1):
+                    # from up
+                    if dp[i - 1][j][prev_c] != -INF:
+                        new_c = prev_c + cost_add
+                        if new_c <= k:
+                            dp[i][j][new_c] = max(dp[i][j][new_c], dp[i - 1][j][prev_c] + score_add)
+                    # from left
+                    if dp[i][j - 1][prev_c] != -INF:
+                        new_c = prev_c + cost_add
+                        if new_c <= k:
+                            dp[i][j][new_c] = max(dp[i][j][new_c], dp[i][j - 1][prev_c] + score_add)
+        # Find the maximum score at the bottom-right with cost <= k
+        max_score = -INF
+        for c in range(k + 1):
+            max_score = max(max_score, dp[m - 1][n - 1][c])
+        return int(max_score) if max_score != -INF else -1
+
+"""
+Approach & Reasoning:
+Use 3D dynamic programming where dp[i][j][c] represents the maximum score achievable when reaching cell (i, j) with exactly cost c used.
+
+- Initialize dp[0][0][0] = 0 (starting cell always costs 0 and adds 0 score).
+- Fill the first row and first column by considering the only possible incoming direction.
+- For other cells, consider coming from the upper cell or the left cell, updating the new cost and score accordingly.
+- At the end, the answer is the maximum dp[m-1][n-1][c] for all c <= k, or -1 if unreachable.
+
+Since each cell adds a fixed cost and score depending on its value (0,1,2), and moves are only right or down, the DP fills cells in topological order.
+
+Time Complexity: O(m * n * k)
+Space Complexity: O(m * n * k)
+"""

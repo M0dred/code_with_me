@@ -1,0 +1,55 @@
+class FindSumPairs:
+    def __init__(self, nums1: List[int], nums2: List[int]):
+        # Store nums1 and nums2 as instance variables
+        self.nums1 = nums1
+        self.nums2 = nums2
+        # Initialize frequency map for nums2
+        self.freq = {}
+        for num in nums2:
+            self.freq[num] = self.freq.get(num, 0) + 1
+
+    def add(self, index: int, val: int) -> None:
+        # Decrease frequency of old value
+        old_val = self.nums2[index]
+        self.freq[old_val] -= 1
+        if self.freq[old_val] == 0:
+            del self.freq[old_val]
+        # Update nums2 with new value
+        self.nums2[index] += val
+        # Increase frequency of new value
+        new_val = self.nums2[index]
+        self.freq[new_val] = self.freq.get(new_val, 0) + 1
+
+    def count(self, tot: int) -> int:
+        # Initialize count of valid pairs
+        result = 0
+        # For each nums1[i], find frequency of tot - nums1[i] in nums2
+        for num1 in self.nums1:
+            target = tot - num1
+            if target in self.freq:
+                result += self.freq[target]
+        # Return total number of pairs
+        return result
+
+'''
+Approach:
+1. Initialize:
+   - Store nums1 and nums2 as instance variables.
+   - Create a frequency map for nums2 to track value counts.
+2. Add operation:
+   - Decrease the frequency of the old value (nums2[index]).
+   - If frequency becomes 0, remove the value from the map.
+   - Update nums2[index] by adding val.
+   - Increase the frequency of the new value.
+3. Count operation:
+   - For each nums1[i], compute target = tot - nums1[i].
+   - Add the frequency of target in nums2's frequency map to the result.
+   - Return the total count of valid pairs (i, j) where nums1[i] + nums2[j] == tot.
+
+Time Complexity:
+- Initialization: O(n2), where n2 is len(nums2) <= 10^5.
+- Add: O(1), as hash map operations are O(1) on average.
+- Count: O(n1), where n1 is len(nums1) <= 1000, iterating through nums1 and querying hash map.
+
+Space Complexity: O(n2) for the frequency map, storing at most n2 unique values from nums2.
+'''

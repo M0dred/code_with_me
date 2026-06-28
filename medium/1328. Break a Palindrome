@@ -1,0 +1,44 @@
+class Solution:
+    def breakPalindrome(self, palindrome: str) -> str:
+        """
+        Replaces exactly one character to make the given palindromic string non-palindromic 
+        and lexicographically smallest.
+        """
+        n = len(palindrome)
+        
+        # Edge case: If length is 1, return ""
+        if n == 1:
+            return ""
+
+        # Convert string to list for mutability
+        chars = list(palindrome)
+
+        # Step 1: Try replacing the first non-'a' character with 'a'
+        for i in range(n // 2):  # Only need to check first half
+            if chars[i] != 'a':
+                chars[i] = 'a'
+                return "".join(chars)
+        
+        # Step 2: If all are 'a', replace the last character with 'b'
+        chars[-1] = 'b'
+        return "".join(chars)
+
+# Example Usage:
+# obj = Solution()
+# result = obj.breakPalindrome("abccba")  # Output: "aaccba"
+# print(result)
+
+'''
+Approach:
+1. If the string length is 1, return "" because a single character cannot be made non-palindromic.
+2. Iterate through the first half of the string:
+   - If we find a character that is not 'a', replace it with 'a' to get the smallest lexicographical result.
+   - Return immediately since we only need one replacement.
+3. If the entire string is 'a', replace the last character with 'b' to ensure it is non-palindromic.
+
+Time Complexity: O(n)
+- We iterate at most n/2 times.
+
+Space Complexity: O(n)
+- We use a list to modify the string.
+'''

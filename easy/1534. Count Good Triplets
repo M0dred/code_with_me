@@ -1,0 +1,29 @@
+class Solution:
+    def countGoodTriplets(self, arr: List[int], a: int, b: int, c: int) -> int:
+        n = len(arr)
+        count = 0
+        
+        # Iterate over all possible triplets with i < j < k
+        for i in range(n):
+            for j in range(i + 1, n):
+                # Check first condition: |arr[i] - arr[j]| <= a
+                if abs(arr[i] - arr[j]) <= a:
+                    for k in range(j + 1, n):
+                        # Check all three conditions
+                        if (abs(arr[j] - arr[k]) <= b and 
+                            abs(arr[i] - arr[k]) <= c):
+                            count += 1
+                            
+        return count
+
+'''
+Approach:
+1. Use three nested loops to iterate over all possible triplets (i, j, k) where i < j < k.
+2. For each triplet:
+   - First check if |arr[i] - arr[j]| <= a to avoid unnecessary inner loop iterations.
+   - If true, check |arr[j] - arr[k]| <= b and |arr[i] - arr[k]| <= c.
+   - If all conditions are satisfied, increment the count.
+3. Return the total count of good triplets.
+Time Complexity: O(n^3) where n is the length of arr, as we check all possible triplets.
+Space Complexity: O(1) since we only use a constant amount of extra space.
+'''

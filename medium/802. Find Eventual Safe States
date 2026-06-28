@@ -1,0 +1,43 @@
+class Solution:
+    def eventualSafeNodes(self, graph: List[List[int]]) -> List[int]:
+        n = len(graph)
+        # States: 0 = unvisited, 1 = visiting, 2 = visited and safe
+        state = [0] * n
+        
+        def dfs(node):
+            if state[node] == 1:
+                return False  # Cycle detected
+            if state[node] == 2:
+                return True  # Already determined to be safe
+            state[node] = 1  # Mark as visiting
+            for neighbor in graph[node]:
+                if not dfs(neighbor):
+                    return False  # If any neighbor is not safe, this node is not safe
+            state[node] = 2  # Mark as safe
+            return True
+        
+        safe_nodes = []
+        for i in range(n):
+            if dfs(i):
+                safe_nodes.append(i)
+        
+        return safe_nodes
+
+'''
+Approach:
+1. The problem requires identifying all safe nodes in a directed graph.
+2. A node is safe if every possible path starting from that node leads to a terminal node (or another safe node).
+3. We use a DFS approach with a state array to track the status of each node:
+   - `0`: Unvisited
+   - `1`: Visiting (part of the current DFS path)
+   - `2`: Visited and safe
+4. During DFS, if a node is revisited while still in the visiting state, it is part of a cycle and not safe.
+5. If all neighbors of a node are safe, the node is marked as safe.
+6. We collect all nodes marked as safe and return them in ascending order.
+
+Time Complexity: O(n + e)
+- We visit each node and each edge once, where n is the number of nodes and e is the number of edges.
+
+Space Complexity: O(n)
+- We use a state array of size n and the recursion stack can grow up to O(n) in the worst case.
+'''

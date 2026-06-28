@@ -1,0 +1,30 @@
+class Solution:
+    def maxDifference(self, s: str) -> int:
+        # Count frequency of each character
+        freq = [0] * 26
+        for c in s:
+            freq[ord(c) - ord('a')] += 1
+        
+        max_diff = float('-inf')
+        # Iterate through all pairs of characters
+        for i in range(26):
+            if freq[i] % 2 == 1:  # Odd frequency
+                for j in range(26):
+                    if freq[j] % 2 == 0 and freq[j] > 0:  # Even frequency
+                        max_diff = max(max_diff, freq[i] - freq[j])
+        
+        return max_diff
+
+'''
+Approach:
+1. Create a frequency array freq of size 26 to count occurrences of each lowercase letter in s.
+2. Iterate through s and increment freq[ord(c) - ord('a')] for each character c.
+3. Initialize max_diff to negative infinity to track the maximum difference.
+4. For each character i (0 to 25) with odd frequency (freq[i] % 2 == 1):
+   - For each character j (0 to 25) with even frequency (freq[j] % 2 == 0) and non-zero frequency:
+     - Compute the difference freq[i] - freq[j] and update max_diff if larger.
+5. Return max_diff as the maximum difference between odd and even frequency characters.
+
+Time Complexity: O(n + 26^2), where n is the length of s. Counting frequencies is O(n), and checking all pairs of characters is O(26^2), which is constant since the alphabet is fixed.
+Space Complexity: O(1), as the freq array is fixed at size 26, and only a constant amount of extra space is used.
+'''

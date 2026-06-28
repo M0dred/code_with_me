@@ -1,0 +1,53 @@
+from typing import List
+
+class Solution:
+    def getHappyString(self, n: int, k: int) -> str:
+        self.k = k
+        self.answer = ""
+        self.found = False
+
+        def backtrack(current: List[str]):
+            if self.found:
+                return
+            if len(current) == n:
+                self.k -= 1
+                if self.k == 0:
+                    self.answer = ''.join(current)
+                    self.found = True
+                return
+            for char in ['a', 'b', 'c']:
+                if not current or char != current[-1]:
+                    current.append(char)
+                    backtrack(current)
+                    current.pop()
+
+        backtrack([])
+        return self.answer
+
+    '''
+    Approach:
+    1. Objective:
+       - Generate all possible "happy strings" of length `n` using the characters `'a'`, `'b'`, and `'c'`, ensuring that no two adjacent characters are the same.
+       - Return the `k`-th string in lexicographical order, or an empty string if `k` exceeds the total number of possible happy strings.
+    2. Backtracking Strategy:
+       - Utilize a backtracking approach to build strings character by character.
+       - At each step, append one of the allowed characters (`'a'`, `'b'`, `'c'`) that does not duplicate the last character in the current string.
+       - Continue building the string until its length reaches `n`.
+       - Keep track of the number of valid strings generated. Once the `k`-th string is found, terminate the search early to optimize performance.
+    3. Termination Condition:
+       - If the current string reaches the desired length `n`, decrement `k`. If `k` becomes zero, the current string is the desired `k`-th happy string.
+       - Use a flag `found` to indicate when the desired string has been found, allowing the algorithm to stop further exploration.
+    4. Implementation Details:
+       - Recursive Function (`backtrack`):
+         - Takes the current state of the string being built.
+         - Iterates through the possible characters, ensuring no two adjacent characters are the same.
+         - Appends a character, recurses to continue building the string, and then backtracks by removing the last character.
+       - Early Termination:
+         - Once the `k`-th string is found (`k == 0`), set the `found` flag to `True` and store the result to prevent unnecessary computations.
+    5. Time Complexity: O(3^n)
+       - In the worst case, each position in the string can be filled with 2 choices (since one character is excluded to prevent duplication). However, since there are 3 possible characters and backtracking explores different branches, the time complexity can be considered exponential relative to `n`.
+       - Given the constraints `1 <= n <= 10` and `1 <= k <= 100`, this approach is efficient enough.
+    6. Space Complexity: O(n)
+       - The recursion stack can go as deep as `n` levels.
+       - Additional space is used to store the current string being built.
+    '''

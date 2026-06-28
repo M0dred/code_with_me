@@ -1,0 +1,59 @@
+class Solution:
+    def countPartitions(self, nums: List[int], k: int) -> int:
+        from sortedcontainers import SortedList
+        
+        n = len(nums)
+        MOD = 10**9 + 7
+        
+        dp = [0] * (n + 1)           # dp[i] = ways to partition nums[0..i-1]
+        prefix = [0] * (n + 2)       # prefix[i+1] = sum of dp[0] to dp[i]
+        sl = SortedList()
+        
+        dp[0] = 1
+        prefix[1] = 1
+        
+        left = 0
+        
+        for i in range(n):
+            sl.add(nums[i])
+            
+            # Shrink window from left until max - min <= k
+            while sl and sl[-1] - sl[0] > k:
+                sl.remove(nums[left])
+                left += 1
+            
+            # All starting points from left to i are valid for last segment
+            # dp[i+1] = sum of dp[left] to dp[i+1]
+            dp[i + 1] = (prefix[i + 1] - prefix[left] + MOD) % MOD
+            
+            # Update prefix sum
+            prefix[i + 2] = (prefix[i + 1] + dp[i + 1]) % MOD
+        
+        return dp[n]
+
+"""
+Approach & Reasoning:
+
+dp[i] = number of valid ways to partition nums[0..i-1]
+
+For each position i (0-based), we maintain a sliding window [left, i]
+such that max(nums[left..i]) - min(nums[left..i]) <= k
+
+We use SortedList to maintain the current window values sorted,
+so we can get min (sl[0]) and max (sl[-1]) in O(1),
+and remove elements in O(log n).
+
+When the window violates the condition (max - min > k),
+we remove nums[left] and increment left.
+
+Because left is non-decreasing, each element is added and removed at most once.
+
+Then:
+    dp[i+1] = sum of dp[j] for j from left to i+1
+    = prefix[i+1] - prefix[left]
+
+We use a prefix sum array to compute this in O(1).
+
+Time Complexity : O(n log n) due to SortedList operations
+Space Complexity: O(n)
+"""

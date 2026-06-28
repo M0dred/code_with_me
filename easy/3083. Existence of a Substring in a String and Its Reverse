@@ -1,0 +1,29 @@
+class Solution:
+    def isSubstringPresent(self, s: str) -> bool:
+        reverse_s = s[::-1]  # Reverse the string
+        n = len(s)
+
+        # Check all substrings of length 2
+        for i in range(n - 1):
+            substring = s[i:i + 2]
+            if substring in reverse_s:
+                return True
+
+        return False
+
+'''
+Approach:
+1. Reverse the given string `s` to get `reverse_s`.
+2. Iterate through all substrings of length 2 in the original string `s`.
+3. For each substring, check if it is present in `reverse_s`.
+4. If a match is found, return `True` immediately.
+5. If no such substring is found after checking all possibilities, return `False`.
+
+Time Complexity:
+- Generating substrings of length 2: O(n - 1) = O(n).
+- Checking substring in reverse string: O(n) for each substring in the worst case.
+- Total: O(n^2).
+
+Space Complexity:
+- O(n), for storing the reversed string.
+'''

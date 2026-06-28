@@ -1,0 +1,59 @@
+class Solution:
+    def separateSquares(self, squares: List[List[int]]) -> float:
+        if not squares:
+            return 0.0
+        
+        # Collect all relevant y coordinates for binary search bounds
+        min_y = min(y for _, y, _ in squares)
+        max_y = max(y + l for _, y, l in squares)
+        
+        total_area = sum(l * l for _, _, l in squares)
+        half = total_area / 2
+        
+        def area_below_or_equal(h: float) -> float:
+            res = 0.0
+            for x, y, l in squares:
+                if h <= y:
+                    continue  # whole square above h
+                if h >= y + l:
+                    res += l * l  # whole square below h
+                else:
+                    # partial square: bottom part below h
+                    height_below = h - y
+                    res += height_below * l
+            return res
+        
+        # Binary search for the smallest h such that area_below_or_equal(h) >= half
+        lo = min_y
+        hi = max_y
+        
+        for _ in range(60):  # sufficient precision
+            mid = (lo + hi) / 2
+            if area_below_or_equal(mid) >= half:
+                hi = mid
+            else:
+                lo = mid
+        
+        return lo
+
+"""
+Approach & Reasoning:
+We want to find the lowest horizontal line y = h such that:
+- total area above y = h  ==  total area below y = h
+
+Since the total area is fixed and always even in terms of "balance", 
+we can binary search on the y-coordinate h.
+
+For each candidate h, compute:
+- area_above = sum of areas strictly above h
+- area_below = sum of areas strictly below h
+- area_intersect = sum of areas of squares that straddle h
+
+Then:
+- area strictly below h + (area_intersect / 2)  should ≈  total_area / 2
+
+We binary search for the smallest h where the accumulated area from bottom reaches half.
+
+Time Complexity: O(m log MAX_Y) where m = len(squares)
+(each check O(m), binary search on coordinate range)
+"""

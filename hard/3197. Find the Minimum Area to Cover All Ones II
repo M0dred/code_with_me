@@ -1,0 +1,98 @@
+class Solution:
+    def minimumSum(self, grid: List[List[int]]) -> int:
+        # Get grid dimensions
+        m, n = len(grid), len(grid[0])
+        
+        # Helper function to compute minimum area for points in a rectangle [r1,r2) x [c1,c2)
+        def get_area(r1, r2, c1, c2):
+            if r1 >= r2 or c1 >= c2:
+                return float('inf')
+            min_row, max_row = m, -1
+            min_col, max_col = n, -1
+            found = False
+            for i in range(r1, r2):
+                for j in range(c1, c2):
+                    if grid[i][j] == 1:
+                        found = True
+                        min_row = min(min_row, i)
+                        max_row = max(max_row, i)
+                        min_col = min(min_col, j)
+                        max_col = max(max_col, j)
+            if not found:
+                return float('inf')  # No 1's in this region
+            return (max_row - min_row + 1) * (max_col - min_col + 1)
+        
+        # Initialize minimum total area
+        min_total_area = float('inf')
+        
+        # Case 1: Three horizontal rectangles (split by two horizontal lines)
+        for i in range(1, m-1):
+            for j in range(i+1, m):
+                area1 = get_area(0, i, 0, n)
+                area2 = get_area(i, j, 0, n)
+                area3 = get_area(j, m, 0, n)
+                if area1 != float('inf') and area2 != float('inf') and area3 != float('inf'):
+                    min_total_area = min(min_total_area, area1 + area2 + area3)
+        
+        # Case 2: Three vertical rectangles (split by two vertical lines)
+        for i in range(1, n-1):
+            for j in range(i+1, n):
+                area1 = get_area(0, m, 0, i)
+                area2 = get_area(0, m, i, j)
+                area3 = get_area(0, m, j, n)
+                if area1 != float('inf') and area2 != float('inf') and area3 != float('inf'):
+                    min_total_area = min(min_total_area, area1 + area2 + area3)
+        
+        # Case 3: One horizontal split, then vertical split on top
+        for i in range(1, m):
+            for j in range(1, n):
+                area1 = get_area(0, i, 0, j)
+                area2 = get_area(0, i, j, n)
+                area3 = get_area(i, m, 0, n)
+                if area1 != float('inf') and area2 != float('inf') and area3 != float('inf'):
+                    min_total_area = min(min_total_area, area1 + area2 + area3)
+        
+        # Case 4: One horizontal split, then vertical split on bottom
+        for i in range(1, m):
+            for j in range(1, n):
+                area1 = get_area(i, m, 0, j)
+                area2 = get_area(i, m, j, n)
+                area3 = get_area(0, i, 0, n)
+                if area1 != float('inf') and area2 != float('inf') and area3 != float('inf'):
+                    min_total_area = min(min_total_area, area1 + area2 + area3)
+        
+        # Case 5: One vertical split, then horizontal split on left
+        for i in range(1, n):
+            for j in range(1, m):
+                area1 = get_area(0, j, 0, i)
+                area2 = get_area(j, m, 0, i)
+                area3 = get_area(0, m, i, n)
+                if area1 != float('inf') and area2 != float('inf') and area3 != float('inf'):
+                    min_total_area = min(min_total_area, area1 + area2 + area3)
+        
+        # Case 6: One vertical split, then horizontal split on right
+        for i in range(1, n):
+            for j in range(1, m):
+                area1 = get_area(0, j, i, n)
+                area2 = get_area(j, m, i, n)
+                area3 = get_area(0, m, 0, i)
+                if area1 != float('inf') and area2 != float('inf') and area3 != float('inf'):
+                    min_total_area = min(min_total_area, area1 + area2 + area3)
+        
+        # Return the minimum total area
+        return min_total_area
+
+'''
+Approach:
+This optimized solution divides the grid into three non-overlapping rectangles using horizontal and vertical splits, minimizing the sum of their areas.
+1. Define a helper function `get_area(r1, r2, c1, c2)` to compute the minimum area of a rectangle covering all 1's in the region [r1,r2) x [c1,c2).
+2. Consider six cases to partition the grid into three rectangles:
+   - Three horizontal rectangles (two horizontal splits).
+   - Three vertical rectangles (two vertical splits).
+   - One horizontal split, then vertical split on top or bottom.
+   - One vertical split, then horizontal split on left or right.
+3. For each case, iterate over possible split points (rows or columns) and compute the area of each rectangle using get_area.
+4. Ensure each rectangle contains at least one 1 (area not infinity) and track the minimum total area across all valid configurations.
+Time Complexity: O(m^2 * n^2), where m and n are the grid dimensions (up to 30), as we try O(m^2) or O(n^2) splits and compute areas in O(m*n).
+Space Complexity: O(1), as we only use a constant amount of extra space for variables.
+'''

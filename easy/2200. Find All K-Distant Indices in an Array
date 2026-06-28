@@ -1,0 +1,32 @@
+class Solution:
+    def findKDistantIndices(self, nums: List[int], key: int, k: int) -> List[int]:
+        # Initialize result list to store k-distant indices
+        result = []
+        
+        # Find all indices j where nums[j] == key
+        key_indices = [j for j in range(len(nums)) if nums[j] == key]
+        
+        # For each index i in nums
+        for i in range(len(nums)):
+            # Check if there exists any j where |i - j| <= k
+            for j in key_indices:
+                if abs(i - j) <= k:
+                    result.append(i)
+                    break  # No need to check other j for this i
+        
+        # Return the sorted list of k-distant indices
+        return sorted(result)
+
+'''
+Approach:
+1. Create an empty result list to store k-distant indices.
+2. Collect all indices j where nums[j] equals the key value.
+3. For each index i in the array:
+   - Check if there exists any key index j where the absolute difference |i - j| <= k.
+   - If found, add i to the result and move to the next i.
+4. Return the result list sorted in increasing order.
+
+Time Complexity: O(n * m), where n is the length of nums and m is the number of key indices. For each index i, we check against m key indices in the worst case. Sorting the result takes O(r log r), where r is the number of k-distant indices, but this is dominated by the main loop.
+
+Space Complexity: O(m + r), where m is the number of key indices and r is the number of k-distant indices. We store the key indices and the result list.
+'''

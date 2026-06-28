@@ -1,0 +1,88 @@
+import bisect
+from typing import List
+
+class Solution:
+    def maxDistance(self, side: int, points: List[List[int]], k: int) -> int:
+        pos_list = self._get_perimeter_positions(side, points)
+        pos_list.sort()
+        n = len(pos_list)
+        C = 4 * side
+        if n < k:
+            return 0
+
+        def can_select(d: int) -> bool:
+            if d == 0:
+                return True
+            pos_ext = pos_list + [p + C for p in pos_list]
+            for i in range(n):
+                curr_pos = pos_list[i]
+                count = 1
+                last_idx = i
+                success = True
+                for _ in range(k - 1):
+                    target = curr_pos + d
+                    idx = bisect.bisect_left(pos_ext, target, lo=last_idx + 1, hi=i + n)
+                    if idx >= i + n:
+                        success = False
+                        break
+                    next_pos = pos_ext[idx]
+                    if next_pos >= curr_pos + C:
+                        success = False
+                        break
+                    curr_pos = next_pos
+                    last_idx = idx
+                if success:
+                    wrap = pos_list[i] + C - curr_pos
+                    if wrap >= d:
+                        return True
+            return False
+
+        left, right = 0, 2 * side
+        while left < right:
+            mid = (left + right + 1) // 2
+            if can_select(mid):
+                left = mid
+            else:
+                right = mid - 1
+        return left
+
+    def _get_perimeter_positions(self, side: int, points: List[List[int]]) -> List[int]:
+        positions = []
+        for x, y in points:
+            if y == 0:  # bottom
+                pos = x
+            elif x == side:  # right
+                pos = side + y
+            elif y == side:  # top
+                pos = 2 * side + (side - x)
+            else:  # left x==0
+                pos = 3 * side + (side - y)
+            positions.append(pos)
+        return positions
+
+"""
+Approach & Reasoning:
+The points lie on the boundary of the square. The Manhattan distance between any two boundary points equals the length of the shorter arc along the perimeter.
+
+Map each point to its position along the clockwise perimeter starting from (0,0):
+- Bottom (y=0): position = x
+- Right (x=side): position = side + y
+- Top (y=side): position = 2*side + (side - x)
+- Left (x=0): position = 3*side + (side - y)
+
+Sort these perimeter positions (0 to 4*side).
+
+To maximize the minimum Manhattan distance d when selecting k points, binary search on d (0 to 2*side).
+
+For a fixed d, check feasibility on the circular perimeter:
+- Duplicate the position list to handle wrap-around.
+- For each possible starting point, greedily select the next k-1 points at least d away (using binary search via bisect).
+- Verify the wrap-around distance from the last selected back to the first is also >= d.
+
+If any starting point succeeds, d is achievable.
+
+This guarantees the minimum arc (hence Manhattan) between any consecutive selected points (in boundary order) is at least d, and thus all pairwise distances are at least d.
+
+Time Complexity: O(n log n + n * k * log n * log(2*side)) (sorting + binary search checks)
+Space Complexity: O(n)
+"""

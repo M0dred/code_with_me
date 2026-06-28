@@ -1,0 +1,74 @@
+class TrieNode:
+    def __init__(self):
+        self.children = {}  # Maps folder name to TrieNode
+        self.is_deleted = False  # Flag to mark for deletion
+
+class Solution:
+    def deleteDuplicateFolder(self, paths: List[List[str]]) -> List[List[str]]:
+        # Step 1: Build the trie
+        root = TrieNode()
+        for path in paths:
+            node = root
+            for folder in path:
+                if folder not in node.children:
+                    node.children[folder] = TrieNode()
+                node = node.children[folder]
+        
+        # Step 2: Serialize subtrees and identify duplicates
+        def serialize(node):
+            if not node.children:
+                return ""
+            # Serialize children in sorted order for consistent representation
+            children = sorted(node.children.keys())
+            serialized = []
+            for child in children:
+                child_serialized = serialize(node.children[child])
+                serialized.append(f"({child}{child_serialized})")
+            serialized_str = "".join(serialized)
+            # Track nodes by their serialized structure
+            if serialized_str:
+                structure_count[serialized_str].append(node)
+            return serialized_str
+        
+        structure_count = defaultdict(list)
+        serialize(root)
+        
+        # Step 3: Mark duplicate nodes and their subtrees for deletion
+        def mark_deleted(node):
+            node.is_deleted = True
+            for child in node.children.values():
+                mark_deleted(child)
+        
+        for nodes in structure_count.values():
+            if len(nodes) > 1:  # If multiple nodes have the same structure
+                for node in nodes:
+                    mark_deleted(node)
+        
+        # Step 4: Collect non-deleted paths
+        result = []
+        def collect_paths(node, path):
+            if node.is_deleted:
+                return
+            if path:  # Only add non-empty paths
+                result.append(path[:])
+            for folder, child in node.children.items():
+                path.append(folder)
+                collect_paths(child, path)
+                path.pop()
+        
+        collect_paths(root, [])
+        return result
+
+'''
+Approach:
+The problem requires deleting folders with identical subfolder structures and their subfolders, then returning the remaining folder paths.
+1. Build a trie where each node represents a folder segment, and paths are inserted by creating nodes for each segment.
+2. Serialize each node's subtree into a string representing its structure (e.g., "(x(y))(z)" for subfolders "x" containing "y" and "z").
+   - Use a sorted order for children to ensure identical structures have the same serialization.
+   - Store nodes with the same serialized structure in a hash map.
+3. For each group of nodes with the same serialized structure (with more than one node), mark the nodes and their subtrees for deletion.
+4. Use DFS to collect paths from the root to non-deleted nodes, constructing the remaining folder paths.
+5. Return the list of non-deleted paths.
+Time Complexity: O(n * L * log L), where n is the number of paths and L is the maximum path length (due to sorting children during serialization).
+Space Complexity: O(n * L) for the trie and hash map.
+'''

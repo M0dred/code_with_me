@@ -1,0 +1,52 @@
+class Solution:
+    def canBeValid(self, s: str, locked: str) -> bool:
+        # If the length of s is odd, it's impossible to make it valid
+        if len(s) % 2 != 0:
+            return False
+
+        # Forward pass to check the balance with unlocked positions
+        balance = 0
+        for i in range(len(s)):
+            if s[i] == '(' or locked[i] == '0':
+                balance += 1
+            else:
+                balance -= 1
+            if balance < 0:
+                return False
+
+        # Backward pass to check the balance with unlocked positions
+        balance = 0
+        for i in range(len(s) - 1, -1, -1):
+            if s[i] == ')' or locked[i] == '0':
+                balance += 1
+            else:
+                balance -= 1
+            if balance < 0:
+                return False
+
+        return True
+
+'''
+Approach:
+1. **Length Check:**
+   - If the length of `s` is odd, it is impossible to make it a valid parentheses string. Return `False` immediately.
+
+2. **Forward Pass:**
+   - Traverse the string from left to right to ensure the number of open parentheses is sufficient for every closing parenthesis.
+   - Use `locked` to treat unlocked positions (`locked[i] == '0'`) as flexible (can be either `(` or `)`).
+   - If the balance (open - close) drops below 0 at any point, return `False`.
+
+3. **Backward Pass:**
+   - Traverse the string from right to left to ensure the number of close parentheses is sufficient for every open parenthesis.
+   - Use the same flexibility for unlocked positions.
+   - If the balance drops below 0 at any point, return `False`.
+
+4. **Return True:**
+   - If both passes complete without issues, the string can be made valid.
+
+Time Complexity:
+- O(n), where `n` is the length of the string `s`.
+
+Space Complexity:
+- O(1), as no additional data structures are used apart from counters.
+'''

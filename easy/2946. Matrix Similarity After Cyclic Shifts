@@ -1,0 +1,52 @@
+from typing import List
+
+class Solution:
+    def areSimilar(self, mat: List[List[int]], k: int) -> bool:
+        m, n = len(mat), len(mat[0])
+        shift = k % n
+
+        for i in range(m):
+            row = mat[i]
+            for j in range(n):
+                if i % 2 == 0:
+                    # even row: left shift
+                    if row[j] != row[(j + shift) % n]:
+                        return False
+                else:
+                    # odd row: right shift
+                    if row[j] != row[(j - shift) % n]:
+                        return False
+
+        return True
+
+
+"""
+Approach & Reasoning:
+
+Each row is shifted repeatedly k times.
+Since shifts are cyclic, shifting by k times is equivalent to shifting by:
+    k % n
+where n is the number of columns.
+
+For each row:
+- If the row index is even, it is shifted left by `shift`
+- If the row index is odd, it is shifted right by `shift`
+
+We do not need to actually build the shifted matrix.
+Instead, we directly compare whether each element would remain the same after the net shift.
+
+For an even-indexed row:
+- after a left shift by `shift`, position j gets the value originally from (j + shift) % n
+So the matrix stays unchanged only if:
+    row[j] == row[(j + shift) % n]
+
+For an odd-indexed row:
+- after a right shift by `shift`, position j gets the value originally from (j - shift) % n
+So the matrix stays unchanged only if:
+    row[j] == row[(j - shift) % n]
+
+If this holds for every row and column, return True; otherwise return False.
+
+Time Complexity: O(mn)
+Space Complexity: O(1)
+"""

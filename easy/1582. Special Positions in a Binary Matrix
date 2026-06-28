@@ -1,0 +1,44 @@
+from typing import List
+
+class Solution:
+    def numSpecial(self, mat: List[List[int]]) -> int:
+        m, n = len(mat), len(mat[0])
+
+        row_sum = [0] * m
+        col_sum = [0] * n
+
+        for i in range(m):
+            r = 0
+            for j in range(n):
+                v = mat[i][j]
+                r += v
+                col_sum[j] += v
+            row_sum[i] = r
+
+        ans = 0
+        for i in range(m):
+            if row_sum[i] != 1:
+                continue
+            for j in range(n):
+                if mat[i][j] == 1 and col_sum[j] == 1:
+                    ans += 1
+
+        return ans
+
+
+"""
+Approach & Reasoning:
+
+A position (i, j) is special if:
+- mat[i][j] == 1
+- row i contains exactly one '1'
+- column j contains exactly one '1'
+
+So we:
+1) Compute row_sum[i] = number of 1s in row i
+2) Compute col_sum[j] = number of 1s in column j
+3) Count cells where mat[i][j] == 1 and row_sum[i] == 1 and col_sum[j] == 1
+
+Time Complexity: O(mn)
+Space Complexity: O(m + n)
+"""

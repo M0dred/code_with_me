@@ -1,0 +1,37 @@
+class Solution:
+    def rotateTheBox(self, boxGrid: List[List[str]]) -> List[List[str]]:
+        m = len(boxGrid)
+        n = len(boxGrid[0])
+        # Create rotated grid (n rows x m columns)
+        rotated = [['.'] * m for _ in range(n)]
+        for i in range(m):
+            for j in range(n):
+                rotated[j][m - 1 - i] = boxGrid[i][j]
+        # Simulate gravity for each column in rotated grid
+        for c in range(m):
+            bottom = n  # next available position to place a stone (initially after the last row)
+            for r in range(n - 1, -1, -1):
+                if rotated[r][c] == '*':
+                    bottom = r
+                elif rotated[r][c] == '#':
+                    rotated[r][c] = '.'
+                    bottom -= 1
+                    rotated[bottom][c] = '#'
+        return rotated
+
+"""
+Approach & Reasoning:
+To solve this, we first create a new grid representing the 90-degree clockwise rotation of the original box without applying gravity. The mapping original cell (i, j) moves to new position (j, m-1-i).
+
+Then, for each column in this rotated grid, we simulate the effect of gravity by scanning from the bottom to the top:
+- Maintain a pointer `bottom` indicating the lowest available position where a stone can be placed.
+- When encountering an obstacle '*', reset the bottom pointer to that row (stones can only stack above it).
+- When encountering a stone '#', clear its original position and place it at the current bottom position, then decrement the bottom pointer.
+
+This ensures all stones fall down as far as possible while respecting obstacles and other stones.
+
+The process is O(m * n) time overall and correctly produces the final configuration.
+
+Time Complexity: O(m * n)
+Space Complexity: O(m * n) for the new grid
+"""

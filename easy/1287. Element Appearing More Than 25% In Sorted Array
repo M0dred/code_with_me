@@ -1,0 +1,50 @@
+from typing import List
+
+class Solution:
+    def findSpecialInteger(self, arr: List[int]) -> int:
+        # Calculate the threshold for 25%
+        threshold = len(arr) // 4
+        current_num = arr[0]
+        count = 1
+        
+        # Iterate through the array starting from the second element
+        for num in arr[1:]:
+            if num == current_num:
+                count += 1  # Increment count if the same number continues
+            else:
+                if count > threshold:
+                    return current_num  # Return if count exceeds threshold
+                current_num = num  # Update to the new number
+                count = 1  # Reset count for the new number
+        
+        # Check the last number in the array
+        if count > threshold:
+            return current_num
+        
+        return -1  # Fallback, though the problem guarantees a solution
+
+'''
+Approach:
+1. Threshold Calculation:
+   - Determine the threshold count that corresponds to 25% of the array's length. Since we need to find a number that occurs more than 25% of the time, the threshold is calculated as `len(arr) // 4`.
+2. Initialization:
+   - Initialize `current_num` with the first element of the array.
+   - Initialize a `count` variable to keep track of the occurrences of `current_num`.
+3. Iteration Through the Array:
+   - Iterate through the array starting from the second element.
+   - If the current number `num` is the same as `current_num`, increment the `count`.
+   - If `num` is different:
+     - Check if the `count` of the previous `current_num` exceeds the threshold.
+       - If it does, return `current_num` as it satisfies the condition of occurring more than 25% of the time.
+     - Update `current_num` to the new number `num` and reset `count` to 1.
+4. Final Check:
+   - After the loop, perform a final check for the last number in the array to ensure it hasn't been missed.
+5. Return Statement:
+   - Return `-1` as a fallback. However, according to the problem constraints, there is always exactly one integer that meets the criteria, so this line is theoretically unreachable.
+
+Time Complexity: O(n)
+We traverse the array exactly once, where `n` is the number of elements in `arr`.
+
+Space Complexity: O(1)
+We use a constant amount of extra space regardless of the input size.
+'''

@@ -1,0 +1,51 @@
+class Solution:
+    def numSubmat(self, mat: List[List[int]]) -> int:
+        # Get matrix dimensions
+        m, n = len(mat), len(mat[0])
+        # Initialize height array to store consecutive ones in each column
+        height = [[0] * n for _ in range(m)]
+        total_rectangles = 0
+
+        # Compute heights: number of consecutive ones up to each cell
+        for i in range(m):
+            for j in range(n):
+                if mat[i][j] == 1:
+                    # If first row, height is just the cell value
+                    if i == 0:
+                        height[i][j] = 1
+                    # Otherwise, add 1 to the height from the row above
+                    else:
+                        height[i][j] = height[i-1][j] + 1
+
+        # Count rectangles for each cell as bottom-right corner
+        for i in range(m):
+            for j in range(n):
+                if height[i][j] > 0:
+                    # Initialize min_height as current height
+                    min_height = height[i][j]
+                    # Count rectangles extending left from current column
+                    for k in range(j, -1, -1):
+                        # Update min_height to smallest height in the range
+                        min_height = min(min_height, height[i][k])
+                        # If min_height is 0, no valid rectangles possible
+                        if min_height == 0:
+                            break
+                        # Add number of rectangles: width * min_height
+                        total_rectangles += min_height
+
+        # Return total count of all-ones submatrices
+        return total_rectangles
+
+'''
+Approach:
+This solution uses a histogram-based dynamic programming approach to count all submatrices with all ones.
+1. Create a height array where height[i][j] stores the number of consecutive ones from (i, j) upwards.
+2. For each row i:
+   - Compute heights by checking if mat[i][j] == 1. If so, set height[i][j] = 1 (for first row) or height[i-1][j] + 1 (for other rows).
+3. For each cell (i, j) with non-zero height:
+   - Iterate left from column j to k, tracking the minimum height in the range [k, j].
+   - For each k, add min_height to the total, representing the number of rectangles with width (j-k+1) and height up to min_height.
+4. Sum all contributions to get the total number of all-ones submatrices.
+Time Complexity: O(m * n * n), where m and n are the matrix dimensions, due to the nested loop for each cell.
+Space Complexity: O(m * n) for the height array.
+'''

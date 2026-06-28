@@ -1,0 +1,58 @@
+from typing import List
+
+class Solution:
+    def matchPlayersAndTrainers(self, players: List[int], trainers: List[int]) -> int:
+        # Sort both arrays in ascending order
+        players.sort()
+        trainers.sort()
+        
+        # Initialize pointers and count
+        i = 0  # pointer for players
+        j = 0  # pointer for trainers
+        count = 0  # number of valid matchings
+        
+        # Use two pointers to find valid matches
+        while i < len(players) and j < len(trainers):
+            if players[i] <= trainers[j]:
+                # If player can be matched with trainer, increment count and move both pointers
+                count += 1
+                i += 1
+                j += 1
+            else:
+                # If player cannot be matched with current trainer, move to next trainer
+                j += 1
+                
+        return count
+
+'''
+Approach:
+The problem requires finding the maximum number of matchings between players and trainers, where each player can be matched with at most one trainer, and each trainer can be matched with at most one player, provided the player's ability is less than or equal to the trainer's capacity. A greedy approach with sorting and two pointers is used to solve this efficiently.
+
+1. Sorting:
+   Sort both the players and trainers arrays in ascending order. This allows us to match players with trainers systematically, ensuring we maximize the number of valid matchings.
+
+2. Two-Pointer Technique:
+   Use two pointers, i for players and j for trainers, starting from the beginning of the sorted arrays.
+   While both pointers are within bounds:
+   - If players[i] <= trainers[j], a valid match is found. Increment the count of matchings and move both pointers (i and j) to the next elements, as both the player and trainer are now used.
+   - If players[i] > trainers[j], the current trainer cannot match with the current player. Move to the next trainer (increment j) to find a trainer with sufficient capacity.
+
+3. Result:
+   The count of valid matchings is returned as the result.
+
+4. Why Greedy Works:
+   Sorting ensures that we try to match lower-ability players with lower-capacity trainers first, which maximizes the number of matchings. If a player cannot be matched with the current trainer, moving to a trainer with higher capacity is optimal, as lower-capacity trainers cannot match with the current player.
+
+5. Time Complexity:
+   Sorting players array: O(n log n), where n is the length of players.
+   Sorting trainers array: O(m log m), where m is the length of trainers.
+   Two-pointer traversal: O(n + m), as each pointer moves at most n or m times.
+   Total time complexity: O(n log n + m log m).
+
+6. Space Complexity:
+   The sorting is typically done in-place, so no additional space is needed beyond the input arrays.
+   Only a few variables (i, j, count) are used, contributing O(1) extra space.
+   Total space complexity: O(1) (assuming in-place sorting).
+
+This approach efficiently maximizes the number of matchings by leveraging sorting and a greedy two-pointer strategy.
+'''

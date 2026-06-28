@@ -1,0 +1,19 @@
+class Solution:
+    def minimumOneBitOperations(self, n: int) -> int:
+        # The answer equals the Gray-decoding of n:
+        # ans = n ^ (n>>1) ^ (n>>2) ^ ... until n becomes 0.
+        ans = 0
+        while n:
+            ans ^= n
+            n >>= 1
+        return ans
+
+'''
+Approach:
+- The allowed operations correspond to moving along a Gray-code order.
+- The minimum number of operations to turn n into 0 equals the Gray-decoding of n,
+  which is computed by cumulative XOR of n with all its right shifts.
+
+Time Complexity: O(log n)  (one loop per bit)
+Space Complexity: O(1)
+'''

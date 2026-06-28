@@ -1,0 +1,44 @@
+from typing import List
+
+class Solution:
+    def maxIncreasingSubarrays(self, nums: List[int]) -> int:
+        n = len(nums)
+        if n < 2:
+            return 0
+        
+        # L[i]: length of strictly increasing run ending at i
+        L = [1] * n
+        for i in range(1, n):
+            if nums[i-1] < nums[i]:
+                L[i] = L[i-1] + 1
+        
+        # R[i]: length of strictly increasing run starting at i
+        R = [1] * n
+        for i in range(n-2, -1, -1):
+            if nums[i] < nums[i+1]:
+                R[i] = R[i+1] + 1
+        
+        # Adjacent windows boundary between i and i+1:
+        # left window ends at i, right window starts at i+1
+        # the largest k at this boundary is min(L[i], R[i+1])
+        ans = 0
+        for i in range(n-1):
+            ans = max(ans, min(L[i], R[i+1]))
+        return ans
+
+'''
+Approach:
+- Compute L[i] = length of the strictly increasing run ending at i.
+- Compute R[i] = length of the strictly increasing run starting at i.
+- Any pair of adjacent windows must meet at some boundary between i and i+1:
+  - The left window of length k ends at i (requires L[i] ≥ k).
+  - The right window of length k starts at i+1 (requires R[i+1] ≥ k).
+  - So the maximum feasible k at this boundary is min(L[i], R[i+1]).
+- Answer is max over all boundaries i of min(L[i], R[i+1]).
+
+Time Complexity:
+- O(n): one forward pass for L, one backward pass for R, one pass to aggregate.
+
+Space Complexity:
+- O(n) for arrays L and R (can be reduced to O(1) with a streaming approach, but O(n) is simple and fast).
+'''

@@ -1,0 +1,36 @@
+class Solution:
+    def minimumIndex(self, nums: List[int]) -> int:
+        from collections import Counter
+        
+        # Step 1: Find the dominant element
+        count = Counter(nums)
+        dominant = max(count, key=count.get)
+        total_count = count[dominant]
+        
+        # Step 2: Traverse and check if a valid split exists
+        left_count = 0
+        for i in range(len(nums) - 1):
+            if nums[i] == dominant:
+                left_count += 1
+            
+            # Left part dominance condition
+            if left_count * 2 > (i + 1):
+                # Right part dominance condition
+                if (total_count - left_count) * 2 > (len(nums) - i - 1):
+                    return i
+
+        return -1
+
+'''
+Approach:
+1. Use a counter to find the dominant element in `nums`.
+2. Iterate over the array to maintain a running count (`left_count`) of the dominant element.
+3. At each index, check if both the left and right subarrays satisfy the dominance condition.
+4. Return the first valid split index, else return -1.
+
+Time Complexity: O(n)
+- We traverse the array twice, once for counting and once for checking valid splits.
+
+Space Complexity: O(n)
+- The counter dictionary may store up to `n` unique elements in the worst case.
+'''

@@ -1,0 +1,50 @@
+from typing import List
+
+class Solution:
+    def minSubarray(self, nums: List[int], p: int) -> int:
+        n = len(nums)
+        total = sum(nums)
+        remain = total % p
+        if remain == 0:
+            return 0
+        
+        # We need to remove a subarray whose sum ≡ remain (mod p)
+        # prefix[i] = sum of nums[0..i-1]
+        prefix = 0
+        seen = {0: -1}          # prefix_mod -> earliest index
+        ans = n                 # we can always remove the whole array except one element
+        
+        for i, x in enumerate(nums):
+            prefix = (prefix + x) % p
+            target = (prefix - remain + p) % p     # we want prefix_before - remain ≡ current_prefix
+            if target in seen:
+                ans = min(ans, i - seen[target])
+            seen[prefix] = i
+        
+        return ans if ans < n else -1
+
+"""
+Approach & Reasoning:
+We need the sum of remaining elements ≡ 0 (mod p) → we must remove a subarray with sum ≡ total % p (mod p).
+
+Let remain = total % p
+We want to find the shortest subarray nums[i..j] such that:
+    (prefix[j+1] - prefix[i]) ≡ remain (mod p)
+    → prefix[j+1] ≡ prefix[i] + remain (mod p)
+    → prefix[i] ≡ prefix[j+1] - remain (mod p)
+
+So, for each position j+1 (after processing nums[j]), we store prefix[j+1] % p with its index.
+We look for the earliest index i where prefix[i] % p == (current_prefix - remain) % p.
+
+The length of subarray to remove is (j - i).
+
+We track the minimum such length.
+- If remain == 0 → no need to remove anything → return 0
+- If we find a valid subarray of length < n → return it
+- Otherwise impossible → return -1
+
+Why this works:
+- Using prefix sum modulo p reduces the problem to finding two prefixes with difference ≡ remain (mod p)
+- Hash map stores the earliest occurrence → guarantees minimal length
+- Time: O(n), Space: O(n)
+"""

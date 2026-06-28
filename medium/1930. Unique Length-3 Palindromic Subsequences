@@ -1,0 +1,36 @@
+class Solution:
+    def countPalindromicSubsequence(self, s: str) -> int:
+        n = len(s)
+        first = [-1] * 26
+        last = [-1] * 26
+
+        for i, ch in enumerate(s):
+            idx = ord(ch) - 97
+            if first[idx] == -1:
+                first[idx] = i
+            last[idx] = i
+
+        ans = 0
+        for c in range(26):
+            l, r = first[c], last[c]
+            if l == -1 or l == r:
+                continue  # need at least two occurrences for outer letters
+            seen_mid = set()
+            for i in range(l + 1, r):
+                seen_mid.add(s[i])
+            ans += len(seen_mid)
+
+        return ans
+
+'''
+Approach:
+- A length-3 palindromic subsequence has form c ? c, where c is the outer letter and ? is any middle letter.
+- For each letter c:
+  - Find its first and last occurrence in s.
+  - If it appears at least twice, then any distinct character between those two positions can be the middle.
+  - Count distinct middle characters in (first[c], last[c]) and add to answer.
+- This counts each palindrome c?c once, regardless of how many ways it occurs as a subsequence.
+
+Time Complexity: O(26 * n)  (scan string once + up to 26 inner scans)
+Space Complexity: O(1) extra (besides a small set of at most 26 letters per outer c)
+'''

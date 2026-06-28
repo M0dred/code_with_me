@@ -1,0 +1,34 @@
+class Solution:
+    def isGood(self, nums: List[int]) -> bool:
+        m = len(nums)
+        if m == 0:
+            return False
+        n = m - 1
+        max_val = max(nums)
+        if max_val != n:
+            return False
+        from collections import Counter
+        cnt = Counter(nums)
+        if cnt[n] != 2:
+            return False
+        for i in range(1, n):
+            if cnt[i] != 1:
+                return False
+        return True
+
+"""
+Approach & Reasoning:
+Let m = len(nums). The only possible n for which nums could be a permutation of base[n] is n = m - 1 (since base[n] has exactly n + 1 elements).
+
+First verify that the maximum value in nums equals this candidate n. If not, return false immediately.
+
+Then use a frequency counter on nums:
+- The number n must appear exactly twice.
+- Every integer from 1 to n-1 must appear exactly once.
+- Because the array length is n+1, the max value is n, and all elements are between 1 and n (enforced by the max check), these frequency conditions are both necessary and sufficient.
+
+If all checks pass, nums is exactly a permutation of base[n]; otherwise it is not.
+
+Time Complexity: O(m) (single pass for max + Counter construction + linear scan of 1..n)
+Space Complexity: O(m) for the counter (m <= 100)
+"""

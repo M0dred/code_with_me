@@ -1,0 +1,38 @@
+from typing import List
+
+class Solution:
+    def maximumCandies(self, candies: List[int], k: int) -> int:
+        # Helper function to check if we can give at least k children x candies each
+        def can_distribute(x):
+            count = 0
+            for c in candies:
+                count += c // x
+            return count >= k
+        
+        left, right = 1, max(candies)
+        result = 0
+        
+        while left <= right:
+            mid = (left + right) // 2
+            if can_distribute(mid):
+                result = mid  # mid is feasible, try for bigger size
+                left = mid + 1
+            else:
+                right = mid - 1
+        
+        return result
+
+'''
+Approach:
+1. Binary search for the maximum candies per child (left=1, right=max(candies)).
+2. For each candidate mid, check how many piles of size mid we can make (candies[i] // mid).
+3. If we can make k piles, it's feasible → search for a bigger mid.
+4. If not, search for a smaller mid.
+
+Time Complexity: O(n * log(max_candies))
+- n = number of piles (up to 1e5).
+- log(max_candies) = log(1e7).
+
+Space Complexity: O(1)
+- Only constant extra space.
+'''

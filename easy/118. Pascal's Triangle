@@ -1,0 +1,33 @@
+class Solution:
+    def generate(self, numRows: int) -> List[List[int]]:
+        # Initialize the result list to store the triangle
+        triangle = []
+        
+        # Handle each row
+        for i in range(numRows):
+            # Start each row with 1
+            row = [1] * (i + 1)
+            
+            # Fill the middle elements of the row (if any)
+            for j in range(1, i):
+                # Each element is sum of two numbers from previous row
+                row[j] = triangle[i-1][j-1] + triangle[i-1][j]
+                
+            # Add the row to triangle
+            triangle.append(row)
+            
+        return triangle
+
+'''
+Approach:
+1. We create an empty list 'triangle' to store all rows of Pascal's Triangle.
+2. For each row i (from 0 to numRows-1):
+    - Create a row of size i+1 initialized with 1s (as first and last elements are always 1)
+    - For middle elements (from index 1 to i-1), calculate value as sum of two numbers 
+        from previous row at positions j-1 and j
+    - Append the completed row to triangle
+3. Return the complete triangle
+
+Time Complexity: O(numRows^2) as we need to fill each element in the triangle
+Space Complexity: O(numRows^2) to store the entire triangle
+'''

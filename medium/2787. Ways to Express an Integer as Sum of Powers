@@ -1,0 +1,47 @@
+class Solution:
+    def numberOfWays(self, n: int, x: int) -> int:
+        MOD = 1000000007
+        
+        # Find the maximum number whose xth power is <= n
+        max_num = 0
+        while pow(max_num + 1, x) <= n:
+            max_num += 1
+            
+        # dp[i][j] represents the number of ways to form sum j using numbers up to i
+        dp = [[0] * (n + 1) for _ in range(max_num + 1)]
+        dp[0][0] = 1  # Base case: one way to form sum 0 with no numbers
+        
+        # For each number from 1 to max_num
+        for i in range(1, max_num + 1):
+            power = pow(i, x)
+            for j in range(n + 1):
+                # Don't use number i
+                dp[i][j] = dp[i - 1][j]
+                # Use number i if j >= power
+                if j >= power:
+                    dp[i][j] = (dp[i][j] + dp[i - 1][j - power]) % MOD
+        
+        return dp[max_num][n]
+
+"""
+Approach:
+1. Determine the maximum integer `max_num` such that `max_num^x <= n`. This bounds the possible integers to consider.
+2. Use a 2D dynamic programming array `dp` where `dp[i][j]` represents the number of ways to form sum `j` using numbers from 1 to `i` raised to power `x`.
+3. Initialize `dp[0][0] = 1` since there is one way to form sum 0 with no numbers.
+4. For each number `i` from 1 to `max_num`:
+   - Compute `power = i^x`.
+   - For each sum `j` from 0 to `n`:
+     - Copy the number of ways without using `i`: `dp[i][j] = dp[i-1][j]`.
+     - If `j >= power`, add the number of ways using `i`: `dp[i][j] += dp[i-1][j - power]`.
+   - Take modulo \(10^9 + 7\) to prevent overflow.
+5. Return `dp[max_num][n]`, the number of ways to form sum `n` using numbers up to `max_num`.
+
+Time Complexity:
+- Let `m` be the maximum number such that `m^x <= n`. Since `n <= 300` and `x <= 5`, `m` is small (e.g., for `x=5`, `m <= floor(300^(1/5)) ≈ 3.76`, so `m <= 3`).
+- The DP table has dimensions `(m+1) * (n+1)`, and filling each cell takes O(1) time.
+- Total: O(m * n). Since `m` is bounded by a small constant (e.g., `m <= 18` for `x=1, n=300`), effectively O(n).
+
+Space Complexity:
+- O(m * n) for the DP table.
+- Can be optimized to O(n) by using a 1D array, but the 2D version is clearer.
+"""

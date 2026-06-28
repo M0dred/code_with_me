@@ -1,0 +1,37 @@
+class Solution:
+    def maxDistance(self, colors: List[int]) -> int:
+        n = len(colors)
+        # Candidate 1: farthest from left endpoint
+        left_color = colors[0]
+        rightmost_diff = -1
+        for i in range(n):
+            if colors[i] != left_color:
+                rightmost_diff = i
+        dist1 = rightmost_diff if rightmost_diff != -1 else 0
+        
+        # Candidate 2: farthest from right endpoint
+        right_color = colors[n - 1]
+        leftmost_diff = n
+        for i in range(n - 1, -1, -1):
+            if colors[i] != right_color:
+                leftmost_diff = i
+        dist2 = (n - 1 - leftmost_diff) if leftmost_diff != n else 0
+        
+        return max(dist1, dist2)
+
+"""
+Approach & Reasoning:
+The maximum distance between two houses with different colors must include at least one of the two endpoints of the array (index 0 or index n-1). This is because extending any internal pair toward an endpoint (while keeping different colors) cannot decrease the distance.
+
+We therefore compute only two candidate distances:
+
+1. Distance from index 0 to the rightmost house whose color differs from colors[0].
+2. Distance from index n-1 to the leftmost house whose color differs from colors[n-1].
+
+The answer is the larger of these two values. (If the whole array is the same color the problem guarantees this never happens.)
+
+Both candidates are found with a single forward pass and a single backward pass, guaranteeing O(n) time.
+
+Time Complexity: O(n)
+Space Complexity: O(1)
+"""

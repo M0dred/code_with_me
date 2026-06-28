@@ -1,0 +1,36 @@
+class Solution:
+    def longestSubarray(self, nums: List[int]) -> int:
+        # Initialize variables for sliding window
+        left = 0
+        zero_count = 0
+        max_length = 0
+        
+        # Iterate through the array with right pointer
+        for right in range(len(nums)):
+            # Count zeros in the current window
+            if nums[right] == 0:
+                zero_count += 1
+            
+            # If we have more than one zero, shrink the window
+            while zero_count > 1:
+                if nums[left] == 0:
+                    zero_count -= 1
+                left += 1
+            
+            # Update max_length (window size minus 1, since we delete one element)
+            max_length = max(max_length, right - left)
+        
+        # Return max_length, or 0 if no valid subarray exists
+        return max_length
+
+'''
+Approach:
+This solution uses a sliding window approach to find the longest subarray with at most one 0, then subtracts 1 to account for deleting one element.
+1. Initialize a sliding window with left and right pointers, a counter for zeros (zero_count), and a variable to track the maximum length (max_length).
+2. Move the right pointer and increment zero_count when a 0 is encountered.
+3. If zero_count exceeds 1, shrink the window from the left until zero_count <= 1, adjusting zero_count when a 0 is removed.
+4. After each step, update max_length with the current window size minus 1 (right - left), as we must delete one element (either a 0 or a 1).
+5. Return max_length, which represents the longest subarray of 1's after deleting one element. If no valid subarray exists, return 0.
+Time Complexity: O(n), where n is the length of nums, as we traverse the array once with the right pointer and move the left pointer at most n times.
+Space Complexity: O(1), as we only use a constant amount of extra space for variables.
+'''

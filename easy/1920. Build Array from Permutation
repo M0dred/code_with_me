@@ -1,0 +1,27 @@
+class Solution:
+    def buildArray(self, nums: List[int]) -> List[int]:
+        # Initialize answer array of same length as input
+        ans = [0] * len(nums)
+        
+        # Build ans such that ans[i] = nums[nums[i]]
+        for i in range(len(nums)):
+            ans[i] = nums[nums[i]]
+        
+        # Return the resulting array
+        return ans
+
+'''
+Approach:
+1. Create an answer array `ans` of the same length as the input array `nums`, initialized with zeros.
+2. Iterate through each index `i` from 0 to len(nums)-1:
+   - Set ans[i] = nums[nums[i]], as per the problem's requirement.
+3. Return the resulting array `ans`.
+
+Time Complexity: O(N), where N is the length of the nums array.
+   - Iterate through the array once, performing O(1) operations per element.
+   - Total: O(N).
+
+Space Complexity: O(N).
+   - The answer array `ans` requires O(N) space.
+   - No additional data structures are used, and the input array is not counted in space complexity.
+'''

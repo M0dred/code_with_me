@@ -1,0 +1,25 @@
+from typing import List
+
+class Solution:
+    def removeAnagrams(self, words: List[str]) -> List[str]:
+        res: List[str] = []
+        prev_sig = None  # signature (sorted letters) of last kept word
+        
+        for w in words:
+            sig = tuple(sorted(w))  # anagram signature
+            if sig != prev_sig:
+                res.append(w)
+                prev_sig = sig
+        return res
+'''
+Approach:
+- Scan left-to-right while tracking the anagram signature (sorted letters) of the last word we kept.
+- For each word, compute its signature; if it equals the previous kept signature, skip it (delete); otherwise keep it and update the signature.
+- This matches the problem’s guarantee: any deletion order yields the same final array.
+
+Time Complexity:
+- O(n · L log L), where n = len(words) and L = max word length, due to sorting each word’s letters.
+
+Space Complexity:
+- O(1) extra (besides the output list), since we store only the previous signature; output requires O(n · L).
+'''

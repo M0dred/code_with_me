@@ -1,0 +1,75 @@
+class Solution:
+    def solveSudoku(self, board: List[List[str]]) -> None:
+        """
+        Do not return anything, modify board in-place instead.
+        """
+        # Initialize sets for tracking digits in rows, columns, and boxes
+        rows = [set() for _ in range(9)]
+        cols = [set() for _ in range(9)]
+        boxes = [set() for _ in range(9)]
+        empty_cells = []
+        
+        # Populate sets with existing digits and collect empty cells
+        for i in range(9):
+            for j in range(9):
+                if board[i][j] != '.':
+                    num = board[i][j]
+                    rows[i].add(num)
+                    cols[j].add(num)
+                    boxes[(i // 3) * 3 + j // 3].add(num)
+                else:
+                    empty_cells.append((i, j))
+        
+        def backtrack(index: int) -> bool:
+            # Base case: all empty cells filled
+            if index == len(empty_cells):
+                return True
+                
+            i, j = empty_cells[index]
+            box_idx = (i // 3) * 3 + j // 3
+            
+            # Try digits 1-9
+            for num in '123456789':
+                if (num not in rows[i] and 
+                    num not in cols[j] and 
+                    num not in boxes[box_idx]):
+                    # Place digit
+                    board[i][j] = num
+                    rows[i].add(num)
+                    cols[j].add(num)
+                    boxes[box_idx].add(num)
+                    
+                    # Recurse
+                    if backtrack(index + 1):
+                        return True
+                        
+                    # Backtrack: undo changes
+                    board[i][j] = '.'
+                    rows[i].remove(num)
+                    cols[j].remove(num)
+                    boxes[box_idx].remove(num)
+            
+            return False
+        
+        # Start backtracking from the first empty cell
+        backtrack(0)
+
+"""
+Approach:
+The solution solves a 9x9 Sudoku puzzle by filling empty cells using a backtracking algorithm:
+1. Initialize sets for each row, column, and 3x3 box to track used digits, and a list of empty cell coordinates.
+2. Populate the sets with existing digits from the board and collect empty cell positions.
+3. Use a recursive backtracking function:
+   - For each empty cell, try digits 1-9.
+   - If a digit is valid (not in the current row, column, or box), place it and update the sets.
+   - Recursively attempt to fill the next empty cell.
+   - If the recursion fails, backtrack by removing the digit and restoring the sets.
+   - If all empty cells are filled, the puzzle is solved.
+4. Modify the board in-place as required.
+
+Time Complexity:
+- O(1), since the board is fixed at 9x9 (81 cells), and each cell has at most 9 possible digits. The worst-case number of operations is bounded by a constant (9^81 possibilities, but pruning reduces this significantly). For practical purposes, it's treated as O(1) for a fixed-size board.
+
+Space Complexity:
+- O(1), as we use 27 sets (9 for rows, 9 for columns, 9 for boxes), each storing at most 9 digits, and a list of at most 81 empty cells. This is a constant amount of space for a 9x9 board.
+"""

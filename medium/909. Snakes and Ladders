@@ -1,0 +1,40 @@
+class Solution:
+    def snakesAndLadders(self, board: List[List[int]]) -> int:
+        n = len(board)
+        def get_position(square):
+            square -= 1
+            row = n - 1 - (square // n)
+            col = square % n if (square // n) % 2 == 0 else n - 1 - (square % n)
+            return row, col
+        
+        queue = [(1, 0)]
+        visited = {1}
+        target = n * n
+        
+        while queue:
+            curr, moves = queue.pop(0)
+            if curr == target:
+                return moves
+                
+            for next_square in range(curr + 1, min(curr + 7, target + 1)):
+                if next_square not in visited:
+                    visited.add(next_square)
+                    row, col = get_position(next_square)
+                    dest = board[row][col] if board[row][col] != -1 else next_square
+                    queue.append((dest, moves + 1))
+        
+        return -1
+
+'''
+Approach:
+1. Use BFS to find the shortest path from square 1 to square n^2.
+2. Convert square numbers to board coordinates using get_position, accounting for Boustrophedon ordering.
+3. Start BFS from square 1 with 0 moves, tracking visited squares.
+4. For each square, explore next possible squares (curr + 1 to curr + 6, or n^2).
+5. If a square has a snake/ladder (board[row][col] != -1), move to its destination; otherwise, move to the next square.
+6. Track moves and return the number of moves when target (n^2) is reached.
+7. Return -1 if the queue empties without reaching the target.
+
+Time Complexity: O(n^2), where n is the board size. Each of the n^2 squares is visited at most once, and for each square, we explore up to 6 next squares.
+Space Complexity: O(n^2) for the visited set and queue, which can store up to n^2 squares in the worst case.
+'''

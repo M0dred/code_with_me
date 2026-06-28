@@ -1,0 +1,60 @@
+from typing import List
+from collections import Counter
+
+class Solution:
+    def maxFrequency(self, nums: List[int], k: int, numOperations: int) -> int:
+        n = len(nums)
+        if n == 0:
+            return 0
+        # Frequency of existing values
+        freq = Counter(nums)
+
+        # Value domain bounds
+        minV = min(nums) - k
+        maxV = max(nums) + k
+        shift = -minV
+        size = (maxV - minV) + 3  # buffer
+
+        # Build difference array for interval coverage
+        diff = [0] * size
+        for a in nums:
+            L = a - k + shift
+            R = a + k + shift
+            diff[L] += 1
+            diff[R + 1] -= 1
+
+        # Prefix sum → cover[v]
+        cover = [0] * size
+        running = 0
+        for i in range(size):
+            running += diff[i]
+            cover[i] = running
+
+        # Compute max achievable frequency
+        ans = 0
+        for v in range(minV, maxV + 1):
+            idx = v + shift
+            c = cover[idx]
+            a = freq.get(v, 0)
+            best = min(c, a + numOperations)
+            if best > ans:
+                ans = best
+        return ans
+
+
+"""
+Approach
+1. Each index i can be converted into any value within [nums[i] - k, nums[i] + k].
+2. For each possible value v:
+   - cover[v]: count of elements whose intervals include v (can reach v with one operation)
+   - already[v]: count of elements already equal to v
+3. For each v, the achievable frequency is:
+       maxFreq(v) = min(cover[v], already[v] + numOperations)
+   because we can change up to numOperations distinct elements.
+4. Implementation:
+   - Use a difference array to efficiently build cover[v].
+   - Use Counter to get already[v].
+   - Sweep all v in [min(nums)-k, max(nums)+k] to find the maximum frequency.
+5. Time complexity: O(n + value_range)
+   Space complexity: O(value_range)
+"""

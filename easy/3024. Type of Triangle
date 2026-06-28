@@ -1,0 +1,34 @@
+class Solution:
+    def triangleType(self, nums: List[int]) -> str:
+        # Sort the sides for easier comparison
+        a, b, c = sorted(nums)
+        
+        # Check triangle inequality: sum of any two sides must be greater than the third
+        if a + b <= c:
+            return "none"
+        
+        # Check for equilateral: all sides equal
+        if a == b == c:
+            return "equilateral"
+        
+        # Check for isosceles: exactly two sides equal
+        if a == b or b == c:
+            return "isosceles"
+        
+        # If all sides are different, it's scalene
+        return "scalene"
+
+'''
+Approach:
+1. Sort the array to ensure a <= b <= c, simplifying comparisons.
+2. Check if a triangle can be formed using the triangle inequality:
+   - Sum of any two sides must be greater than the third side.
+   - After sorting, only check a + b > c (other conditions are implied since a <= b).
+   - If a + b <= c, return "none".
+3. Determine triangle type:
+   - If a == b == c, return "equilateral".
+   - If a == b or b == c, return "isosceles" (exactly two sides equal).
+   - Otherwise, all sides are different, return "scalene".
+Time Complexity: O(1) - sorting 3 elements is constant time, and comparisons are O(1).
+Space Complexity: O(1) - uses only a constant amount of extra space.
+'''

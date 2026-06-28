@@ -1,0 +1,25 @@
+class Solution: 
+    def reverseStr(self, s: str, k: int) -> str:
+        # Convert string to list for mutation operations
+        a = list(s)  
+        # Iterate over every two-character block
+        for i in range(0, len(a), 2*k): 
+            # Reverse the first k characters of this block
+            a[i:i+k] = reversed(a[i:i+k])  
+        # Convert list back to string and return
+        return "".join(a) 
+
+'''
+Approach:
+1. The problem requires reversing every k characters in a string, starting from the beginning of the string.
+2. We convert the string to a list to allow for in-place modifications.
+3. We iterate over the string in steps of 2*k, which covers every two-character block.
+4. For each block, we reverse the first k characters.
+5. Finally, we join the list back into a string and return it.
+
+Time Complexity: O(n), where n is the length of the string.
+- We iterate through the string once, and each operation inside the loop is constant time.
+
+Space Complexity: O(n)
+- We use additional space to store the string as a list, which is O(n).
+'''

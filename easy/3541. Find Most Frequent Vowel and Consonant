@@ -1,0 +1,35 @@
+class Solution:
+    def maxFreqSum(self, s: str) -> int:
+        # Define vowels for quick lookup
+        vowels = set('aeiou')
+        
+        # Count frequency of each character
+        freq = {}
+        for char in s:
+            freq[char] = freq.get(char, 0) + 1
+        
+        # Find maximum vowel frequency
+        max_vowel_freq = 0
+        for char, count in freq.items():
+            if char in vowels:
+                max_vowel_freq = max(max_vowel_freq, count)
+        
+        # Find maximum consonant frequency
+        max_consonant_freq = 0
+        for char, count in freq.items():
+            if char not in vowels:
+                max_consonant_freq = max(max_consonant_freq, count)
+        
+        # Return sum of maximum frequencies
+        return max_vowel_freq + max_consonant_freq
+'''
+Approach:
+The solution finds the sum of the maximum vowel frequency and maximum consonant frequency in the string:
+1. Create a set of vowels ('a', 'e', 'i', 'o', 'u') for O(1) lookup.
+2. Use a dictionary to count the frequency of each character in the string.
+3. Iterate through the frequency dictionary to find the maximum frequency among vowels; if no vowels exist, use 0.
+4. Iterate through the frequency dictionary to find the maximum frequency among consonants (non-vowels); if no consonants exist, use 0.
+5. Return the sum of the maximum vowel and consonant frequencies.
+Time Complexity: O(n), where n is the length of the string s, for iterating through the string to count frequencies and through the dictionary (at most 26 entries for lowercase letters).
+Space Complexity: O(1), as the frequency dictionary has at most 26 entries (lowercase English letters) and the vowel set is constant size.
+'''

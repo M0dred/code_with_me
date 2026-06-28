@@ -1,0 +1,53 @@
+class Solution:
+    def minDominoRotations(self, tops: List[int], bottoms: List[int]) -> int:
+        # Get the length of the arrays
+        n = len(tops)
+        
+        # Function to count minimum rotations needed to make all values in tops or bottoms equal to target
+        def count_rotations(target: int) -> int:
+            top_rotations = 0  # Rotations needed to make tops all equal to target
+            bottom_rotations = 0  # Rotations needed to make bottoms all equal to target
+            
+            for i in range(n):
+                # If neither top nor bottom has the target value, it's impossible
+                if tops[i] != target and bottoms[i] != target:
+                    return -1
+                # If top doesn't have target, need to rotate to bring bottom's value to top
+                if tops[i] != target:
+                    top_rotations += 1
+                # If bottom doesn't have target, need to rotate to bring top's value to bottom
+                if bottoms[i] != target:
+                    bottom_rotations += 1
+            
+            # Return the minimum of rotations needed for tops or bottoms
+            return min(top_rotations, bottom_rotations)
+        
+        # Try the value of the first domino's top as a candidate
+        result = count_rotations(tops[0])
+        # If tops[0] doesn't work, try bottoms[0] only if it's different
+        if result == -1 and bottoms[0] != tops[0]:
+            result = count_rotations(bottoms[0])
+        
+        return result
+
+'''
+Approach:
+1. Define a helper-rental function `count_rotations` that calculates the minimum rotations needed to make all values in either the top or bottom row equal to a given target value:
+   - Iterate through each domino.
+   - If neither the top nor bottom of a domino has the target value, return -1 (impossible).
+   - Count rotations needed to make tops equal to target (swap if top != target).
+   - Count rotations needed to make bottoms equal to target (swap if bottom != target).
+   - Return the minimum of top_rotations and bottom_rotations.
+2. Try the first domino's top value (tops[0]) as the target and call count_rotations.
+3. If the result is -1 (impossible) and the first domino's bottom value differs from its top, try bottoms[0] as the target.
+4. Return the result. If both attempts return -1, the final result is -1, indicating it's impossible.
+
+Time Complexity: O(N), where N is the length of the tops/bottoms arrays.
+   - The count_rotations function iterates through the array once, performing O(1) operations per element.
+   - We call count_rotations at most twice (for tops[0] and possibly bottoms[0]).
+   - Total: O(N).
+
+Space Complexity: O(1).
+   - Only a constant amount of extra space is used for variables (top_rotations, bottom_rotations, etc.).
+   - The input arrays are not counted in space complexity.
+'''

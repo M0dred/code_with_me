@@ -1,0 +1,41 @@
+from typing import List
+
+class Solution:
+    def minimumDeletions(self, s: str) -> int:
+        b_count = 0
+        deletions = 0
+
+        for ch in s:
+            if ch == "b":
+                b_count += 1
+            else:
+                deletions = min(deletions + 1, b_count)
+
+        return deletions
+
+
+"""
+Approach & Reasoning:
+
+A balanced string has no 'b' before an 'a', which means the string must look like:
+    "aaaa...bbbb..."
+(all 'a' characters come before all 'b' characters).
+
+Scan left to right and maintain:
+- b_count: number of 'b' seen so far.
+- deletions: minimum deletions needed to make the processed prefix balanced.
+
+When we see:
+1) 'b': it never breaks balance, so just increment b_count.
+2) 'a': this 'a' is problematic if there were previous 'b's.
+   We have two choices:
+   - delete this 'a'  -> deletions + 1
+   - delete all previous 'b's -> b_count
+   Take the minimum:
+       deletions = min(deletions + 1, b_count)
+
+At the end, deletions is the minimum deletions to balance the whole string.
+
+Time Complexity: O(n)
+Space Complexity: O(1)
+"""

@@ -1,0 +1,38 @@
+class Solution:
+    def rankTeams(self, votes: List[str]) -> str:
+        from collections import defaultdict
+
+        # Initialize ranking dictionary
+        rank = {team: [0] * len(votes[0]) + [team] for team in votes[0]}
+
+        # Count votes for each position
+        for vote in votes:
+            for position, team in enumerate(vote):
+                rank[team][position] -= 1  # Negative to make sorting easier
+
+        # Sort teams based on their rankings, with alphabetical tie-breaker
+        sorted_teams = sorted(rank.keys(), key=lambda team: rank[team])
+
+        return ''.join(sorted_teams)
+
+'''
+Approach:
+1. Initialize a dictionary `rank` where each team is mapped to a list:
+   - The list contains counts for each position (initialized to 0).
+   - The team letter is added at the end to serve as a tie-breaker for alphabetical sorting.
+2. Iterate through each vote and update the counts in `rank` for each team based on its position in the vote.
+   - For example, if "ABC" is a vote, team A gets a vote at position 0, team B at position 1, and so on.
+   - Use negative counts to facilitate descending order sorting.
+3. Sort the teams:
+   - Primary: Based on counts in each position (descending).
+   - Secondary: Alphabetical order of team letters.
+4. Return the sorted teams as a string.
+
+Time Complexity:
+- O(m * n), where m is the number of votes and n is the number of teams (length of each vote).
+- Sorting: O(n log n), where n is the number of teams.
+- Total: O(m * n + n log n).
+
+Space Complexity:
+- O(n), where n is the number of teams (dictionary to store rankings).
+'''

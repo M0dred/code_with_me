@@ -1,0 +1,36 @@
+class Solution:
+    def countServers(self, grid: List[List[int]]) -> int:
+        m, n = len(grid), len(grid[0])
+        row_counts = [0] * m
+        col_counts = [0] * n
+        
+        # Count the number of servers in each row and each column
+        for i in range(m):
+            for j in range(n):
+                if grid[i][j] == 1:
+                    row_counts[i] += 1
+                    col_counts[j] += 1
+        
+        result = 0
+        # Iterate through each cell to count communicating servers
+        for i in range(m):
+            for j in range(n):
+                if grid[i][j] == 1 and (row_counts[i] > 1 or col_counts[j] > 1):
+                    result += 1
+        
+        return result
+
+'''
+Approach:
+1. The problem requires counting the number of servers that can communicate with at least one other server.
+2. Servers can communicate if they are on the same row or the same column.
+3. We first count the number of servers in each row and each column.
+4. Then, we iterate through each cell in the grid and check if the server is part of a row or column with more than one server.
+5. If so, we count it as a communicating server.
+
+Time Complexity: O(m * n)
+- We iterate through the grid twice: once to count servers in rows and columns, and once to count communicating servers.
+
+Space Complexity: O(m + n)
+- We use two additional arrays to store the counts of servers in each row and each column.
+'''

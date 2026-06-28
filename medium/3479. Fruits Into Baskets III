@@ -1,0 +1,59 @@
+class SegmentTree:
+    def __init__(self, a: List[int]):
+        self.n = len(a)
+        self.max = [0] * (4 * self.n)  # Allocate enough space for segment tree
+        self.build(a, 1, 0, self.n - 1)
+
+    def build(self, a: List[int], o: int, l: int, r: int):
+        if l == r:
+            self.max[o] = a[l]
+            return
+        m = (l + r) // 2
+        self.build(a, o * 2, l, m)
+        self.build(a, o * 2 + 1, m + 1, r)
+        self.maintain(o)
+
+    def maintain(self, o: int):
+        self.max[o] = max(self.max[o * 2], self.max[o * 2 + 1])
+
+    def find_first_and_update(self, o: int, l: int, r: int, x: int) -> int:
+        if self.max[o] < x:  # No basket in range has sufficient capacity
+            return -1
+        if l == r:
+            self.max[o] = -1  # Mark basket as used
+            return l
+        m = (l + r) // 2
+        # Try left subtree first (to get leftmost basket)
+        if self.max[o * 2] >= x:
+            idx = self.find_first_and_update(o * 2, l, m, x)
+        else:
+            idx = self.find_first_and_update(o * 2 + 1, m + 1, r, x)
+        self.maintain(o)  # Update parent node after child update
+        return idx
+
+class Solution:
+    def numOfUnplacedFruits(self, fruits: List[int], baskets: List[int]) -> int:
+        t = SegmentTree(baskets)
+        ans = 0
+        for x in fruits:
+            if t.find_first_and_update(1, 0, len(baskets) - 1, x) < 0:
+                ans += 1
+        return ans
+
+'''
+Approach:
+This solution uses a segment tree to efficiently find the leftmost basket with sufficient capacity for each fruit type:
+1. Build a segment tree where each leaf stores a basket's capacity, and each node stores the maximum capacity in its range.
+2. For each fruit (left to right), query the segment tree to find the leftmost basket with capacity >= fruit quantity.
+3. If found, set that basket's capacity to -1 (mark as used) and update the tree.
+4. If no suitable basket is found, increment the unplaced counter.
+5. Return the count of unplaced fruit types.
+
+Time Complexity: O(n log n) where n is the length of the fruits array
+- Building the segment tree: O(n log n)
+- Processing each fruit (query + update): O(log n)
+- Total: O(n log n) for n fruits
+
+Space Complexity: O(n)
+- O(n) for the segment tree array (4n for safety)
+'''

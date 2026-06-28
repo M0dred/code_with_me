@@ -1,0 +1,53 @@
+import collections
+from sortedcontainers import SortedSet
+
+class NumberContainers:
+    def __init__(self):
+        # Initializing the defaultdict with SortedSet and the regular dictionary
+        # Map from number to set of indices
+        self.number_to_indices = collections.defaultdict(SortedSet)
+        # Map from index to number
+        self.index_to_number = {}
+
+    def change(self, index: int, number: int) -> None:
+        # If index already has a number, remove it from the old number's index set
+        if index in self.index_to_number:
+            previous_number = self.index_to_number[index]
+            self.number_to_indices[previous_number].remove(index)
+            if not self.number_to_indices[previous_number]:
+                del self.number_to_indices[previous_number]
+
+        # Update the number and add the index to the new number's set
+        self.index_to_number[index] = number
+        self.number_to_indices[number].add(index)
+
+    def find(self, number: int) -> int:
+        # Return the smallest index for the given number, or -1 if not found
+        if number in self.number_to_indices and self.number_to_indices[number]:
+            return self.number_to_indices[number][0]
+        return -1
+
+'''
+Approach:
+1. We use two data structures for efficient operations:
+   - `self.number_to_indices`: A defaultdict that maps each number to a `SortedSet` of indices where that number is present. `SortedSet` from the `sortedcontainers` library is crucial here as it keeps the indices sorted and allows for O(1) access to the smallest index. `defaultdict` simplifies handling cases where a number is encountered for the first time.
+   - `self.index_to_number`: A dictionary that maps each index to the number currently stored at that index. This allows for quick look-up when we need to update or remove an index associated with a number in the `change` operation.
+
+2. `change(index, number)` operation:
+   - First, we check if the given `index` already exists in `self.index_to_number`.
+   - If it does, we retrieve the `previous_number` at that index. We then remove the `index` from the `SortedSet` associated with this `previous_number` in `self.number_to_indices`.
+   - After removing the index, we check if the `SortedSet` for `previous_number` is now empty. If it is, we remove the `previous_number` key entirely from `self.number_to_indices` to maintain cleanliness and efficiency.
+   - Next, we update `self.index_to_number` to associate the given `index` with the new `number`.
+   - Finally, we add the `index` to the `SortedSet` associated with the new `number` in `self.number_to_indices`. If the `number` is new, `defaultdict` automatically handles the creation of a new `SortedSet`.
+
+3. `find(number)` operation:
+   - We check if the `number` exists as a key in `self.number_to_indices` and if the `SortedSet` associated with it is not empty. This double check is important to handle cases where a number might exist in our map but no longer have any indices associated with it.
+   - If both conditions are true, it means the `number` is present in our container system. Because we are using a `SortedSet`, the indices are always kept in sorted order. Thus, the smallest index is simply the first element in the `SortedSet`, which we access using `self.number_to_indices[number][0]`.
+   - If the `number` is not found in `self.number_to_indices` or if its associated `SortedSet` is empty, we return `-1` as required.
+
+Time Complexity:
+- `change(index, number)`: O(log N) - due to SortedSet add and remove operations, where N is the number of indices associated with a number.
+- `find(number)`: O(1) - to access the first element of the SortedSet.
+
+Space Complexity: O(N) - where N is the number of unique indices inserted into the NumberContainers. We store mappings for each index and each number present in the container.
+'''

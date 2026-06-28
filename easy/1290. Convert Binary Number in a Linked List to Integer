@@ -1,0 +1,51 @@
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
+class Solution:
+    def getDecimalValue(self, head: Optional[ListNode]) -> int:
+        decimal = 0
+        current = head
+        
+        # Traverse the linked list
+        while current:
+            # Shift left (multiply by 2) and add current bit
+            decimal = decimal * 2 + current.val
+            current = current.next
+            
+        return decimal
+
+'''
+Approach:
+The problem requires converting a binary number, represented as a singly-linked list where each node contains a bit (0 or 1) and the head is the most significant bit, into its decimal equivalent. A straightforward iterative approach is used to process each bit.
+
+1. Initialization:
+   Initialize a variable `decimal` to 0 to store the running decimal value.
+   Set `current` to point to the head of the linked list.
+
+2. Traversal and Conversion:
+   Traverse the linked list while `current` is not None:
+   - For each node, update `decimal` by multiplying the current `decimal` by 2 (left shift equivalent) and adding the current node's value (0 or 1).
+   - Move to the next node by updating `current = current.next`.
+   This mimics the process of reading a binary number from left to right, where each new bit shifts the previous value left and adds the new bit.
+
+3. Result:
+   After the traversal, `decimal` contains the decimal value of the binary number.
+   Return `decimal`.
+
+4. Why This Works:
+   Since the head represents the most significant bit, each node's value contributes to the decimal number by shifting the current result left (multiplying by 2) and adding the new bit. For example, for [1,0,1]:
+   - First bit (1): decimal = 0 * 2 + 1 = 1
+   - Second bit (0): decimal = 1 * 2 + 0 = 2
+   - Third bit (1): decimal = 2 * 2 + 1 = 5
+
+5. Time Complexity:
+   The algorithm traverses the linked list once, processing each node exactly once.
+   The number of nodes is at most 30 (per constraints), but for a general list of length n, the time complexity is O(n).
+   Each operation (multiplication, addition, pointer update) is O(1).
+
+6. Space Complexity:
+   Only a constant amount of extra space is used for the `decimal` variable and the `current` pointer, regardless of the input size.
+   Total space complexity: O(1).
+'''

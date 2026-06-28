@@ -1,0 +1,32 @@
+from collections import Counter
+
+class Solution:
+    def numRabbits(self, answers: List[int]) -> int:
+        # Count the frequency of each answer
+        freq = Counter(answers)
+        total_rabbits = 0
+        
+        # Process each unique answer
+        for ans, count in freq.items():
+            # Each rabbit says there are 'ans' other rabbits of the same color
+            # So, group size = ans + 1 (including the rabbit itself)
+            group_size = ans + 1
+            # Number of groups needed = ceil(count / group_size)
+            # This ensures all rabbits with this answer are covered
+            groups = (count + group_size - 1) // group_size
+            # Total rabbits for this answer = groups * group_size
+            total_rabbits += groups * group_size
+        
+        return total_rabbits
+
+'''
+Approach:
+1. Use Counter to get the frequency of each answer in the array.
+2. For each answer 'ans' with frequency 'count':
+   - Group size = ans + 1 (ans other rabbits + the rabbit itself).
+   - Calculate number of groups needed: ceil(count / group_size) = (count + group_size - 1) // group_size.
+   - Total rabbits for this answer = groups * group_size.
+3. Sum the total rabbits across all answers to get the minimum number of rabbits.
+Time Complexity: O(n) - single pass to build Counter and process unique answers (at most n).
+Space Complexity: O(n) - for the Counter storing unique answers.
+'''

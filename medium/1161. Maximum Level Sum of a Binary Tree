@@ -1,0 +1,53 @@
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def maxLevelSum(self, root: Optional[TreeNode]) -> int:
+        if not root:
+            return 0
+        
+        # BFS to compute sum at each level
+        queue = [root]
+        level = 1
+        max_sum = root.val
+        best_level = 1
+        
+        while queue:
+            level_size = len(queue)
+            level_sum = 0
+            
+            for _ in range(level_size):
+                node = queue.pop(0)
+                level_sum += node.val
+                
+                if node.left:
+                    queue.append(node.left)
+                if node.right:
+                    queue.append(node.right)
+            
+            # Update if current level has larger sum
+            if level_sum > max_sum:
+                max_sum = level_sum
+                best_level = level
+            
+            level += 1
+        
+        return best_level
+
+"""
+Approach & Reasoning:
+
+Use BFS (level-order traversal) to process the tree level by level.
+
+- Maintain a queue of nodes at current level
+- For each level:
+  - Compute sum of all node values
+  - Track the maximum sum seen and its corresponding level
+- Since we process levels in order (1, 2, 3, ...), the first time we see a new maximum sum, that level is the answer (earliest level in case of ties)
+
+Time Complexity : O(n) — visit each node once
+Space Complexity: O(w) where w is maximum width of tree (worst case O(n))
+"""

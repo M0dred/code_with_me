@@ -1,0 +1,44 @@
+class Solution:
+    def findBall(self, grid: List[List[int]]) -> List[int]:
+        m, n = len(grid), len(grid[0])  # Dimensions of the grid
+        answer = [-1] * n  # Initialize the answer array with -1
+        
+        # Process each ball dropped at column i
+        for i in range(n):
+            col = i  # Start at column i
+            for row in range(m):
+                next_col = col + grid[row][col]  # Calculate next column based on board direction
+                
+                # Check if the ball gets stuck:
+                # 1. If it moves out of bounds
+                # 2. If it moves left but the left cell is a right slope (forming a "V")
+                # 3. If it moves right but the right cell is a left slope (forming a "V")
+                if next_col < 0 or next_col >= n or grid[row][col] != grid[row][next_col]:
+                    col = -1  # Ball gets stuck
+                    break
+                col = next_col  # Update the current column for the next row
+            
+            answer[i] = col  # Store the final column where the ball falls out
+        
+        return answer
+
+'''
+### Approach:
+1. **Simulate Ball Movement**: 
+   - Start each ball at column `i` in the first row.
+   - Move down row-by-row based on the board's direction (`1` for right, `-1` for left).
+   
+2. **Check for Stuck Conditions**:
+   - If the ball tries to move out of bounds, it gets stuck.
+   - If the ball moves into a "V" shaped pattern (where adjacent cells have opposite directions), it gets stuck.
+   
+3. **Update the Answer**:
+   - If the ball successfully reaches the last row, store its final column.
+   - If the ball gets stuck, store `-1`.
+
+### Complexity Analysis:
+- **Time Complexity**: **O(m * n)**, where `m` is the number of rows and `n` is the number of columns.
+  - Each ball is simulated row-by-row.
+- **Space Complexity**: **O(n)** for storing the results.
+
+'''

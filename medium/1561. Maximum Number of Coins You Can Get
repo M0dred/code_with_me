@@ -1,0 +1,27 @@
+class Solution:
+    def maxCoins(self, piles: List[int]) -> int:
+        # Sort the piles in ascending order
+        piles.sort()
+        n = len(piles)
+        # Initialize the result to store the total coins you can collect
+        result = 0
+        # Iterate from the end, taking every second pile for yourself
+        for i in range(n // 3, n, 2):
+            result += piles[i]
+        return result
+
+'''
+Approach:
+1. The problem involves selecting triplets of piles such that Alice picks the largest pile, you pick the second-largest, and Bob picks the smallest.
+2. To maximize the number of coins you collect, sort the piles in ascending order.
+3. After sorting, iterate from the end of the array, selecting every second pile for yourself. This ensures you always get the second-largest pile in each triplet.
+4. Sum the values of the selected piles to get the total number of coins you can collect.
+
+Time Complexity: O(n log n)
+- Sorting the piles takes O(n log n) time.
+- Iterating through the sorted array to select piles takes O(n) time.
+- Overall, the solution runs in O(n log n) time.
+
+Space Complexity: O(1)
+- The solution uses a constant amount of extra space, as sorting is done in-place.
+'''

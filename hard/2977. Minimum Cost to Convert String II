@@ -1,0 +1,86 @@
+from typing import List
+import collections
+
+class Solution:
+    def minimumCost(self, source: str, target: str, original: List[str], changed: List[str], cost: List[int]) -> int:
+        n = len(source)
+        
+        # 1. Map unique strings to IDs for the distance matrix
+        nodes = list(set(original) | set(changed))
+        node_to_id = {s: i for i, s in enumerate(nodes)}
+        m = len(nodes)
+        
+        # 2. Initialize distance matrix with infinity
+        dist = [[float('inf')] * m for _ in range(m)]
+        for i in range(m):
+            dist[i][i] = 0
+            
+        for u, v, w in zip(original, changed, cost):
+            u_id, v_id = node_to_id[u], node_to_id[v]
+            dist[u_id][v_id] = min(dist[u_id][v_id], w)
+            
+        # 3. Floyd-Warshall to find min cost between any two strings
+        for k in range(m):
+            for i in range(m):
+                for j in range(m):
+                    if dist[i][k] + dist[k][j] < dist[i][j]:
+                        dist[i][j] = dist[i][k] + dist[k][j]
+        
+        # 4. Build a Trie to quickly find substrings of 'source' starting at index i
+        trie = {}
+        for s in nodes:
+            curr = trie
+            for char in s:
+                curr = curr.setdefault(char, {})
+            curr['_id'] = node_to_id[s]
+            
+        # 5. DP to find the minimum cost
+        dp = [float('inf')] * (n + 1)
+        dp[0] = 0
+        
+        for i in range(n):
+            if dp[i] == float('inf'):
+                continue
+            
+            # Option 1: Characters match, no cost to skip
+            if source[i] == target[i]:
+                dp[i+1] = min(dp[i+1], dp[i])
+            
+            # Option 2: Try all possible transformations starting at index i
+            curr = trie
+            for j in range(i, n):
+                if source[j] not in curr:
+                    break
+                curr = curr[source[j]]
+                
+                if '_id' in curr:
+                    u_id = curr['_id']
+                    # Check if the target substring is a known node in our graph
+                    tgt_sub = target[i:j+1]
+                    if tgt_sub in node_to_id:
+                        v_id = node_to_id[tgt_sub]
+                        if dist[u_id][v_id] != float('inf'):
+                            dp[j+1] = min(dp[j+1], dp[i] + dist[u_id][v_id])
+                            
+        return dp[n] if dp[n] != float('inf') else -1
+
+"""
+Approach & Reasoning:
+
+The problem requires finding the minimum cost to transform 'source' into 'target' using substring 
+replacements. The constraint that replacements must be disjoint or identical allows us to treat 
+this as a Shortest Path problem on a graph of string transformations, solved via Dynamic Programming.
+
+Steps:
+1) Build a Transformation Graph: Map every unique string from 'original' and 'changed' to a unique integer ID.
+2) All-Pairs Shortest Paths: Use the Floyd-Warshall algorithm to pre-calculate the minimum cost to transform any string A to string B. This accounts for multi-step conversions (e.g., A -> C -> B).
+3) Trie for Efficient Matching: Store all 'original' rule strings in a Trie. This allows us to quickly find all substrings of 'source' starting at index i that have a valid transformation rule.
+4) Dynamic Programming (DP): Let dp[i] be the minimum cost to convert the prefix 
+    source[0...i-1] to target[0...i-1].
+    - If source[i] == target[i], we can move to i+1 with 0 additional cost.
+    - For every substring source[i...j] found in the Trie, if the corresponding 
+        target[i...j] is also a known string, update dp[j+1] using the pre-calculated shortest path cost.
+
+Time Complexity: O(M^3 + N * L), where M is the number of unique rule strings (<= 200), N is the length of source (<= 1000), and L is the max rule length.
+Space Complexity: O(M^2 + Trie nodes) for the distance matrix and lookup structure.
+"""

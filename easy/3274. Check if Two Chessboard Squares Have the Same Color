@@ -1,0 +1,25 @@
+class Solution:
+    def checkTwoChessboards(self, coordinate1: str, coordinate2: str) -> bool:
+        def is_black(coordinate):
+            # Convert column letter to a number (e.g., 'a' -> 1, 'b' -> 2, ..., 'h' -> 8)
+            column = ord(coordinate[0]) - ord('a') + 1
+            # Convert row character to an integer
+            row = int(coordinate[1])
+            # A square is black if (column + row) is even
+            return (column + row) % 2 == 0
+        
+        # Check if both coordinates have the same color
+        return is_black(coordinate1) == is_black(coordinate2)
+
+'''
+Explanation of the Code
+
+is_black Function:
+- Converts the column letter to a numerical index.
+- Converts the row character to an integer.
+- Calculates if the square is black based on the parity of the sum of the column index and row number.
+
+Compare Colors:
+- Use the is_black function to determine the color of each square.
+- Return True if both squares have the same color, otherwise return False.
+'''

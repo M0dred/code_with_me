@@ -1,0 +1,48 @@
+class Solution:
+    def maximalRectangle(self, matrix: List[List[str]]) -> int:
+        if not matrix or not matrix[0]:
+            return 0
+            
+        rows = len(matrix)
+        cols = len(matrix[0])
+        
+        # heights[j]: consecutive 1's count from top to row i in column j
+        heights = [0] * (cols + 1)  # +1 for easier boundary handling
+        
+        max_area = 0
+        
+        for i in range(rows):
+            # Update heights for current row
+            for j in range(cols):
+                if matrix[i][j] == '1':
+                    heights[j] += 1
+                else:
+                    heights[j] = 0
+            
+            # Use stack to find largest rectangle in histogram for this row
+            stack = [-1]  # sentinel for left boundary
+            for j in range(cols + 1):
+                while stack[-1] != -1 and heights[stack[-1]] >= heights[j]:
+                    h = heights[stack.pop()]
+                    w = j - stack[-1] - 1  # right - left - 1
+                    max_area = max(max_area, h * w)
+                stack.append(j)
+        
+        return max_area
+
+"""
+Approach & Reasoning:
+
+This is the classic "Largest Rectangle in Histogram" applied row by row.
+
+Key idea:
+- Treat each row as the base of a histogram
+- heights[j] = number of consecutive '1's above current row in column j
+- When we see a '0', reset height to 0
+- For each row, compute the largest rectangle area in this histogram using monotonic stack
+- The stack keeps indices of increasing heights
+- When we find a smaller height, we pop and calculate area with that height
+
+Time Complexity: O(rows × cols)
+Space Complexity: O(cols)
+"""

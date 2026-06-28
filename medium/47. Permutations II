@@ -1,0 +1,22 @@
+from typing import List
+from itertools import permutations
+
+class Solution:
+    def permuteUnique(self, nums: List[int]) -> List[List[int]]:
+        return list(map(list, set(permutations(nums))))
+
+'''
+Approach:
+1. **Use itertools.permutations:**
+   - Generate all possible permutations of `nums`.
+   - Convert the result into a set to remove duplicates.
+
+2. **Convert Back to List:**
+   - Convert the unique permutations back into a list format.
+
+Time Complexity:
+- O(n! * n), where `n` is the length of `nums`, due to generating and storing permutations.
+
+Space Complexity:
+- O(n!), to store all unique permutations.
+'''

@@ -1,0 +1,32 @@
+from typing import List
+from collections import Counter
+
+class Solution:
+    def intersect(self, nums1: List[int], nums2: List[int]) -> List[int]:
+        # Create a counter for the elements in nums1
+        count1 = Counter(nums1)
+        
+        result = []
+        
+        # Iterate through nums2 and check if the element exists in nums1
+        for num in nums2:
+            if count1[num] > 0:
+                result.append(num)
+                count1[num] -= 1
+        
+        return result
+
+'''
+Approach:
+1. The problem requires finding the intersection of two arrays where the frequency of each element in the result must match the frequency in both arrays.
+2. We use a `Counter` object to count the occurrences of elements in `nums1`.
+3. We then iterate through `nums2`, and for each element, we check if it exists in `nums1` with a positive count.
+4. If it does, we add the element to the result and decrement its count in the counter.
+5. This ensures that we only add elements to the result that appear in both arrays with the correct frequency.
+
+Time Complexity: O(n + m), where n and m are the lengths of `nums1` and `nums2`, respectively.
+- We iterate through `nums1` once to create the counter and then through `nums2` once to find the intersection.
+
+Space Complexity: O(min(n, m))
+- The counter will store at most `min(n, m)` elements, depending on which array has fewer unique elements.
+'''

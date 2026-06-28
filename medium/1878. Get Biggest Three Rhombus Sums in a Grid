@@ -1,0 +1,98 @@
+from typing import List
+
+class Solution:
+    def getBiggestThree(self, grid: List[List[int]]) -> List[int]:
+        m, n = len(grid), len(grid[0])
+
+        # diag1: "\" direction
+        diag1 = [[0] * (n + 1) for _ in range(m + 1)]
+        # diag2: "/" direction
+        diag2 = [[0] * (n + 1) for _ in range(m + 1)]
+
+        for i in range(m):
+            for j in range(n):
+                diag1[i + 1][j + 1] = diag1[i][j] + grid[i][j]
+
+        for i in range(m):
+            for j in range(n - 1, -1, -1):
+                diag2[i + 1][j] = diag2[i][j + 1] + grid[i][j]
+
+        def sum_diag1(r1, c1, r2, c2):
+            return diag1[r2 + 1][c2 + 1] - diag1[r1][c1]
+
+        def sum_diag2(r1, c1, r2, c2):
+            return diag2[r2 + 1][c2] - diag2[r1][c1 + 1]
+
+        res = set()
+
+        for i in range(m):
+            for j in range(n):
+                res.add(grid[i][j])
+
+                max_k = min(i, j, m - 1 - i, n - 1 - j)
+
+                for k in range(1, max_k + 1):
+                    top = (i - k, j)
+                    right = (i, j + k)
+                    bottom = (i + k, j)
+                    left = (i, j - k)
+
+                    total = 0
+                    total += sum_diag1(top[0], top[1], right[0], right[1])
+                    total += sum_diag2(right[0], right[1], bottom[0], bottom[1])
+                    total += sum_diag1(left[0], left[1], bottom[0], bottom[1])
+                    total += sum_diag2(top[0], top[1], left[0], left[1])
+
+                    total -= grid[top[0]][top[1]]
+                    total -= grid[right[0]][right[1]]
+                    total -= grid[bottom[0]][bottom[1]]
+                    total -= grid[left[0]][left[1]]
+
+                    res.add(total)
+
+        return sorted(res, reverse=True)[:3]
+
+
+"""
+Approach & Reasoning:
+
+We need to compute the largest three distinct rhombus border sums.
+
+A rhombus is defined by a center (i, j) and a radius k:
+- k = 0 represents a single cell.
+- k > 0 forms a diamond shape whose corners are:
+      top    = (i-k, j)
+      right  = (i, j+k)
+      bottom = (i+k, j)
+      left   = (i, j-k)
+
+The border of a rhombus consists of four diagonal edges.
+
+Key idea:
+Use diagonal prefix sums so each edge can be computed in O(1).
+
+We precompute:
+- diag1 for "\" diagonals (top-left → bottom-right)
+- diag2 for "/" diagonals (top-right → bottom-left)
+
+For each center cell:
+1. Add the radius 0 rhombus (the single cell).
+2. Determine the maximum valid radius so the rhombus stays inside the grid.
+3. For each radius:
+   - Compute the four border edges using diagonal prefix sums.
+   - Subtract the four corner cells once because each corner is counted twice.
+4. Store every rhombus sum in a set to keep only distinct values.
+
+Finally, sort all sums in descending order and return the largest three.
+
+Why diagonal prefix sums:
+Each rhombus edge lies exactly along a diagonal direction,
+so prefix sums allow constant-time computation of each edge segment.
+
+Time Complexity:
+O(m * n * min(m, n))
+
+Space Complexity:
+O(m * n) for diagonal prefix sums
+O(k) for storing distinct rhombus sums
+"""

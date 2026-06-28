@@ -1,0 +1,48 @@
+class Solution:
+    def maxMatrixSum(self, matrix: List[List[int]]) -> int:
+        n = len(matrix)
+        
+        total = 0
+        neg_count = 0
+        min_abs = float('inf')
+        
+        for i in range(n):
+            for j in range(n):
+                val = matrix[i][j]
+                abs_val = abs(val)
+                total += abs_val
+                if val < 0:
+                    neg_count += 1
+                min_abs = min(min_abs, abs_val)
+        
+        # If odd number of negatives → we must have one negative remaining
+        # → subtract twice the smallest absolute value (flip it back to negative)
+        if neg_count % 2 == 1:
+            total -= 2 * min_abs
+        
+        return total
+
+"""
+Approach & Reasoning:
+
+The operation: multiply two adjacent cells by -1 → flips the sign of both.
+
+Effect:
+- If both positive or both negative → sum unchanged
+- If one positive, one negative → both signs flip → sum increases by 2 * min(|a|,|b|)
+
+But globally: each operation flips two cells → preserves parity of number of negative cells.
+
+So:
+- We can make all cells positive if and only if number of negatives is even.
+- If odd number of negatives → we can eliminate all but one negative.
+- To maximize sum → we want the remaining negative (if any) to have smallest absolute value.
+
+Therefore:
+- Compute sum of all absolute values
+- If odd number of negatives → subtract twice the smallest absolute value
+  (because we have to "unflip" it back to negative)
+
+Time Complexity : O(n²)
+Space Complexity: O(1)
+"""

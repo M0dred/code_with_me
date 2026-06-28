@@ -1,0 +1,73 @@
+from heapq import heappush, heappop
+from math import inf
+
+class Solution:
+    def minTimeToReach(self, moveTime: List[List[int]]) -> int:
+        # Get dimensions of the grid
+        n, m = len(moveTime), len(moveTime[0])
+        
+        # Initialize distances array with infinity
+        dist = [[inf] * m for _ in range(n)]
+        dist[0][0] = 0
+        
+        # Priority queue to store (time, row, col)
+        pq = [(0, 0, 0)]  # (time, row, col)
+        
+        # Possible directions: right, down, left, up
+        directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]
+        
+        # Dijkstra's algorithm
+        while pq:
+            time, row, col = heappop(pq)
+            
+            # If current time is greater than known minimum, skip
+            if time > dist[row][col]:
+                continue
+                
+            # If reached destination, return time
+            if row == n - 1 and col == m - 1:
+                return time
+            
+            # Explore all adjacent cells
+            for dr, dc in directions:
+                new_row, new_col = row + dr, col + dc
+                
+                # Check if new position is within bounds
+                if 0 <= new_row < n and 0 <= new_col < m:
+                    # Time to reach the new cell is max of moveTime and current time + 1
+                    new_time = max(moveTime[new_row][new_col], time) + 1
+                    
+                    # If we found a shorter time to reach the new cell
+                    if new_time < dist[new_row][new_col]:
+                        dist[new_row][new_col] = new_time
+                        heappush(pq, (new_time, new_row, new_col))
+        
+        # Return the minimum time to reach destination
+        return dist[n-1][m-1]
+
+'''
+Approach:
+1. Use Dijkstra's algorithm to find the shortest path in terms of time to reach the destination (n-1, m-1).
+2. Initialize a distance array `dist` with infinity, setting dist[0][0] = 0 (starting point).
+3. Use a priority queue to store tuples of (time, row, col), starting with (0, 0, 0).
+4. Define possible moves: right, down, left, up.
+5. While the priority queue is not empty:
+   - Pop the cell with the smallest time.
+   - Skip if the time is greater than the known minimum for that cell.
+   - If the destination is reached, return the time.
+   - For each adjacent cell:
+     - Check if the new position is within bounds.
+     - Calculate the time to reach the new cell: max(moveTime[new_row][new_col], current_time) + 1.
+     - If this time is less than the known time to reach the new cell, update dist and push to the priority queue.
+6. Return the time to reach dist[n-1][m-1].
+
+Time Complexity: O(N * M * log(N * M)), where N and M are the dimensions of the grid.
+   - Each cell can be pushed/popped from the priority queue at most once, with O(log(N * M)) for heap operations.
+   - For each cell, we explore up to 4 neighbors, which is O(1) per cell.
+   - Total: O(N * M * log(N * M)) for visiting all cells and performing heap operations.
+
+Space Complexity: O(N * M).
+   - The distance array `dist` requires O(N * M) space.
+   - The priority queue can store up to O(N * M) entries in the worst case.
+   - Additional variables and the directions list use O(1) space.
+'''

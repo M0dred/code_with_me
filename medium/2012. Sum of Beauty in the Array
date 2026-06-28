@@ -1,0 +1,52 @@
+from typing import List
+
+class Solution:
+    def sumOfBeauties(self, nums: List[int]) -> int:
+        n = len(nums)
+        
+        # Step 1: Prepare arrays for prefix maximum and suffix minimum
+        prefix_max = [0] * n
+        suffix_min = [0] * n
+        
+        # Fill prefix_max where prefix_max[i] is the maximum from 0 to i
+        prefix_max[0] = nums[0]
+        for i in range(1, n):
+            prefix_max[i] = max(prefix_max[i - 1], nums[i])
+        
+        # Fill suffix_min where suffix_min[i] is the minimum from i to n-1
+        suffix_min[-1] = nums[-1]
+        for i in range(n - 2, -1, -1):
+            suffix_min[i] = min(suffix_min[i + 1], nums[i])
+        
+        beauty_sum = 0
+        
+        # Step 2: Iterate through each index from 1 to n - 2
+        for i in range(1, n - 1):
+            if prefix_max[i - 1] < nums[i] < suffix_min[i + 1]:
+                beauty = 2
+            elif nums[i - 1] < nums[i] < nums[i + 1]:
+                beauty = 1
+            else:
+                beauty = 0
+            beauty_sum += beauty
+        
+        return beauty_sum
+
+'''
+Approach:
+1. Create two helper arrays:
+   - prefix_max[i]: The maximum value from nums[0] to nums[i].
+   - suffix_min[i]: The minimum value from nums[i] to nums[n - 1].
+2. Iterate through nums[i] where 1 <= i <= n - 2:
+   - If nums[i] is greater than prefix_max[i - 1] and less than suffix_min[i + 1], its beauty is 2.
+   - Else if nums[i - 1] < nums[i] < nums[i + 1], its beauty is 1.
+   - Else, its beauty is 0.
+3. Accumulate the beauty scores and return the total.
+
+Time Complexity: O(n)
+- Prefix max and suffix min arrays are computed in O(n).
+- We loop once more over the array for the beauty check.
+
+Space Complexity: O(n)
+- We store two arrays of size n for prefix_max and suffix_min.
+'''

@@ -1,0 +1,29 @@
+class Solution:
+    def coloredCells(self, n: int) -> int:
+        """
+        Returns the number of colored cells at the end of n minutes.
+        """
+        return n * n + (n - 1) * (n - 1)
+
+# Example Usage:
+# obj = Solution()
+# result = obj.coloredCells(2)  # Output: 5
+# print(result)
+
+'''
+Approach:
+1. The pattern of colored cells follows a mathematical sequence:
+   - At minute 1: 1 cell.
+   - At minute 2: 5 cells.
+   - At minute 3: 13 cells.
+   - At minute 4: 25 cells.
+2. Observing the pattern, the number of colored cells at time `n` follows:
+   - Total cells = n^2 + (n-1)^2.
+3. This formula represents the expansion in a diamond shape.
+
+Time Complexity: O(1)
+- The formula computes the result in constant time.
+
+Space Complexity: O(1)
+- Only a single integer is stored.
+'''

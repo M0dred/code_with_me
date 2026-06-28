@@ -1,0 +1,45 @@
+from typing import List
+
+class Solution:
+    def minRemoval(self, nums: List[int], k: int) -> int:
+        nums.sort()
+        n = len(nums)
+
+        best_len = 1
+        r = 0
+        for l in range(n):
+            if r < l:
+                r = l
+            while r + 1 < n and nums[r + 1] <= nums[l] * k:
+                r += 1
+            best_len = max(best_len, r - l + 1)
+
+        return n - best_len
+
+
+"""
+Approach & Reasoning:
+
+We can remove any elements, so we want to keep the largest possible subset that is balanced.
+If we sort nums, then any optimal kept subset can be taken as a contiguous segment in sorted order:
+for a chosen minimum value nums[l], the best we can do is keep as many values as possible to the right
+that still satisfy:
+    nums[r] <= nums[l] * k
+Then the remaining segment nums[l..r] is balanced because:
+- min = nums[l]
+- max = nums[r]
+- nums[r] <= nums[l] * k
+
+So the problem becomes finding the maximum length window in sorted nums where
+nums[r] <= nums[l] * k.
+
+We use a two-pointer sliding window:
+- Fix l from 0..n-1
+- Move r forward as far as possible while the condition holds
+- Track the best window length
+
+Answer = total n - (maximum kept length).
+
+Time Complexity: O(n log n) for sorting + O(n) for two pointers.
+Space Complexity: O(1) extra (or O(n) depending on sorting implementation).
+"""

@@ -1,0 +1,46 @@
+from typing import List
+
+class Solution:
+    def countValidSelections(self, nums: List[int]) -> int:
+        n = len(nums)
+        zero_positions = [i for i, v in enumerate(nums) if v == 0]
+        ans = 0
+
+        def simulate(start: int, dir_: int) -> bool:
+            arr = nums[:]           # work on a copy
+            curr = start
+            d = dir_
+            while 0 <= curr < n:
+                if arr[curr] == 0:
+                    curr += d
+                else:
+                    arr[curr] -= 1
+                    d = -d
+                    curr += d
+            # finished when out of bounds
+            return all(x == 0 for x in arr)
+
+        for i in zero_positions:
+            if simulate(i, -1):
+                ans += 1
+            if simulate(i, +1):
+                ans += 1
+
+        return ans
+
+'''
+Approach:
+- For every index `i` where `nums[i] == 0`, try both initial directions (left/right).
+- Simulate the process exactly as described:
+  - If at a zero, move one step in the current direction.
+  - If at a positive, decrement it by 1, reverse direction, then move one step.
+  - Stop when the position leaves the array.
+- Count this start as valid if, upon exiting, every element became zero.
+
+Time Complexity:
+- Let n ≤ 100 and each nums[i] ≤ 100. Each simulation performs at most O(n · max(nums)) moves (≤ ~10⁴).
+- Trying up to 2·(#zeros) simulations, worst-case ≤ 200 · 10⁴ = 2×10⁶ steps, which is fine.
+
+Space Complexity:
+- O(n) for the working copy of the array per simulation.
+'''

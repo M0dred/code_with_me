@@ -1,0 +1,51 @@
+class Solution:
+    def survivedRobotsHealths(self, positions: List[int], healths: List[int], directions: str) -> List[int]:
+        n = len(positions)
+        curr_health = healths[:]
+        idx = list(range(n))
+        idx.sort(key=lambda x: positions[x])
+        stack = []
+        
+        for i in idx:  # i: original index, processed in order of increasing position
+            if directions[i] == 'R':
+                stack.append(i)
+            else:  # 'L'
+                while stack and curr_health[i] > 0:
+                    top = stack[-1]
+                    if curr_health[i] > curr_health[top]:
+                        curr_health[top] = 0
+                        curr_health[i] -= 1
+                        stack.pop()
+                    elif curr_health[i] < curr_health[top]:
+                        curr_health[top] -= 1
+                        curr_health[i] = 0
+                        # do not pop, top stays
+                        break
+                    else:
+                        curr_health[top] = 0
+                        curr_health[i] = 0
+                        stack.pop()
+                        break  # optional, since health[i]=0
+        
+        return [curr_health[i] for i in range(n) if curr_health[i] > 0]
+
+"""
+Approach & Reasoning:
+To efficiently simulate the collisions in O(n log n) time:
+
+1. Sort the robots by their positions (using indices to keep track of original order).
+2. Use a stack to keep track of right-moving ('R') robots that are still active (in increasing position order).
+3. Process robots from left to right:
+   - If a robot is moving right ('R'), push its original index onto the stack.
+   - If a robot is moving left ('L'), simulate collisions with all previous right-moving robots in the stack:
+     - Compare healths repeatedly with the top of the stack.
+     - Lower health robot is destroyed (health=0), higher health survives with -1 health.
+     - Equal health: both destroyed.
+4. Left-moving robots are not pushed to the stack because they won't collide with any future robots.
+5. After processing all, collect the remaining robots' final healths (those >0) in their original input order.
+
+This correctly handles multiple collisions per robot because each robot enters/pops the stack at most once. Same-direction robots never collide. The stack ensures we only consider opposing robots that can actually meet.
+
+Time Complexity: O(n log n) due to sorting + O(n) amortized for stack operations.
+Space Complexity: O(n)
+"""

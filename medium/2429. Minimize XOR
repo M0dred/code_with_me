@@ -1,0 +1,44 @@
+class Solution:
+    def minimizeXor(self, num1: int, num2: int) -> int:
+        # Count the number of set bits in num2
+        set_bits_num2 = bin(num2).count('1')
+
+        # Initialize result and count of set bits used
+        result = 0
+        used_set_bits = 0
+
+        # Iterate through the bits of num1 from the most significant to the least
+        for i in range(31, -1, -1):
+            if used_set_bits < set_bits_num2 and (num1 & (1 << i)) != 0:
+                result |= (1 << i)
+                used_set_bits += 1
+
+        # Fill remaining set bits in the least significant bits
+        for i in range(32):
+            if used_set_bits < set_bits_num2 and (result & (1 << i)) == 0:
+                result |= (1 << i)
+                used_set_bits += 1
+
+        return result
+
+'''
+Approach:
+1. **Count Set Bits in num2:**
+   - Calculate the number of `1`s in the binary representation of `num2` using `bin(num2).count('1')`.
+
+2. **Iterate Over num1 Bits:**
+   - Traverse the bits of `num1` from the most significant to the least significant.
+   - If a bit is set in `num1` and the number of used set bits is less than the required count (`set_bits_num2`), include that bit in `result`.
+
+3. **Fill Remaining Bits:**
+   - If the required set bits are not yet reached, set additional bits in `result` starting from the least significant bit.
+
+4. **Return Result:**
+   - The `result` will have the minimal XOR value with `num1` while having the same number of set bits as `num2`.
+
+Time Complexity:
+- O(32), as we iterate over at most 32 bits.
+
+Space Complexity:
+- O(1), as only a few variables are used.
+'''

@@ -1,0 +1,44 @@
+class Solution:
+    def maxCandies(self, status: List[int], candies: List[int], keys: List[List[int]], containedBoxes: List[List[int]], initialBoxes: List[int]) -> int:
+        ans = 0
+        has_key = status[:]  # Copy status to track which boxes can be opened
+        has_box = [False] * len(status)
+        for x in initialBoxes:
+            has_box[x] = True
+
+        def dfs(x: int) -> None:
+            nonlocal ans
+            ans += candies[x]
+            has_box[x] = False  # Mark box as processed to avoid revisiting
+
+            # Process keys found in this box
+            for y in keys[x]:
+                has_key[y] = True
+                if has_box[y]:
+                    dfs(y)
+
+            # Process contained boxes
+            for y in containedBoxes[x]:
+                has_box[y] = True
+                if has_key[y]:
+                    dfs(y)
+
+        for x in initialBoxes:
+            if has_key[x] and has_box[x]:
+                dfs(x)
+        return ans
+
+'''
+Approach:
+1. Initialize ans to track total candies, has_key as a copy of status to track openable boxes, and has_box to track possessed boxes.
+2. Mark initialBoxes in has_box as True.
+3. Define dfs(x) to process box x:
+   - Add candies[x] to ans and mark has_box[x] as False to prevent revisiting.
+   - For each key y in keys[x], set has_key[y] to True and recursively process y if has_box[y] is True.
+   - For each contained box y in containedBoxes[x], set has_box[y] to True and recursively process y if has_key[y] is True.
+4. For each initial box, if it can be opened (has_key[x]) and is possessed (has_box[x]), call dfs(x).
+5. Return total candies collected.
+
+Time Complexity: O(n + k + c), where n is the number of boxes, k is the total number of keys, and c is the total number of contained boxes. Each box, key, and contained box is processed at most once.
+Space Complexity: O(n) for has_key, has_box, and the recursion stack, which can go up to n boxes in depth.
+'''

@@ -1,0 +1,31 @@
+class Solution:
+    def checkPowersOfThree(self, n: int) -> bool:
+        """
+        Returns True if n can be represented as the sum of distinct powers of three, otherwise False.
+        """
+        while n > 0:
+            if n % 3 == 2:  # If remainder is 2, it's not possible to form n using distinct powers of 3
+                return False
+            n //= 3  # Move to the next power of 3
+        return True
+
+# Example Usage:
+# obj = Solution()
+# result = obj.checkPowersOfThree(12)  # Output: True
+# print(result)
+
+'''
+Approach:
+1. Check the ternary (base-3) representation of n.
+2. If n can be expressed as a sum of distinct powers of three, its base-3 representation contains only 0s and 1s.
+3. While n > 0:
+   - If n % 3 == 2, return False (since it would require a repeated power of 3).
+   - Otherwise, divide n by 3 and continue checking.
+4. If we reach 0, return True.
+
+Time Complexity: O(log n)
+- Since we divide n by 3 at each step, the number of iterations is O(log3 n).
+
+Space Complexity: O(1)
+- Only a few integer variables are used.
+'''

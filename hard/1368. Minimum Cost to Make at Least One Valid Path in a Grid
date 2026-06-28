@@ -1,0 +1,49 @@
+import heapq
+
+class Solution:
+    def minCost(self, grid: List[List[int]]) -> int:
+        m, n = len(grid), len(grid[0])
+        # Define the four possible directions and their corresponding signs
+        directions = [(0, 1, 1), (0, -1, 2), (1, 0, 3), (-1, 0, 4)]
+        # Priority queue: (cost, row, col)
+        pq = [(0, 0, 0)]
+        # Visited matrix to keep track of the minimum cost to reach each cell
+        visited = [[float('inf')] * n for _ in range(m)]
+        visited[0][0] = 0
+        
+        while pq:
+            cost, i, j = heapq.heappop(pq)
+            # If we reach the bottom-right cell, return the cost
+            if i == m - 1 and j == n - 1:
+                return cost
+            # Explore all four possible directions
+            for dx, dy, dir in directions:
+                x, y = i + dx, j + dy
+                # Check if the new cell is within the grid boundaries
+                if 0 <= x < m and 0 <= y < n:
+                    # Calculate the new cost: if the direction matches the current sign, cost remains the same; otherwise, add 1
+                    new_cost = cost + (0 if grid[i][j] == dir else 1)
+                    # If the new cost is less than the previously recorded cost, update the cost and push the cell into the priority queue
+                    if new_cost < visited[x][y]:
+                        visited[x][y] = new_cost
+                        heapq.heappush(pq, (new_cost, x, y))
+        # If no valid path is found, return -1 (though the problem guarantees at least one valid path)
+        return -1
+
+'''
+Approach:
+1. The problem requires finding the minimum cost to make the grid have at least one valid path from the top-left cell (0, 0) to the bottom-right cell (m-1, n-1).
+2. We treat each cell in the grid as a node in a graph, and the edges represent the possible moves based on the current sign or after modifying the sign.
+3. We use a priority queue (min-heap) to perform a modified BFS where the priority is based on the cost incurred so far.
+4. For each cell, we consider moving in the direction indicated by the current sign without any cost. We also consider modifying the sign to point in any of the four possible directions, incurring a cost of 1.
+5. We keep track of the minimum cost to reach each cell using a visited matrix to avoid reprocessing cells with higher costs.
+6. The BFS terminates when we reach the bottom-right cell, and the cost at that point is the minimum cost to make the grid have a valid path.
+
+Time Complexity: O(m * n * log(m * n))
+- The priority queue ensures that we process cells in order of increasing cost, and each cell is processed at most once.
+- The log(m * n) factor comes from the heap operations.
+
+Space Complexity: O(m * n)
+- We use a visited matrix of size m * n to store the minimum cost to reach each cell.
+- The priority queue can also store up to m * n cells in the worst case.
+'''

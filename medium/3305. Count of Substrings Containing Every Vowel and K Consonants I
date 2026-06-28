@@ -1,0 +1,82 @@
+class Solution:
+    def _isVowel(self, c: str) -> bool:
+        return c == "a" or c == "e" or c == "i" or c == "o" or c == "u"
+
+    def countOfSubstrings(self, word: str, k: int) -> int:
+        num_valid_substrings = 0
+        start = end = 0
+        vowel_count = {}  # Dictionary to keep counts of vowels
+        consonant_count = 0  # Count of consonants
+        next_consonant = [0] * len(word)  # Array to compute index of next consonant for all indices
+        next_consonant_index = len(word)
+
+        # Preprocessing next_consonant array: For each index, find the next consonant index.
+        for i in range(len(word) - 1, -1, -1):
+            next_consonant[i] = next_consonant_index
+            if not self._isVowel(word[i]):
+                next_consonant_index = i
+
+        # Main two pointer sliding window
+        while end < len(word):
+            new_letter = word[end]
+
+            # Expand window by including word[end]
+            if self._isVowel(new_letter):
+                vowel_count[new_letter] = vowel_count.get(new_letter, 0) + 1
+            else:
+                consonant_count += 1
+
+            # Shrink window from the left if consonant count exceeds k
+            while consonant_count > k:
+                start_letter = word[start]
+                if self._isVowel(start_letter):
+                    vowel_count[start_letter] -= 1
+                    if vowel_count[start_letter] == 0:
+                        del vowel_count[start_letter]
+                else:
+                    consonant_count -= 1
+                start += 1
+
+            # If window is valid, count valid substrings starting at current start
+            while (
+                start <= end
+                and len(vowel_count) == 5
+                and consonant_count == k
+            ):
+                # Add all substrings starting from start and ending beyond end before the next consonant
+                num_valid_substrings += next_consonant[end] - end
+
+                # Shrink the window from the left for further valid windows
+                start_letter = word[start]
+                if self._isVowel(start_letter):
+                    vowel_count[start_letter] -= 1
+                    if vowel_count[start_letter] == 0:
+                        del vowel_count[start_letter]
+                else:
+                    consonant_count -= 1
+                start += 1
+
+            # Move end pointer to expand the window
+            end += 1
+
+        return num_valid_substrings
+
+'''
+Approach:
+1. Use a sliding window with two pointers, `start` and `end`.
+2. Track:
+   - The count of each vowel in the current window.
+   - The number of consonants in the current window.
+3. Preprocess the next consonant position (`next_consonant`) for each index to allow counting valid substrings efficiently.
+4. Expand the window by moving `end`, and adjust by moving `start` when the number of consonants exceeds `k`.
+5. When all 5 vowels are present and consonants count is exactly `k`, count all valid substrings starting at `start` and ending beyond `end` before the next consonant.
+6. Return the total count of valid substrings.
+
+Time Complexity: O(n)
+- We process each character a constant number of times.
+- Preprocessing `next_consonant` is O(n).
+
+Space Complexity: O(n)
+- We use O(n) space for the `next_consonant` array.
+- The space used for vowel_count is O(1) because there are only 5 vowels.
+'''

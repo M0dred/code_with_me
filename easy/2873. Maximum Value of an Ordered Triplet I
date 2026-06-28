@@ -1,0 +1,28 @@
+class Solution:
+    def maximumTripletValue(self, nums: List[int]) -> int:
+        n = len(nums)
+        max_value = 0
+        max_i = nums[0]  # Maximum value of nums[i] seen so far
+
+        for j in range(1, n - 1):
+            for k in range(j + 1, n):
+                value = (max_i - nums[j]) * nums[k]
+                max_value = max(max_value, value)
+            max_i = max(max_i, nums[j])  # Update max_i for the next j
+
+        return max_value
+
+'''
+Approach:
+1. Fix the middle index j and loop through the third index k (where k > j).
+2. Maintain the maximum nums[i] seen so far before j (i < j) as max_i.
+3. For each triplet (i, j, k), compute the value (max_i - nums[j]) * nums[k].
+4. Keep track of the maximum value across all valid triplets.
+5. Return 0 if all values are negative.
+
+Time Complexity: O(n^2)
+- Outer loop on j and inner loop on k gives O(n^2) time.
+
+Space Complexity: O(1)
+- Only uses constant space for variables.
+'''

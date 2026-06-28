@@ -1,0 +1,40 @@
+from typing import List
+from collections import defaultdict
+
+class Solution:
+    def beautifulSubarrays(self, nums: List[int]) -> int:
+        """
+        Returns the number of beautiful subarrays in nums.
+        """
+        prefix_xor = 0
+        count = defaultdict(int)
+        count[0] = 1  # To handle the case when prefix_xor itself is 0
+        result = 0
+
+        # Step 1: Compute prefix XOR and count occurrences
+        for num in nums:
+            prefix_xor ^= num  # Compute prefix XOR up to the current element
+            result += count[prefix_xor]  # Add count of previous prefix_xor values
+            count[prefix_xor] += 1  # Update count of the current prefix_xor
+
+        return result
+
+# Example Usage:
+# obj = Solution()
+# result = obj.beautifulSubarrays([4,3,1,2,4])  # Output: 2
+# print(result)
+
+'''
+Approach:
+1. Utilize prefix XOR to determine if a subarray can be transformed into all zeroes.
+2. If two subarrays have the same prefix XOR, their XOR result is zero, meaning the subarray between them can be transformed into zero using the allowed operations.
+3. Maintain a hash map count to store occurrences of each prefix_xor.
+4. Iterate through nums, updating prefix_xor and counting how many times it has appeared before.
+5. Add the occurrences of prefix_xor found in count to the result.
+
+Time Complexity: O(n)
+- We iterate through the array once.
+
+Space Complexity: O(n)
+- The dictionary count stores XOR values, at most n values in the worst case.
+''' 

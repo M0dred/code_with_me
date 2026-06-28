@@ -1,0 +1,17 @@
+class Solution:
+    def differenceOfSums(self, n: int, m: int) -> int:
+        total_sum = n * (n + 1) // 2
+        count = n // m
+        num2 = m * count * (count + 1) // 2
+        num1 = total_sum - num2
+        return num1 - num2
+        
+'''
+Approach: This solution uses a mathematical approach to avoid iterating through the range [1, n].
+1. Compute the total sum of numbers from 1 to n using the formula n * (n + 1) // 2.
+2. For num2 (sum of numbers divisible by m), calculate the count of multiples of m (n // m).
+3. Compute num2 using the formula m * count * (count + 1) // 2 to get the sum of multiples.
+4. For num1 (sum of numbers not divisible by m), subtract num2 from the total sum, then return num1 - num2.
+Time Complexity: O(1), as it uses constant-time arithmetic operations.
+Space Complexity: O(1), as it uses a constant amount of extra space.
+'''

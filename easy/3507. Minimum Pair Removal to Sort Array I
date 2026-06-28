@@ -1,0 +1,49 @@
+from typing import List
+
+class Solution:
+    def minimumPairRemoval(self, nums: List[int]) -> int:
+        arr = nums[:]  # work on a copy
+        ops = 0
+
+        def is_nondecreasing(a: List[int]) -> bool:
+            for i in range(1, len(a)):
+                if a[i] < a[i - 1]:
+                    return False
+            return True
+
+        while len(arr) > 1 and not is_nondecreasing(arr):
+            # find leftmost adjacent pair with minimum sum
+            min_sum = arr[0] + arr[1]
+            min_idx = 0
+            for i in range(1, len(arr) - 1):
+                s = arr[i] + arr[i + 1]
+                if s < min_sum:
+                    min_sum = s
+                    min_idx = i
+
+            # replace the pair by their sum
+            arr[min_idx:min_idx + 2] = [min_sum]
+            ops += 1
+
+        return ops
+
+
+"""
+Approach & Reasoning:
+
+We must repeatedly apply the *forced* operation:
+- Find the adjacent pair with the minimum sum (tie → leftmost),
+- Replace that pair with their sum,
+until the array becomes non-decreasing.
+
+Because n ≤ 50, we can directly simulate:
+1) Check whether the current array is non-decreasing.
+2) If not, scan all adjacent pairs to find the minimum-sum pair (keeping the leftmost on ties).
+3) Replace that pair with its sum and count one operation.
+4) Repeat.
+
+This matches the problem’s rule exactly and is efficient at this constraint size.
+
+Time Complexity: O(n^3) in the worst case (up to n merges, each with O(n) check + O(n) scan).
+Space Complexity: O(n) for the working copy.
+"""

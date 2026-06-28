@@ -1,0 +1,51 @@
+class Solution:
+    def minOperations(self, nums: List[int], k: int) -> int:
+        current = nums.copy()
+        operations = 0
+        
+        while True:
+            # If all elements are k, we're done
+            if all(x == k for x in current):
+                return operations
+                
+            # Get unique values greater than k
+            greater_vals = sorted([x for x in set(current) if x > k], reverse=True)
+            
+            # If no values greater than k
+            if not greater_vals:
+                return -1 if any(x != k for x in current) else operations
+                
+            # Choose h: use the second largest value greater than k
+            # or k if only one value remains
+            if len(greater_vals) == 1:
+                h = k
+            else:
+                h = greater_vals[1]  # Use actual value, not -1
+            
+            # Apply operation
+            changed = False
+            for i in range(len(current)):
+                if current[i] > h:
+                    current[i] = h
+                    changed = True
+                    
+            if not changed:
+                return -1
+                
+            operations += 1
+
+'''
+Approach:
+1. Work with copy of array and track operations
+2. For each step:
+   - Check if all elements are k
+   - Get sorted unique values > k in descending order
+   - If no values > k, check if solution possible
+   - Choose h:
+     - If one value > k: use k
+     - Otherwise: use second largest value greater than k
+   - Apply operation to all values > h
+3. Return operations count or -1 if impossible
+Time Complexity: O(n*m) where n is length and m is number of operations
+Space Complexity: O(n) for array copy and set
+'''

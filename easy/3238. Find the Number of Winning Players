@@ -1,0 +1,24 @@
+class Solution:
+    def winningPlayerCount(self, n: int, pick: List[List[int]]) -> int:
+        # Step 1: Initialize a count matrix to track balls picked by each player for each color
+        # `cnt[player][color]` will store the number of balls of a specific color picked by a player
+        # The matrix has `n` rows (players) and 11 columns (colors from 0 to 10)
+        cnt = [[0] * 11 for _ in range(n)]
+        
+        # Step 2: Populate the count matrix based on the pick list
+        # For each pick, increment the count for the corresponding player and color
+        for p in pick:
+            cnt[p[0]][p[1]] += 1  # Increment count for player `p[0]` and color `p[1]`
+        
+        # Step 3: Initialize a variable to count the number of winning players
+        ans = 0
+        
+        # Step 4: Check the winning condition for each player
+        # A player `i` wins if they have picked more than `i` balls of any single color
+        for i, arr in enumerate(cnt):  # Iterate over each player's color counts
+            # Check if any color count exceeds the player's threshold (`i`)
+            if any(x > i for x in arr):  
+                ans += 1  # If the condition is met, increment the count of winners
+        
+        # Step 5: Return the total number of winning players
+        return ans

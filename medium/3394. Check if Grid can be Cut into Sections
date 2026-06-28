@@ -1,0 +1,39 @@
+from typing import List
+
+class Solution:
+    def checkValidCuts(self, n: int, rectangles: List[List[int]]) -> bool:
+        def can_cut_by_axis(rectangles, axis):
+            # Axis: 0 for vertical cuts (x-axis), 1 for horizontal cuts (y-axis)
+            intervals = []
+            for rect in rectangles:
+                if axis == 0:
+                    intervals.append((rect[0], rect[2]))  # x-interval
+                else:
+                    intervals.append((rect[1], rect[3]))  # y-interval
+
+            # Sort intervals by start point
+            intervals.sort()
+            merged = []
+
+            for start, end in intervals:
+                if not merged or merged[-1][1] <= start:
+                    merged.append([start, end])
+                else:
+                    merged[-1][1] = max(merged[-1][1], end)
+
+            # If we can find at least 3 non-overlapping intervals, we can place two cuts
+            return len(merged) >= 3
+
+        return can_cut_by_axis(rectangles, 0) or can_cut_by_axis(rectangles, 1)
+
+'''
+Approach:
+1. We try to find either two vertical or two horizontal cuts.
+2. For vertical cuts, we extract x-intervals (startx, endx) of rectangles.
+   For horizontal cuts, we extract y-intervals (starty, endy).
+3. We sort and merge overlapping intervals along the chosen axis.
+4. If we can find at least 3 non-overlapping intervals, it means we can place 2 cuts in between.
+5. Check both axes; if either allows a valid configuration, return True.
+Time Complexity: O(n log n)
+Space Complexity: O(n)
+'''

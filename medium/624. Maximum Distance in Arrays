@@ -1,0 +1,55 @@
+from typing import List
+
+class Solution:
+    def maxDistance(self, arrays: List[List[int]]) -> int:
+        # Initialize the minimum and maximum from the first array
+        min_so_far = arrays[0][0]
+        max_so_far = arrays[0][-1]
+        max_distance = -1  # Initialize maximum distance
+        
+        # Iterate through the arrays starting from the second one
+        for i in range(1, len(arrays)):
+            current_min = arrays[i][0]
+            current_max = arrays[i][-1]
+            
+            # Calculate distances with the previous min and max
+            distance1 = abs(current_max - min_so_far)
+            distance2 = abs(current_min - max_so_far)
+            
+            # Update the maximum distance found so far
+            max_distance = max(max_distance, distance1, distance2)
+            
+            # Update the global min and max
+            min_so_far = min(min_so_far, current_min)
+            max_so_far = max(max_so_far, current_max)
+        
+        return max_distance
+
+    '''
+    Approach:
+    1. Initialization:
+       - Start by initializing `min_so_far` with the first element of the first array.
+       - Initialize `max_so_far` with the last element of the first array.
+       - Initialize `max_distance` to keep track of the maximum distance found, starting with `-1`.
+    2. Iterate Through the Arrays:
+       - Loop through the `arrays` starting from the second array (index `1`).
+       - For each array, identify:
+         - `current_min`: The first element of the current array (since arrays are sorted in ascending order).
+         - `current_max`: The last element of the current array.
+    3. Calculate Potential Distances:
+       - Calculate the distance between the `current_max` of the current array and the `min_so_far`.
+         - `distance1 = |current_max - min_so_far|`
+       - Calculate the distance between the `current_min` of the current array and the `max_so_far`.
+         - `distance2 = |current_min - max_so_far|`
+       - Update `max_distance` with the maximum of the current `max_distance`, `distance1`, and `distance2`.
+    4. Update Global Min and Max:
+       - Update `min_so_far` to be the minimum of the existing `min_so_far` and the `current_min` of the current array.
+       - Update `max_so_far` to be the maximum of the existing `max_so_far` and the `current_max` of the current array.
+    5. Return the Result:
+       - After iterating through all arrays, return the `max_distance` which holds the maximum distance found.
+    Time Complexity: O(m)
+    - Where `m` is the number of arrays.
+    - We iterate through each array exactly once, performing constant-time operations within the loop.
+    Space Complexity: O(1)
+    - We use a constant amount of extra space regardless of the input size.
+    '''
