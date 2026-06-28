@@ -1,0 +1,41 @@
+from typing import List
+
+class Solution:
+    def maxTargetNodes(self, edges1: List[List[int]], edges2: List[List[int]], k: int) -> List[int]:
+        def dfs(node: int, parent: int, children: List[List[int]], k: int) -> int:
+            if k < 0:
+                return 0
+            res = 1
+            for child in children[node]:
+                if child == parent:
+                    continue
+                res += dfs(child, node, children, k - 1)
+            return res
+
+        def build(edges: List[List[int]], k: int) -> List[int]:
+            n = len(edges) + 1
+            children = [[] for _ in range(n)]
+            for u, v in edges:
+                children[u].append(v)
+                children[v].append(u)
+            res = [0] * n
+            for i in range(n):
+                res[i] = dfs(i, -1, children, k)
+            return res
+
+        n = len(edges1) + 1
+        count1 = build(edges1, k)
+        count2 = build(edges2, k - 1)
+        maxCount2 = max(count2)
+        res = [count1[i] + maxCount2 for i in range(n)]
+        return res
+
+'''
+Approach
+1. Build adjacency lists for both trees from edges1 and edges2 to enable DFS traversal.
+2. Compute the number of nodes within distance k from each node in tree 1 using DFS.
+3. Compute the number of nodes within distance k-1 from each node in tree 2 using DFS.
+4. For each node i in tree 1, calculate the total target nodes as count1[i] plus the maximum count2[j], and store in the answer array.
+Time Complexity: O(n + m), where n and m are the number of nodes in tree 1 and tree 2, as DFS visits each edge O(1) times.
+Space Complexity: O(n + m) for adjacency lists and recursion stack.
+'''

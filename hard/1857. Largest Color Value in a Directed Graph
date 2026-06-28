@@ -1,0 +1,55 @@
+from collections import deque, defaultdict
+
+class Solution:
+    def largestPathValue(self, colors: str, edges: List[List[int]]) -> int:
+        n = len(colors)
+        graph = defaultdict(list)
+        indegree = [0] * n
+        
+        # Build graph
+        for u, v in edges:
+            graph[u].append(v)
+            indegree[v] += 1
+        
+        # Queue for topological sort
+        q = deque(i for i in range(n) if indegree[i] == 0)
+        
+        # DP to track color frequencies
+        dp = [[0] * 26 for _ in range(n)]
+        for i in range(n):
+            color_index = ord(colors[i]) - ord('a')
+            dp[i][color_index] = 1
+        
+        visited = 0
+        max_color_value = 0
+        
+        while q:
+            node = q.popleft()
+            visited += 1
+            for nei in graph[node]:
+                for c in range(26):
+                    # Update neighbor's color count
+                    dp[nei][c] = max(dp[nei][c], dp[node][c] + (1 if c == ord(colors[nei]) - ord('a') else 0))
+                indegree[nei] -= 1
+                if indegree[nei] == 0:
+                    q.append(nei)
+            max_color_value = max(max_color_value, max(dp[node]))
+        
+        # If we didn't visit all nodes, a cycle exists
+        return -1 if visited < n else max_color_value
+
+'''
+Approach:
+1. Build the directed graph and indegree array.
+2. Initialize a queue with all nodes having indegree 0 (starting points).
+3. Track color counts per node using a 2D DP array (n x 26).
+4. Traverse the graph using Kahn’s topological sort:
+   - For each node, propagate color frequencies to neighbors.
+   - If a neighbor’s indegree drops to 0, add it to the queue.
+5. Keep track of how many nodes were processed.
+6. If cycle detected (not all nodes visited), return -1.
+7. Otherwise, return the maximum color frequency encountered.
+
+Time Complexity: O(n + m + 26 * m) → O(m + n)
+Space Complexity: O(n * 26) → O(n)
+'''

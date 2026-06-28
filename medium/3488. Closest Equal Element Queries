@@ -1,0 +1,49 @@
+class Solution:
+    def solveQueries(self, nums: List[int], queries: List[int]) -> List[int]:
+        from collections import defaultdict
+        n = len(nums)
+        pos = defaultdict(list)
+        for i in range(n):
+            pos[nums[i]].append(i)
+        
+        min_d = [-1] * n
+        for val, positions in pos.items():
+            m = len(positions)
+            if m < 2:
+                continue
+            for ii in range(m):
+                i = positions[ii]
+                prev_i = positions[(ii - 1) % m]
+                next_i = positions[(ii + 1) % m]
+                d1 = abs(i - prev_i)
+                d1 = min(d1, n - d1)
+                d2 = abs(i - next_i)
+                d2 = min(d2, n - d2)
+                min_d[i] = min(d1, d2)
+        
+        ans = []
+        for q in queries:
+            ans.append(min_d[q])
+        return ans
+
+"""
+Approach & Reasoning:
+The minimum distance from an index i to another index j (j != i) where nums[j] == nums[i] on a circular array is the minimum circular distance to the nearest occurrence of the same value.
+
+Group all indices by their value using a dictionary of lists (positions are collected in sorted order).
+
+For each value that appears at least twice:
+- Treat its positions as points on a circle.
+- For every position in the list, its closest other occurrence must be one of its two immediate neighbors in the cyclic sorted list (previous and next, wrapping around).
+- Compute the circular distance to each neighbor: min(|a-b|, n - |a-b|).
+- Take the minimum of those two distances and record it for that index.
+
+Positions of unique values remain -1 (no other match).
+
+For each query, simply return the precomputed minimum distance for that index.
+
+This is correct because, on a circle, the nearest point among a set of sorted points is always an adjacent neighbor in the cyclic ordering. No farther point can be closer.
+
+Time Complexity: O(n + q) — building the map O(n), processing all groups O(n), answering queries O(q).
+Space Complexity: O(n)
+"""

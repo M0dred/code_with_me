@@ -1,0 +1,43 @@
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
+
+from typing import List, Optional
+
+class Solution:
+    def modifiedList(self, nums: List[int], head: Optional[ListNode]) -> Optional[ListNode]:
+        # Convert nums to a set for O(1) membership checking
+        to_remove = set(nums)
+
+        # Dummy node to simplify removing the head if needed
+        dummy = ListNode(0)
+        dummy.next = head
+        prev, curr = dummy, head
+
+        # Traverse and unlink nodes whose values exist in nums
+        while curr:
+            if curr.val in to_remove:
+                prev.next = curr.next
+            else:
+                prev = curr
+            curr = curr.next
+
+        return dummy.next
+
+'''
+Approach:
+- Store all numbers to remove in a hash set for quick lookup.
+- Use a dummy node before head to handle potential removal of the head.
+- Traverse the list:
+  - If current node’s value is in nums, unlink it (skip it).
+  - Otherwise, advance the previous pointer.
+- Return the new head (dummy.next).
+
+Time Complexity:
+- O(n + m), where n = list length and m = len(nums), because set lookup is O(1).
+
+Space Complexity:
+- O(m) for the set of values to remove.
+'''

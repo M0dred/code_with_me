@@ -1,0 +1,57 @@
+class TrieNode:
+    def __init__(self):
+        self.children = {}
+        self.best_index = -1
+        self.best_len = float('inf')
+
+class Solution:
+    def stringIndices(self, wordsContainer: List[str], wordsQuery: List[str]) -> List[int]:
+        root = TrieNode()
+        # Insert reversed words from wordsContainer
+        for idx, word in enumerate(wordsContainer):
+            w_len = len(word)
+            # Update root (empty suffix - depth 0)
+            if w_len < root.best_len or (w_len == root.best_len and idx < root.best_index):
+                root.best_index = idx
+                root.best_len = w_len
+            node = root
+            # Insert reversed word
+            for ch in reversed(word):
+                if ch not in node.children:
+                    node.children[ch] = TrieNode()
+                node = node.children[ch]
+                # Update this node
+                if w_len < node.best_len or (w_len == node.best_len and idx < node.best_index):
+                    node.best_index = idx
+                    node.best_len = w_len
+        # Answer each query
+        ans = []
+        for q in wordsQuery:
+            node = root
+            best = root.best_index
+            for ch in reversed(q):
+                if ch not in node.children:
+                    break
+                node = node.children[ch]
+                best = node.best_index
+            ans.append(best)
+        return ans
+
+"""
+Approach & Reasoning:
+To find the container word with the longest common suffix for each query (with tie-breakers on shortest length then earliest index), insert the reversed versions of all wordsContainer strings into a trie. Each path from the root now represents a suffix of some container word.
+
+During insertion of each word (with its original length and index):
+- Update the root node (depth 0, empty suffix) with the current word if it is better.
+- For every prefix of the reversed word (i.e., every possible suffix length), update the node with the best candidate seen so far: smaller length wins; on equal length the smaller index wins.
+
+For each query:
+- Reverse the query and walk the trie as far as possible.
+- At every successful step the current node stores the best container word that shares at least the current suffix length.
+- Because we walk to the maximum possible depth for this query, the best index at the deepest reachable node is exactly the required answer.
+
+The root guarantees a valid answer even when no common suffix characters exist (length-0 case).
+
+Time Complexity: O(sum lengths of wordsContainer + sum lengths of wordsQuery)
+Space Complexity: O(sum lengths of wordsContainer) for the trie nodes
+"""

@@ -1,0 +1,39 @@
+class Solution:
+    def concatenatedBinary(self, n: int) -> int:
+        MOD = 10**9 + 7
+        ans = 0
+        bitlen = 0
+        next_pow2 = 1
+
+        for x in range(1, n + 1):
+            if x == next_pow2:
+                bitlen += 1
+                next_pow2 <<= 1
+            ans = ((ans << bitlen) + x) % MOD
+
+        return ans
+
+
+"""
+Approach & Reasoning:
+
+We build the concatenated binary value incrementally.
+
+If we already have a value ans representing the concatenation up to (x-1),
+then appending x in binary is equivalent to:
+    ans = ans * 2^(bit_length(x)) + x
+In binary form, multiplying by 2^k is shifting left by k bits:
+    ans = (ans << k) + x
+
+We track the current bit length:
+- bitlen increases by 1 whenever x reaches a power of two (1, 2, 4, 8, ...),
+  because the binary representation gains a new bit.
+
+Steps:
+1) Iterate x from 1 to n.
+2) Update bitlen when x is a power of two.
+3) Shift ans left by bitlen, add x, take modulo.
+
+Time Complexity: O(n)
+Space Complexity: O(1)
+"""

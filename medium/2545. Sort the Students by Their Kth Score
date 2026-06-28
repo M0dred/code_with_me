@@ -1,0 +1,35 @@
+from typing import List
+
+class Solution:
+    def sortTheStudents(self, score: List[List[int]], k: int) -> List[List[int]]:
+        # Extract the k-th column scores along with row indices
+        indexed_scores = [(row[k], i) for i, row in enumerate(score)]
+
+        # Sort the indexed scores in descending order based on the k-th column
+        indexed_scores.sort(reverse=True, key=lambda x: x[0])
+
+        # Create a new sorted matrix based on the sorted indices
+        sorted_matrix = []
+        for _, row_index in indexed_scores:
+            sorted_matrix.append(score[row_index])
+
+        return sorted_matrix
+
+"""
+Approach:
+1. Extract the k-th exam scores along with their corresponding row indices:
+   - Iterate through each row in the matrix, and store a tuple of the k-th value and the row index.
+
+2. Sort the extracted list in descending order based on the k-th value:
+   - Use the `sort` method with `reverse=True` to order the scores from highest to lowest.
+
+3. Reconstruct the sorted matrix:
+   - Use the sorted indices to rearrange the rows of the original matrix into the desired order.
+
+4. Return the newly sorted matrix.
+
+Complexity:
+- Time Complexity: O(m log m), where m is the number of rows (students) in the matrix.
+  - Sorting the indexed scores takes O(m log m), and the reconstruction takes O(m).
+- Space Complexity: O(m), for storing the indexed scores.
+"""

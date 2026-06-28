@@ -1,0 +1,47 @@
+from typing import List
+import math
+
+class Solution:
+    def repairCars(self, ranks: List[int], cars: int) -> int:
+        
+        # Helper function to check if we can repair all cars within 'time'
+        def canRepairAll(time):
+            total_cars = 0
+            for r in ranks:
+                # Number of cars a mechanic with rank r can repair in 'time'
+                cars_by_mechanic = int(math.isqrt(time // r))
+                total_cars += cars_by_mechanic
+                if total_cars >= cars:
+                    return True
+            return False
+        
+        # Binary search over time: min = 1, max = max(ranks) * cars^2 (worst-case time)
+        left = 1
+        right = max(ranks) * cars * cars
+        result = right
+        
+        while left <= right:
+            mid = (left + right) // 2
+            if canRepairAll(mid):
+                result = mid
+                right = mid - 1  # Try a smaller time
+            else:
+                left = mid + 1  # Need more time
+        
+        return result
+
+'''
+Approach:
+1. Binary search on time from 1 to max_rank * cars^2 (upper bound).
+2. For each candidate time, check if all cars can be repaired:
+   - Each mechanic can repair floor(sqrt(time / rank)) cars in given time.
+   - Sum over all mechanics and check if total_cars >= cars.
+3. If yes, try smaller time; if no, increase time.
+   
+Time Complexity: O(n * log(max_rank * cars^2))
+- n is the number of mechanics.
+- log(max_rank * cars^2) due to binary search.
+
+Space Complexity: O(1)
+- Only a few integers are used for tracking totals and bounds.
+'''

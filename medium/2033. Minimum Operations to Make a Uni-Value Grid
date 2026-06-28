@@ -1,0 +1,37 @@
+class Solution:
+    def minOperations(self, grid: List[List[int]], x: int) -> int:
+        flat = [cell for row in grid for cell in row]
+        base = flat[0]
+
+        # Step 1: Check if all elements can be transformed to the same value
+        for val in flat:
+            if (val - base) % x != 0:
+                return -1
+
+        # Step 2: Convert all values to number of x-steps from base
+        ops = [(val - base) // x for val in flat]
+
+        # Step 3: Find the median for minimum total operations
+        ops.sort()
+        median = ops[len(ops) // 2]
+
+        # Step 4: Compute total operations to align all to median
+        return sum(abs(op - median) for op in ops)
+
+'''
+Approach:
+1. Flatten the 2D grid to a 1D array for simplicity.
+2. Verify that all differences with a base value are divisible by x.
+   - If not, it's impossible to make all values equal.
+3. Convert values into their respective x-step distances from the base.
+4. To minimize the number of operations, align all values to the median of these step values.
+5. Sum the absolute differences from the median to get total operations.
+
+Time Complexity: O(m * n log(m * n))
+- Flattening the grid takes O(m * n)
+- Sorting the array of operations takes O(m * n log(m * n))
+- Computing total operations takes O(m * n)
+
+Space Complexity: O(m * n)
+- Extra space used for the flattened array and operation list.
+'''

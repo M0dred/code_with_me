@@ -1,0 +1,60 @@
+from typing import List
+
+class Solution:
+    def minZeroArray(self, nums: List[int], queries: List[List[int]]) -> int:
+        n = len(nums)
+        left, right = 0, len(queries)
+
+        # If it's impossible to form zero array even after applying all queries
+        if not self.can_form_zero_array(nums, queries, right):
+            return -1
+
+        # Binary search to find the minimal k
+        while left <= right:
+            mid = left + (right - left) // 2
+
+            if self.can_form_zero_array(nums, queries, mid):
+                right = mid - 1  # Try to minimize k
+            else:
+                left = mid + 1   # Need more queries
+
+        return left
+
+    def can_form_zero_array(self, nums: List[int], queries: List[List[int]], k: int) -> bool:
+        n = len(nums)
+        diff = [0] * (n + 1)  # Difference array
+        curr_sum = 0
+
+        # Process the first k queries
+        for i in range(k):
+            l, r, val = queries[i]
+            diff[l] += val
+            if r + 1 < n:
+                diff[r + 1] -= val
+
+        # Convert difference array to prefix sum and compare with nums
+        for i in range(n):
+            curr_sum += diff[i]
+            if curr_sum < nums[i]:
+                return False  # Not enough decrement to zero out nums[i]
+
+        return True
+
+'''
+Approach:
+1. Binary search on k, the number of queries to apply.
+2. For a given k, simulate the cumulative decrement capacity across nums using a difference array:
+    - Start with a difference array of zeros.
+    - For each query, add its val to diff[l], subtract it at diff[r+1].
+    - Convert the difference array to a prefix sum to get the total decrement available at each index.
+3. Compare nums[i] to the available decrement:
+    - If nums[i] > available_decrement[i], we can't zero it out. Return False.
+4. Find the minimal k using binary search that can zero out nums.
+
+Time Complexity: O(n * log m)
+- Each can_form_zero_array takes O(n).
+- Binary search performs log m iterations.
+
+Space Complexity: O(n)
+- Difference array of size n+1 is used.
+'''

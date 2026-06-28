@@ -1,0 +1,40 @@
+class Solution:
+    def maxAverageRatio(self, classes: List[List[int]], extraStudents: int) -> float:
+        import heapq
+        
+        pq = []
+        for p, t in classes:
+            delta = (t - p) / (t * (t + 1))
+            heapq.heappush(pq, (-delta, p, t))
+        
+        for _ in range(extraStudents):
+            neg_delta, p, t = heapq.heappop(pq)
+            new_p = p + 1
+            new_t = t + 1
+            new_delta = (new_t - new_p) / (new_t * (new_t + 1))
+            heapq.heappush(pq, (-new_delta, new_p, new_t))
+        
+        total_ratio = 0.0
+        for _, p, t in pq:
+            total_ratio += p / t
+        
+        return total_ratio / len(classes)
+
+"""
+Approach:
+The solution maximizes the average pass ratio by greedily assigning extra students to classes using a priority queue:
+1. Calculate the improvement (delta) in pass ratio for adding one student to each class: delta = (total - pass) / (total * (total + 1)).
+2. Use a max-heap (simulated with min-heap and negated delta) to prioritize classes by delta, storing (-delta, pass, total).
+3. For each extra student:
+   - Pop the class with the highest delta.
+   - Update its pass and total by +1.
+   - Calculate the new delta for the updated class.
+   - Push the updated class back into the heap.
+4. After assigning all extra students, sum the final pass ratios (pass / total) for all classes in the heap and divide by the number of classes to get the average.
+
+Time Complexity:
+- O(n + extraStudents * log n), where n is the number of classes. Building the heap is O(n), and each assignment involves O(log n) for pop and push operations.
+
+Space Complexity:
+- O(n), for storing the n classes in the priority queue.
+"""

@@ -1,0 +1,134 @@
+import random
+
+class Node:
+    def __init__(self, val: int, level: int):
+        """Initialize a node with value and level (number of forward pointers)."""
+        self.val = val
+        self.forward = [None] * (level + 1)  # Forward pointers for different levels
+
+class Skiplist:
+
+    def __init__(self):
+        """
+        Initializes the Skiplist with a dummy head node.
+        """
+        self.max_level = 16  # Maximum level for the skip list
+        self.head = Node(-1, self.max_level)  # Head node with lowest possible value
+        self.level = 0  # Current maximum level in the skip list
+
+    def random_level(self) -> int:
+        """
+        Generates a random level for new nodes using a probability function.
+        """
+        lvl = 0
+        while random.random() < 0.5 and lvl < self.max_level:
+            lvl += 1
+        return lvl
+
+    def search(self, target: int) -> bool:
+        """
+        Returns True if the target exists in the skiplist, otherwise False.
+        """
+        current = self.head
+        # Traverse the skiplist from the highest level
+        for i in range(self.level, -1, -1):
+            while current.forward[i] and current.forward[i].val < target:
+                current = current.forward[i]
+        
+        # Move to the next node at level 0 and check if it matches the target
+        current = current.forward[0]
+        return current is not None and current.val == target
+
+    def add(self, num: int) -> None:
+        """
+        Inserts a value num into the skiplist.
+        """
+        update = [None] * (self.max_level + 1)  # Track path updates
+        current = self.head
+
+        # Find insert position
+        for i in range(self.level, -1, -1):
+            while current.forward[i] and current.forward[i].val < num:
+                current = current.forward[i]
+            update[i] = current  # Store update position at each level
+        
+        # Generate a random level for the new node
+        lvl = self.random_level()
+
+        # Update list level if necessary
+        if lvl > self.level:
+            for i in range(self.level + 1, lvl + 1):
+                update[i] = self.head
+            self.level = lvl
+
+        # Create new node
+        new_node = Node(num, lvl)
+
+        # Insert the node at the appropriate levels
+        for i in range(lvl + 1):
+            new_node.forward[i] = update[i].forward[i]
+            update[i].forward[i] = new_node
+
+    def erase(self, num: int) -> bool:
+        """
+        Removes a value num from the skiplist and returns True if removed, else False.
+        """
+        update = [None] * (self.max_level + 1)
+        current = self.head
+
+        # Find position of num
+        for i in range(self.level, -1, -1):
+            while current.forward[i] and current.forward[i].val < num:
+                current = current.forward[i]
+            update[i] = current
+
+        # Move to node to be deleted
+        target = current.forward[0]  # Next node at level 0
+        if target is None or target.val != num:
+            return False  # Not found
+
+        # Update forward pointers to remove target node
+        for i in range(self.level + 1):
+            if update[i].forward[i] != target:
+                break
+            update[i].forward[i] = target.forward[i]
+
+        # Reduce skiplist level if necessary
+        while self.level > 0 and self.head.forward[self.level] is None:
+            self.level -= 1
+
+        return True
+
+# Your Skiplist object will be instantiated and called as such:
+# obj = Skiplist()
+# param_1 = obj.search(target)
+# obj.add(num)
+# param_3 = obj.erase(num)
+
+'''
+Approach:
+1. Skiplist Structure:
+   - Implemented using a linked list with multiple levels.
+   - Each node has a value and forward pointers at different levels.
+
+2. Search Operation:
+   - Start from the highest level and move forward until the target value is found or surpassed.
+
+3. Insertion Operation:
+   - Find the correct insert position at each level.
+   - Randomly determine the level for the new node.
+   - Update forward pointers at each level.
+
+4. Erase Operation:
+   - Locate the node.
+   - Update the forward pointers to remove it.
+   - Adjust the skiplist level if necessary.
+
+Time Complexity:
+- Search: O(log n)
+- Insert: O(log n)
+- Erase: O(log n)
+
+Space Complexity:
+- O(n) for storing elements in multiple levels.
+''' 

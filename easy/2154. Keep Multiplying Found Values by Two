@@ -1,0 +1,27 @@
+from typing import List
+
+class Solution:
+    def findFinalValue(self, nums: List[int], original: int) -> int:
+        
+        num_set = set(nums)    # O(n) space, O(1) lookup
+        
+        while original in num_set:
+            original *= 2
+            
+        return original
+        
+"""
+Approach & Reasoning:
+The problem requires us to start with 'original' and keep multiplying it by 2 
+as long as the current value exists in the array nums.
+
+Key observations:
+- We may need to check the same value multiple times (e.g., 3 → 6 → 12 → 24)
+- List lookup with 'in' operator is O(n), which would make worst-case time O(n * k)
+    where k is the number of doublings.
+- Since n <= 1000 and values <= 1000, maximum doublings is small (~10),
+    but using a set reduces lookup from O(n) to O(1).
+
+Time Complexity : O(n)  – building set takes O(n), doublings are negligible
+Space Complexity: O(n)  – for the hash set
+"""

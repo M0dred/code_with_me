@@ -1,0 +1,44 @@
+class Solution:
+    def maxProduct(self, root: Optional[TreeNode]) -> int:
+        MOD = 10**9 + 7
+        
+        # First pass: collect all subtree sums
+        all_sums = []
+        
+        def get_sum(node: Optional[TreeNode]) -> int:
+            if not node:
+                return 0
+            left = get_sum(node.left)
+            right = get_sum(node.right)
+            total = left + right + node.val
+            all_sums.append(total)
+            return total
+        
+        total = get_sum(root)
+        
+        # The maximum product is max(subtree_sum * (total - subtree_sum))
+        max_prod = 0
+        for subtree in all_sums:
+            max_prod = max(max_prod, subtree * (total - subtree))
+        
+        return max_prod % MOD
+
+"""
+Approach & Reasoning:
+
+To maximize the product of sums of two subtrees after removing one edge:
+- The two subtrees will have sums S and (total - S)
+- We want to maximize S * (total - S)
+
+We do one DFS to:
+- Compute the total sum of the entire tree
+- Collect the sum of every possible subtree (every node defines a subtree rooted at itself)
+
+Then iterate through all subtree sums and compute the product with the complementary part.
+
+Since removing an edge separates the tree into the subtree below the edge and the rest of the tree,
+every subtree sum corresponds to one possible split.
+
+Time Complexity : O(n) — single DFS traversal
+Space Complexity: O(n) — storing all subtree sums (worst case skewed tree)
+"""

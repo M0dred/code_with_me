@@ -1,0 +1,80 @@
+from typing import List
+from collections import defaultdict
+from math import gcd
+
+class Solution:
+    def countTrapezoids(self, points: List[List[int]]) -> int:
+        n = len(points)
+        if n < 4:
+            return 0
+        
+        # (slope_dx, slope_dy) -> intercept -> count of parallel lines
+        line_cnt = defaultdict(lambda: defaultdict(int))
+        # midpoint -> slope -> count (for detecting parallelograms)
+        para_cnt = defaultdict(lambda: defaultdict(int))
+        
+        for i in range(n):
+            x1, y1 = points[i]
+            for j in range(i):
+                x2, y2 = points[j]
+                dx = x1 - x2
+                dy = y1 - y2
+                
+                # Normalize direction vector (dx, dy)
+                if dx == 0 and dy == 0:
+                    continue  # same point, skip (shouldn't happen)
+                g = gcd(abs(dx), abs(dy))
+                dx //= g
+                dy //= g
+                # Make dx >= 0, or if dx == 0 then dy > 0
+                if dx < 0 or (dx == 0 and dy < 0):
+                    dx = -dx
+                    dy = -dy
+                slope = (dx, dy)
+                
+                # Calculate intercept
+                # For vertical line (dx == 0): intercept = x
+                # Otherwise: y = (dy/dx)*x + b => b = y1 - (dy/dx)*x1
+                if dx == 0:
+                    intercept = x1
+                else:
+                    intercept = y1 * dx - x1 * dy  # avoids floating point
+                
+                line_cnt[slope][intercept] += 1
+                para_cnt[(x1 + x2, y1 + y2)][slope] += 1
+        
+        ans = 0
+        
+        # Count trapezoids: for each slope, count ways to pick two parallel segments
+        for intercepts in line_cnt.values():
+            cum = 0
+            for cnt in intercepts.values():
+                ans += cum * cnt   # new line with 'cnt' points forms 'cnt' trapezoids with each previous point
+                cum += cnt
+        
+        # Subtract parallelograms (counted twice)
+        for slopes in para_cnt.values():
+            cum = 0
+            for cnt in slopes.values():
+                ans -= cum * cnt   # subtract the overcount
+                cum += cnt
+        
+        return ans
+
+"""
+Approach & Reasoning:
+We count convex quadrilaterals with at least one pair of parallel sides.
+
+Method:
+1. For every pair of points, compute the normalized slope (dx,dy) and intercept.
+2. Group all segments by (slope, intercept) → these are on the same line → parallel.
+3. For each such group, use cumulative counting: when adding a new parallel segment,
+   it forms a trapezoid with every previously seen point on parallel lines.
+4. This counts every trapezoid once per pair of parallel sides.
+5. Parallelograms have two pairs of parallel sides → counted twice → we subtract one using midpoint + slope grouping.
+
+This is an extremely elegant O(n²) solution — perfect for n ≤ 500.
+
+Time Complexity : O(n²)
+Space Complexity: O(n²)
+"""

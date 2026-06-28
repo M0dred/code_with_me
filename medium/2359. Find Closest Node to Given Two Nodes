@@ -1,0 +1,42 @@
+class Solution:
+    def closestMeetingNode(self, edges: List[int], node1: int, node2: int) -> int:
+        def bfs(start, dist):
+            queue = [(start, 0)]
+            dist[start] = 0
+            while queue:
+                node, d = queue.pop(0)
+                next_node = edges[node]
+                if next_node != -1 and dist[next_node] == -1:
+                    dist[next_node] = d + 1
+                    queue.append((next_node, d + 1))
+        
+        n = len(edges)
+        dist1 = [-1] * n
+        dist2 = [-1] * n
+        
+        bfs(node1, dist1)
+        bfs(node2, dist2)
+        
+        result = -1
+        min_dist = float('inf')
+        for i in range(n):
+            if dist1[i] != -1 and dist2[i] != -1:
+                max_dist = max(dist1[i], dist2[i])
+                if max_dist < min_dist:
+                    min_dist = max_dist
+                    result = i
+                elif max_dist == min_dist and i < result:
+                    result = i
+        
+        return result
+
+'''
+Approach:
+1. Use BFS to compute distances from node1 and node2 to all reachable nodes.
+2. For each node, store distances in separate arrays dist1 and dist2.
+3. Iterate through all nodes to find nodes reachable from both node1 and node2 (dist1[i] != -1 and dist2[i] != -1).
+4. For each such node, compute the maximum of the two distances.
+5. Track the minimum of these maximum distances and the corresponding node index.
+6. If multiple nodes have the same minimum maximum distance, choose the one with the smallest index.
+7. Return -1 if no node is reachable from both node1 and node2.
+'''

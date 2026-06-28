@@ -1,0 +1,63 @@
+class Solution:
+    def minZeroArray(self, nums: List[int], queries: List[List[int]]) -> int:
+        # Binary search for minimum k
+        left, right = 0, len(queries)
+        
+        # If using all queries doesn't work, return -1
+        if not self.check(nums, queries, right):
+            return -1
+        
+        # Find minimum k using binary search
+        while left < right:
+            k = (left + right) // 2
+            if self.check(nums, queries, k):
+                right = k  # Try fewer queries
+            else:
+                left = k + 1  # Need more queries
+        return left
+    
+    def check(self, nums: List[int], queries: List[List[int]], k: int) -> bool:
+        # Initialize difference array
+        deltaArray = [0] * (len(nums) + 1)
+        
+        # Apply first k queries to difference array
+        for left, right, value in queries[:k]:
+            deltaArray[left] += value
+            if right + 1 < len(nums):
+                deltaArray[right + 1] -= value
+        
+        # Compute cumulative operations available at each index
+        operationCounts = []
+        currentOperations = 0
+        for delta in deltaArray:
+            currentOperations += delta
+            operationCounts.append(currentOperations)
+        
+        # Check if operations suffice to zero out each nums[i]
+        for operations, target in zip(operationCounts[:-1], nums):
+            if operations < target:
+                return False
+        return True
+
+'''
+Approach:
+1. Use binary search to find the minimum k (number of queries):
+   - Initialize search range: left=0, right=len(queries).
+   - If check(nums, queries, right) is False, no solution exists, return -1.
+   - Binary search: for k = (left + right) // 2, if check(nums, queries, k) is True, try smaller k (right = k); else, try larger k (left = k + 1).
+2. check(nums, queries, k) function:
+   - Create a difference array deltaArray of size n+1.
+   - For each of the first k queries [li, ri, vali]:
+     - Add vali at index li.
+     - Subtract vali at index ri+1 (if in bounds).
+   - Compute cumulative operations by summing deltaArray.
+   - Compare operationCounts[i] with nums[i] for i=0 to n-1:
+     - If any operationCounts[i] < nums[i], return False (not enough decrements).
+     - Else, return True (can zero out array).
+3. Return left as the minimum k, or -1 if impossible.
+Time Complexity: O(n + q * log q)
+   - Binary search: O(log q) iterations.
+   - Each check: O(q) for updating difference array, O(n) for computing operationCounts and comparison.
+   - Total: O(log q * (q + n)) ≈ O(n + q * log q) since n, q ≤ 10^5.
+Space Complexity: O(n) - for deltaArray and operationCounts.
+'''

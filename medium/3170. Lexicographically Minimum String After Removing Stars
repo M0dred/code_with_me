@@ -1,0 +1,27 @@
+class Solution:
+    def clearStars(self, s: str) -> str:
+        cnt = [[] for _ in range(26)]
+        arr = list(s)
+        for i, c in enumerate(arr):
+            if c != '*':
+                cnt[ord(c) - ord('a')].append(i)
+            else:
+                for j in range(26):
+                    if cnt[j]:
+                        arr[cnt[j].pop()] = '*'
+                        break
+        return ''.join(c for c in arr if c != '*')
+
+'''
+Approach:
+1. Initialize cnt as a list of 26 empty lists, one for each lowercase letter, to store indices of non-'*' characters.
+2. Convert input string s to a list arr for mutable operations.
+3. Iterate through arr:
+   - If character c is not '*', append its index i to cnt[ord(c) - ord('a')].
+   - If character c is '*', find the smallest letter (smallest j) with non-empty cnt[j], pop the last (rightmost) index from cnt[j], and mark that index in arr as '*'.
+4. Build the result string by joining all characters in arr that are not '*'.
+5. Return the resulting string, which is lexicographically smallest due to choosing the smallest letter and rightmost index for each '*'.
+
+Time Complexity: O(n), where n is the length of s. Building cnt takes O(n), processing '*' characters involves O(1) amortized per '*' (since each index is processed once), and building the result is O(n).
+Space Complexity: O(n) for the cnt array (storing up to n indices across all lists), arr list, and the result string.
+'''

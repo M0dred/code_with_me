@@ -1,0 +1,48 @@
+class Solution:
+    def hasValidPath(self, grid: List[List[int]]) -> bool:
+        if not grid or not grid[0]:
+            return False
+        m, n = len(grid), len(grid[0])
+        # Each street type lists the (dx, dy) directions it opens to (outgoing)
+        connects = {
+            1: [(0, 1), (0, -1)],   # left <-> right
+            2: [(-1, 0), (1, 0)],    # up <-> down
+            3: [(0, -1), (1, 0)],    # left <-> down
+            4: [(0, 1), (1, 0)],     # right <-> down
+            5: [(0, -1), (-1, 0)],   # left <-> up
+            6: [(0, 1), (-1, 0)]     # right <-> up
+        }
+        visited = [[False] * n for _ in range(m)]
+        from collections import deque
+        q = deque([(0, 0)])
+        visited[0][0] = True
+        while q:
+            x, y = q.popleft()
+            if x == m - 1 and y == n - 1:
+                return True
+            for dx, dy in connects.get(grid[x][y], []):
+                nx, ny = x + dx, y + dy
+                if 0 <= nx < m and 0 <= ny < n and not visited[nx][ny]:
+                    # Check if neighbor opens toward us (opposite direction)
+                    opp_dx, opp_dy = -dx, -dy
+                    if (opp_dx, opp_dy) in connects.get(grid[nx][ny], []):
+                        visited[nx][ny] = True
+                        q.append((nx, ny))
+        return False
+
+"""
+Approach & Reasoning:
+Model the grid as a directed graph where a move from cell (x, y) to an adjacent cell (nx, ny) is allowed only if:
+- The current cell's street type opens in the direction (dx, dy).
+- The neighbor cell's street type opens in the opposite direction (incoming connection).
+
+Predefine the outgoing directions for each street type 1-6. Use BFS starting from (0, 0) to explore reachable cells:
+- Maintain a queue and a visited matrix (prevents revisiting and handles potential cycles).
+- For every cell, try all possible outgoing directions defined by its type.
+- Enqueue the neighbor only when the bidirectional connection condition is satisfied.
+
+If the bottom-right cell (m-1, n-1) is ever reached, return true. The algorithm runs in O(m * n) time because each cell is enqueued at most once and each has at most 2 outgoing edges. This correctly determines existence of a valid path respecting the fixed street connections without any modifications.
+
+Time Complexity: O(m * n)
+Space Complexity: O(m * n)
+"""

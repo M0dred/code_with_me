@@ -1,0 +1,55 @@
+from typing import List, Optional
+
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+
+class Solution:
+    def createBinaryTree(self, descriptions: List[List[int]]) -> Optional[TreeNode]:
+        # Dictionary to store created nodes by their value
+        nodes = {}
+        # Set to track all child node values
+        children = set()
+        
+        # Iterate through each description to build the tree
+        for parent_val, child_val, isLeft in descriptions:
+            # Create parent node if it doesn't exist
+            if parent_val not in nodes:
+                nodes[parent_val] = TreeNode(parent_val)
+            # Create child node if it doesn't exist
+            if child_val not in nodes:
+                nodes[child_val] = TreeNode(child_val)
+            
+            # Attach child to parent based on isLeft flag
+            if isLeft == 1:
+                nodes[parent_val].left = nodes[child_val]
+            else:
+                nodes[parent_val].right = nodes[child_val]
+            
+            # Mark child_val as a child node
+            children.add(child_val)
+        
+        # Find the root node (the one that is never a child)
+        for val, node in nodes.items():
+            if val not in children:
+                return node
+        
+        return None
+
+'''
+Approach:
+1. Create a dictionary `nodes` to map each node value to its TreeNode object.
+2. Create a set `children` to track all values that appear as a child.
+3. Iterate through each description [parent, child, isLeft]:
+   - Create TreeNode objects for parent and child if they don't already exist.
+   - Attach the child to the parent's left or right pointer based on isLeft.
+   - Add the child value to the `children` set.
+4. After processing all descriptions, find the root by checking which node value is not in `children`.
+5. Return that node as the root.
+
+Time Complexity: O(N), where N is the length of descriptions.
+Space Complexity: O(N).
+'''

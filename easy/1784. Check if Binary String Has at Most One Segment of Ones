@@ -1,0 +1,23 @@
+class Solution:
+    def checkOnesSegment(self, s: str) -> bool:
+        return "01" not in s
+
+
+"""
+Approach & Reasoning:
+
+Since the string has no leading zeros and starts with '1',
+all 1s form at most one contiguous segment exactly when
+we never see a transition from '0' back to '1'.
+
+The pattern "01" means:
+- a block of 1s ended,
+- and later another 1 appears.
+
+So:
+- if "01" exists, there are at least two segments of 1s → return False
+- otherwise, all 1s are in one contiguous segment → return True
+
+Time Complexity: O(n)
+Space Complexity: O(1)
+"""

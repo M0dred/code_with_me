@@ -1,0 +1,114 @@
+from typing import List
+from collections import deque
+
+class Solution:
+    def minOperations(self, s: str, k: int) -> int:
+        n = len(s)
+        z0 = s.count("0")
+        if z0 == 0:
+            return 0
+
+        # BFS over the state "z = current number of zeros".
+        # All configurations with the same z are equivalent because we can choose any k indices.
+        dist = [-1] * (n + 1)
+        dist[z0] = 0
+
+        # DSU "next unvisited" for even/odd z values, to iterate intervals quickly.
+        parent0 = list(range(n + 3))  # for even indices
+        parent1 = list(range(n + 3))  # for odd indices
+
+        def find(par: List[int], x: int) -> int:
+            while par[x] != x:
+                par[x] = par[par[x]]
+                x = par[x]
+            return x
+
+        def erase(par: List[int], x: int) -> None:
+            # remove x from the unvisited set: point it to next candidate (x+2)
+            par[x] = find(par, x + 2)
+
+        # remove the start state
+        if z0 % 2 == 0:
+            erase(parent0, z0)
+        else:
+            erase(parent1, z0)
+
+        q = deque([z0])
+
+        while q:
+            z = q.popleft()
+            if z == 0:
+                return dist[z]
+
+            # Choose x zeros to flip (0->1), and (k-x) ones to flip (1->0).
+            # Constraints:
+            #   0 <= x <= min(k, z)
+            #   k-x <= (n-z)  =>  x >= k-(n-z) = z + k - n
+            low = z + k - n
+            if low < 0:
+                low = 0
+            high = z if z < k else k
+
+            # Next zero count:
+            #   z' = z + k - 2*x
+            # As x ranges [low..high], z' ranges:
+            #   [z + k - 2*high,  z + k - 2*low] stepping by 2
+            L = z + k - 2 * high
+            R = z + k - 2 * low
+            if L < 0:
+                L = 0
+            if R > n:
+                R = n
+
+            parity = (z + k) & 1
+            if (L & 1) != parity:
+                L += 1
+
+            par = parent0 if parity == 0 else parent1
+            cur = find(par, L)
+            while cur <= R:
+                dist[cur] = dist[z] + 1
+                q.append(cur)
+                erase(par, cur)
+                cur = find(par, cur)
+
+        return -1
+
+
+"""
+Approach & Reasoning:
+
+We must flip exactly k indices each operation (any positions), and we want all bits to become '1'.
+
+Key observation:
+The exact positions do not matter; only the number of zeros matters.
+Because in one operation we can choose ANY k indices, any configuration with the same number of zeros
+is equivalent.
+
+Let z be the current number of zeros (so ones = n - z).
+In one operation, suppose we flip:
+- x zeros (0 -> 1)
+- (k - x) ones (1 -> 0)
+
+Then the new number of zeros is:
+    z' = z - x + (k - x) = z + k - 2x
+
+Feasible x must satisfy:
+- 0 <= x <= z
+- 0 <= k - x <= n - z  ->  x >= z + k - n
+So:
+    x in [max(0, z + k - n), min(k, z)]
+
+Thus from each z, the reachable z' values form an interval (step 2).
+
+We run BFS on states z = 0..n:
+- Each edge corresponds to one operation.
+- We want the shortest distance from z0 = count('0' in s) to 0.
+
+To make BFS fast, we must iterate all unvisited z' in an interval efficiently.
+We use two DSU “next unvisited” structures (one for even z, one for odd z) to skip visited states
+in near O(1) amortized time.
+
+Time Complexity: O(n α(n)) ~ O(n)
+Space Complexity: O(n)
+"""

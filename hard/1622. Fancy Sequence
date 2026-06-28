@@ -1,0 +1,84 @@
+MOD = 10**9 + 7
+
+class Fancy:
+
+    def __init__(self):
+        self.arr = []
+        self.mul = 1
+        self.add = 0
+
+    def append(self, val: int) -> None:
+        inv_mul = pow(self.mul, MOD - 2, MOD)
+        base = (val - self.add) % MOD
+        base = (base * inv_mul) % MOD
+        self.arr.append(base)
+
+    def addAll(self, inc: int) -> None:
+        self.add = (self.add + inc) % MOD
+
+    def multAll(self, m: int) -> None:
+        self.mul = (self.mul * m) % MOD
+        self.add = (self.add * m) % MOD
+
+    def getIndex(self, idx: int) -> int:
+        if idx >= len(self.arr):
+            return -1
+        return (self.arr[idx] * self.mul + self.add) % MOD
+
+"""
+Approach & Reasoning:
+
+We need all operations to be efficient.
+If we directly update every element for addAll or multAll, the complexity becomes too slow.
+
+Key idea:
+Maintain one global affine transformation for all current values:
+    current_value = stored_value * mul + add
+
+Here:
+- mul is the global multiplication factor
+- add is the global addition offset
+
+Operations:
+
+1) append(val)
+When appending a new value, we want it to become exactly val under the current transformation.
+So if we store base, it must satisfy:
+    base * mul + add = val
+Thus:
+    base = (val - add) / mul
+Since we work modulo MOD, division is done using modular inverse:
+    base = (val - add) * inv(mul) mod MOD
+
+2) addAll(inc)
+This increases every current value by inc:
+    stored_value * mul + add + inc
+So we only update:
+    add += inc
+
+3) multAll(m)
+This multiplies every current value by m:
+    (stored_value * mul + add) * m
+So:
+    mul *= m
+    add *= m
+
+4) getIndex(idx)
+Recover the current value of arr[idx]:
+    arr[idx] * mul + add mod MOD
+
+Why modular inverse works:
+MOD = 10^9 + 7 is prime, so:
+    inv(x) = x^(MOD-2) mod MOD
+using Fermat's little theorem.
+
+This makes every operation O(1).
+
+Time Complexity:
+- append: O(log MOD) because of modular inverse
+- addAll: O(1)
+- multAll: O(1)
+- getIndex: O(1)
+
+Space Complexity: O(n)
+"""

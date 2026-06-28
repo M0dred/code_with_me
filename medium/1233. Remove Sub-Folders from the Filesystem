@@ -1,0 +1,26 @@
+class Solution:
+    def removeSubfolders(self, folder: List[str]) -> List[str]:
+        # Sort folders lexicographically
+        folder.sort()
+        result = []
+        
+        for f in folder:
+            # If result is empty or current folder is not a sub-folder of the last added folder
+            if not result or not f.startswith(result[-1] + '/'):
+                result.append(f)
+        
+        return result
+
+'''
+Approach:
+The problem requires removing all sub-folders from a list of folders, keeping only top-level folders.
+1. Sort the folder list lexicographically to ensure parent folders appear before their sub-folders.
+2. Initialize an empty result list to store top-level folders.
+3. Iterate through the sorted folders:
+   - If the result list is empty or the current folder does not start with the last added folder's path followed by '/', it is a top-level folder.
+   - Add such folders to the result list.
+4. A folder is considered a sub-folder if it starts with a top-level folder's path and has a '/' immediately after.
+5. Return the list of top-level folders.
+Time Complexity: O(n log n * L), where n is the number of folders and L is the average length of folder paths (due to sorting and string comparisons).
+Space Complexity: O(n) for the result list and sorting space.
+'''

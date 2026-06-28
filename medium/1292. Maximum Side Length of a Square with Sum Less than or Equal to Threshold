@@ -1,0 +1,54 @@
+from typing import List
+
+class Solution:
+    def maxSideLength(self, mat: List[List[int]], threshold: int) -> int:
+        m, n = len(mat), len(mat[0])
+
+        # 2D prefix sums: ps[i+1][j+1] = sum of mat[0..i][0..j]
+        ps = [[0] * (n + 1) for _ in range(m + 1)]
+        for i in range(m):
+            row_acc = 0
+            for j in range(n):
+                row_acc += mat[i][j]
+                ps[i + 1][j + 1] = ps[i][j + 1] + row_acc
+
+        def square_sum(r: int, c: int, k: int) -> int:
+            r2, c2 = r + k, c + k
+            return ps[r2][c2] - ps[r][c2] - ps[r2][c] + ps[r][c]
+
+        def feasible(k: int) -> bool:
+            if k == 0:
+                return True
+            for i in range(m - k + 1):
+                for j in range(n - k + 1):
+                    if square_sum(i, j, k) <= threshold:
+                        return True
+            return False
+
+        lo, hi = 0, min(m, n)
+        while lo < hi:
+            mid = (lo + hi + 1) // 2
+            if feasible(mid):
+                lo = mid
+            else:
+                hi = mid - 1
+
+        return lo
+
+"""
+Approach & Reasoning:
+
+We want the largest k such that there exists a k×k sub-square whose sum ≤ threshold.
+
+Key idea: 2D prefix sums allow O(1) submatrix sum queries.
+- Build ps where ps[i+1][j+1] stores sum of mat[0..i][0..j].
+- Any k×k sum with top-left (r,c) is:
+    ps[r+k][c+k] - ps[r][c+k] - ps[r+k][c] + ps[r][c].
+
+Then we binary search the answer k (0..min(m,n)):
+- For a candidate k, scan all possible top-left positions and check if any k×k sum ≤ threshold.
+- If exists, k is feasible → search higher; otherwise search lower.
+
+Time Complexity: O(mn log(min(m,n))) (prefix O(mn), each feasibility check O(mn)).
+Space Complexity: O(mn) for the prefix sum table.
+"""

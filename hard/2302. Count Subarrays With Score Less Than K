@@ -1,0 +1,31 @@
+class Solution:
+    def countSubarrays(self, nums: List[int], k: int) -> int:
+        n = len(nums)
+        left = 0
+        curr_sum = 0
+        ans = 0
+        
+        for right in range(n):
+            curr_sum += nums[right]
+            while left <= right and curr_sum * (right - left + 1) >= k:
+                curr_sum -= nums[left]
+                left += 1
+            ans += right - left + 1
+        
+        return ans
+
+'''
+Approach:
+1. Use a sliding window approach.
+2. Initialize left pointer at 0 and current sum as 0.
+3. Iterate through the array with a right pointer.
+4. Add nums[right] to the current sum.
+5. While the score (current sum * window length) is greater than or equal to k:
+   - Shrink the window by moving left pointer to the right and subtract nums[left] from current sum.
+6. After adjusting, all subarrays ending at 'right' and starting from 'left' to 'right' are valid.
+7. Add the number of valid subarrays (right - left + 1) to the answer.
+8. Return the final answer.
+
+Time Complexity: O(n), where n is the length of nums
+Space Complexity: O(1), only a few integer variables are used
+'''

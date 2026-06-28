@@ -1,0 +1,36 @@
+class Solution:
+    def areAlmostEqual(self, s1: str, s2: str) -> bool:
+        if s1 == s2:
+            return True
+        
+        differences = []
+        for i in range(len(s1)):
+            if s1[i] != s2[i]:
+                differences.append(i)
+        
+        if len(differences) == 0:
+            return True
+        if len(differences) == 1:
+            return False
+        if len(differences) == 2:
+            i, j = differences
+            return s1[i] == s2[j] and s1[j] == s2[i]
+        
+        return False
+
+'''
+Approach:
+1. The problem requires checking if it's possible to make two strings equal by performing at most one string swap on exactly one of the strings.
+2. We first check if the strings are already equal. If so, return true.
+3. We then iterate through both strings to find the positions where the characters differ.
+4. If there are no differences, the strings are already equal, so return true.
+5. If there is exactly one difference, it's impossible to make the strings equal with one swap, so return false.
+6. If there are exactly two differences, we check if swapping the characters at these two positions in one of the strings would make them equal.
+7. We perform the swap check by ensuring that the characters at the differing positions in s1 match the characters at the corresponding positions in s2 after a swap.
+
+Time Complexity: O(n), where n is the length of the strings.
+- We iterate through the strings once to count the differences.
+
+Space Complexity: O(1)
+- We use a constant amount of extra space to store the differences, which can be at most 2.
+'''

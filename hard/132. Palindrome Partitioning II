@@ -1,0 +1,50 @@
+class Solution:
+    def minCut(self, s: str) -> int:
+        """
+        Returns the minimum cuts needed for a palindrome partitioning of s.
+        """
+        n = len(s)
+        # Step 1: Precompute palindrome table using dynamic programming
+        is_palindrome = [[False] * n for _ in range(n)]
+        
+        for right in range(n):
+            for left in range(right + 1):
+                if s[left] == s[right] and (right - left <= 2 or is_palindrome[left + 1][right - 1]):
+                    is_palindrome[left][right] = True
+
+        # Step 2: Use DP to find the minimum cuts
+        dp = [float('inf')] * n  # dp[i] stores the min cuts needed for s[0:i+1]
+        
+        for i in range(n):
+            if is_palindrome[0][i]:  # If s[0:i+1] is already a palindrome, no cut needed
+                dp[i] = 0
+            else:
+                for j in range(i):
+                    if is_palindrome[j + 1][i]:  # If s[j+1:i+1] is palindrome
+                        dp[i] = min(dp[i], dp[j] + 1)
+
+        return dp[n - 1]
+
+# Example Usage:
+# obj = Solution()
+# result = obj.minCut("aab")  # Output: 1
+# print(result)
+
+'''
+Approach:
+1. Precompute a table `is_palindrome[left][right]` using dynamic programming:
+   - If `s[left] == s[right]` and `s[left+1:right-1]` is a palindrome, then `s[left:right+1]` is a palindrome.
+   - This table allows checking palindrome status in O(1).
+
+2. Use dynamic programming to compute the minimum cuts:
+   - `dp[i]` represents the minimum cuts needed for `s[0:i+1]`.
+   - If `s[0:i+1]` is a palindrome, `dp[i] = 0` (no cuts needed).
+   - Otherwise, check all possible partitions `s[j+1:i+1]`, and update `dp[i] = min(dp[i], dp[j] + 1)`.
+
+Time Complexity: O(n^2)
+- Precomputing the palindrome table takes O(n^2).
+- The DP step also runs in O(n^2).
+
+Space Complexity: O(n^2)
+- The `is_palindrome` table stores O(n^2) values.
+'''

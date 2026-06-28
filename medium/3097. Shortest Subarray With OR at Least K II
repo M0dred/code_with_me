@@ -1,0 +1,40 @@
+class Solution:
+    def minimumSubarrayLength(self, nums: List[int], k: int) -> int:
+        ans = float('inf')
+
+        for i, x in enumerate(nums):
+            if x >= k:
+                return 1  # Single element meets the condition
+            j = i - 1
+
+            # Update OR values for previous elements
+            while j >= 0 and nums[j] | x != nums[j]:
+                nums[j] |= x  # Update the OR value
+                if nums[j] >= k:
+                    ans = min(ans, i - j + 1)  # Update the minimum length
+                j -= 1
+
+        return ans if ans < float('inf') else -1
+
+'''
+Approach:
+1. **Iterate Through Elements:**
+   - For each element `x` in `nums`, check if `x` itself is greater than or equal to `k`. If yes, return `1` immediately.
+
+2. **Update OR Values for Subarrays:**
+   - For each element `x` at index `i`, iterate backward through the array to update the OR values for potential subarrays ending at `i`.
+   - Stop the backward iteration if the OR value remains unchanged.
+
+3. **Check and Update Minimum Length:**
+   - If the updated OR value for a subarray is greater than or equal to `k`, calculate the subarray length and update the minimum length (`ans`).
+
+4. **Return Result:**
+   - If a valid subarray is found, return the minimum length (`ans`).
+   - Otherwise, return `-1`.
+
+Time Complexity:
+- O(n^2) in the worst case, where `n` is the length of `nums`, as each element may involve a backward traversal.
+
+Space Complexity:
+- O(1), as no additional data structures are used.
+'''

@@ -1,0 +1,48 @@
+class Solution:
+    def bestClosingTime(self, customers: str) -> int:
+        n = len(customers)
+        
+        # Precompute prefix counts
+        # prefix_Y[i+1] = number of 'Y' in customers[0..i]
+        prefix_Y = [0] * (n + 1)
+        for i in range(n):
+            prefix_Y[i + 1] = prefix_Y[i] + (1 if customers[i] == 'Y' else 0)
+        
+        min_penalty = float('inf')
+        best_hour = 0
+        
+        # Try closing at hour j (j from 0 to n)
+        # Closed at j means: open hours 0 to j-1, closed hours j to n-1
+        for j in range(n + 1):
+            # Penalty from open hours with no customers: number of 'N' in [0, j)
+            open_no_customers = j - prefix_Y[j]
+            
+            # Penalty from closed hours with customers: number of 'Y' in [j, n)
+            closed_with_customers = prefix_Y[n] - prefix_Y[j]
+            
+            penalty = open_no_customers + closed_with_customers
+            
+            if penalty < min_penalty:
+                min_penalty = penalty
+                best_hour = j
+        
+        return best_hour
+
+"""
+Approach & Reasoning:
+
+We need to find the earliest closing hour j (0 <= j <= n) that minimizes the penalty.
+
+Penalty for closing at hour j:
+- Open hours: [0, j) → penalty = number of 'N' in this range
+- Closed hours: [j, n) → penalty = number of 'Y' in this range
+
+We use prefix sum of 'Y's to compute:
+- Number of 'N' in [0, j) = j - prefix_Y[j]
+- Number of 'Y' in [j, n) = total_Y - prefix_Y[j]
+
+Iterate through all possible j, compute penalty, and track the minimum and earliest j.
+
+Time Complexity : O(n)
+Space Complexity: O(n)
+"""

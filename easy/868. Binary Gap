@@ -1,0 +1,33 @@
+class Solution:
+    def binaryGap(self, n: int) -> int:
+        last = -1
+        ans = 0
+        pos = 0
+
+        while n:
+            if n & 1:
+                if last != -1:
+                    ans = max(ans, pos - last)
+                last = pos
+            n >>= 1
+            pos += 1
+
+        return ans
+
+
+"""
+Approach & Reasoning:
+
+We need the maximum distance between consecutive 1-bits in the binary representation of n.
+
+We scan bits from least significant to most significant:
+- pos tracks the current bit position.
+- last stores the position of the previous 1-bit we saw.
+- When we see a 1-bit at position pos, the distance to the previous 1-bit is (pos - last).
+  Update the answer with the maximum such distance.
+
+If there are fewer than two 1-bits, ans remains 0.
+
+Time Complexity: O(number of bits) = O(log n)
+Space Complexity: O(1)
+"""

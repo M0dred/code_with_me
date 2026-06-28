@@ -1,0 +1,49 @@
+from typing import List
+import math
+
+class Solution:
+    def diagonalPrime(self, nums: List[List[int]]) -> int:
+        n = len(nums)
+        max_prime = 0
+        
+        # Helper function to check primality
+        def is_prime(x):
+            if x < 2:
+                return False
+            if x == 2:
+                return True
+            if x % 2 == 0:
+                return False
+            for i in range(3, int(math.isqrt(x)) + 1, 2):
+                if x % i == 0:
+                    return False
+            return True
+        
+        # Check both diagonals
+        for i in range(n):
+            primary_val = nums[i][i]
+            secondary_val = nums[i][n - i - 1]
+            
+            if is_prime(primary_val):
+                max_prime = max(max_prime, primary_val)
+            
+            if is_prime(secondary_val):
+                max_prime = max(max_prime, secondary_val)
+        
+        return max_prime
+
+'''
+Approach:
+1. Iterate through each index `i` from 0 to n-1.
+2. Collect values on the primary diagonal (nums[i][i]) and the secondary diagonal (nums[i][n - i - 1]).
+3. Check if each value is a prime number using `is_prime`.
+4. Track the largest prime found on either diagonal.
+5. Return the largest prime, or 0 if none exists.
+
+Time Complexity: O(n * sqrt(m))
+- We iterate over n elements on each diagonal.
+- Each primality check runs in O(sqrt(m)) where m is the number's value.
+
+Space Complexity: O(1)
+- We only use a few integer variables.
+'''

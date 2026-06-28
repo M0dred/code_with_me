@@ -1,0 +1,42 @@
+class Solution:
+    def maxDistance(self, s: str, k: int) -> int:
+        ans = 0
+        north = south = east = west = 0  # Counters for each direction
+        for it in s:
+            if it == 'N':
+                north += 1
+            elif it == 'S':
+                south += 1
+            elif it == 'E':
+                east += 1
+            elif it == 'W':
+                west += 1
+            # Compute changes for N/S and E/W
+            times1 = min(north, south, k)  # Changes to balance or maximize N/S
+            times2 = min(east, west, k - times1)  # Remaining changes for E/W
+            # Update max distance using count for both axes
+            ans = max(ans, self.count(north, south, times1) + self.count(east, west, times2))
+        return ans
+
+    def count(self, drt1: int, drt2: int, times: int) -> int:
+        # Calculate contribution to Manhattan distance after changes
+        return abs(drt1 - drt2) + times * 2
+
+'''
+Approach:
+1. Initialize counters (north, south, east, west) to track the frequency of each direction in s.
+2. Iterate through each character in s:
+   - Increment the corresponding counter for 'N', 'S', 'E', or 'W'.
+   - Compute times1 = min(north, south, k), the number of changes to balance or maximize N/S moves.
+   - Compute times2 = min(east, west, k - times1), the remaining changes for E/W moves.
+   - Update ans with the maximum Manhattan distance, calculated as:
+     - count(north, south, times1) + count(east, west, times2).
+3. count(drt1, drt2, times):
+   - Returns abs(drt1 - drt2) + times * 2, representing the contribution to the Manhattan distance:
+     - abs(drt1 - drt2) is the net coordinate (e.g., |north - south| for y-axis).
+     - times * 2 accounts for changes (e.g., changing S to N increases y by 2 per change).
+4. Return ans, the maximum Manhattan distance achievable with at most k changes.
+
+Time Complexity: O(n), where n is the length of s. We iterate through s once, and all operations (counter updates, min, count) are O(1) per iteration.
+Space Complexity: O(1), as we use only a constant amount of extra space for counters and variables.
+'''

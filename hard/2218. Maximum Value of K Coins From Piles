@@ -1,0 +1,44 @@
+class Solution:
+    def maxValueOfCoins(self, piles: List[List[int]], k: int) -> int:
+        dp = [-float('inf')] * (k + 1)
+        dp[0] = 0  # Base case: 0 coins give 0 value
+        
+        for pile in piles:
+            # Compute prefix sums for the current pile
+            prefix = [0]
+            current_sum = 0
+            for coin in pile:
+                current_sum += coin
+                prefix.append(current_sum)
+            max_take = len(pile)
+            
+            # Update dp in reverse to avoid reusing the same pile's coins multiple times
+            for j in range(k, -1, -1):
+                if dp[j] == -float('inf'):
+                    continue  # Skip if current j is not achievable
+                # The maximum number of coins we can take from this pile
+                max_possible_t = min(max_take, k - j)
+                for t in range(0, max_possible_t + 1):
+                    new_j = j + t
+                    if new_j > k:
+                        continue
+                    if dp[new_j] < dp[j] + prefix[t]:
+                        dp[new_j] = dp[j] + prefix[t]
+        
+        return dp[k]
+
+'''
+Approach:
+1. The problem requires selecting exactly `k` coins from the tops of piles to maximize the total value.
+2. We use dynamic programming (DP) where `dp[j]` tracks the maximum value for `j` coins taken from processed piles.
+3. For each pile, compute prefix sums to quickly determine the value of taking the first `t` coins.
+4. Update the DP array in reverse order (from `k` to `0`) to avoid overwriting values needed for the current iteration.
+5. For each possible count of coins `j` from previous piles, add `t` coins from the current pile and update `dp[j + t]`.
+
+Time Complexity: O(n * k * T)
+- `n` is the number of piles, `k` is the target coins, and `T` is the average pile size.
+- Nested loops over piles, coins, and pile sizes result in this complexity.
+
+Space Complexity: O(k)
+- The DP array uses `O(k)` space to track values for up to `k` coins.
+'''

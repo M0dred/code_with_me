@@ -1,0 +1,61 @@
+from typing import List
+from math import inf
+
+class Solution:
+    def maxProfit(self, n: int, present: List[int], future: List[int], hierarchy: List[List[int]], budget: int) -> int:
+        # Build adjacency list (0-indexed)
+        g = [[] for _ in range(n)]
+        for u, v in hierarchy:
+            g[u - 1].append(v - 1)
+        
+        fmax = max  # faster than lambda
+        
+        def dfs(x: int) -> List[List[int]]:
+            # sub_f[k]: max profit from previous children
+            # k = 0: parent didn't buy
+            # k = 1: parent bought (children can get discount)
+            sub_f = [[0] + [-inf] * budget for _ in range(2)]
+            
+            for y in g[x]:
+                fy = dfs(y)
+                # Update sub_f for both cases
+                for k, fyk in enumerate(fy):
+                    nf = [0] + [-inf] * budget
+                    for jy, res_y in enumerate(fyk):
+                        if res_y < 0:  # skip negative profit
+                            continue
+                        for j in range(jy, budget + 1):
+                            nf[j] = fmax(nf[j], sub_f[k][j - jy] + res_y)
+                    sub_f[k] = nf
+            
+            # f[k]: max profit in subtree when parent bought (k=1) or not (k=0)
+            f = [None] * 2
+            for k in range(2):
+                # Base: no buy current employee
+                f[k] = sub_f[0].copy()
+                # Buy current employee at cost = present[x] // (k + 1)
+                cost = present[x] // (k + 1)
+                profit = future[x] - cost
+                for j in range(cost, budget + 1):
+                    f[k][j] = fmax(f[k][j], sub_f[1][j - cost] + profit)
+            
+            return f
+        
+        result = dfs(0)[0]  # root has no parent → k=0
+        return max(result)
+
+"""
+Approach & Reasoning:
+
+- Tree knapsack DP with discount propagation.
+- For each node, compute max profit for each budget under two scenarios:
+  - Parent didn't buy (k=0): children pay full price
+  - Parent bought (k=1): children can pay half price
+- sub_f[k]: max profit from previously processed children under scenario k
+- When buying current employee, cost = present[x] // (k + 1), profit = future[x] - cost
+- Use sub_f[1] when buying (children get discount), sub_f[0] when not
+- Optimization: skip negative profit additions
+
+Time Complexity : O(n * budget^2) ≈ 160 * 160^2 ≈ 4e6 → acceptable
+Space Complexity: O(n * budget)
+"""

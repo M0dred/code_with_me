@@ -1,0 +1,29 @@
+from typing import List
+
+class Solution:
+    def prefixesDivBy5(self, nums: List[int]) -> List[bool]:
+        answer = []
+        current = 0                    # represents prefix value modulo 5
+        
+        for bit in nums:
+            current = (current * 2 + bit) % 5
+            answer.append(current == 0)   # True if prefix is divisible by 5
+            
+        return answer
+
+"""
+Approach & Reasoning:
+We need to check if the number formed by the prefix nums[0..i] is divisible by 5.
+Building the actual number can exceed integer limits (n <= 10^5), so we avoid that.
+
+Key insight: We only care about divisibility by 5 → we can track the number modulo 5.
+When we append a new bit b (0 or 1):
+    current = (current * 2 + b) % 5
+This keeps the value in range [0..4] at all times.
+
+Since we're dealing with binary, multiplying by 2 is like left shift,
+and taking %5 preserves divisibility information.
+
+Time Complexity : O(n) — single pass
+Space Complexity: O(1) — only tracking current remainder (excluding output array)
+"""

@@ -1,0 +1,145 @@
+from typing import List
+
+class DSU:
+    def __init__(self, n: int):
+        self.parent = list(range(n))
+        self.rank = [0] * n
+        self.count = n
+
+    def find(self, x: int) -> int:
+        while self.parent[x] != x:
+            self.parent[x] = self.parent[self.parent[x]]
+            x = self.parent[x]
+        return x
+
+    def union(self, a: int, b: int) -> bool:
+        ra = self.find(a)
+        rb = self.find(b)
+        if ra == rb:
+            return False
+
+        if self.rank[ra] < self.rank[rb]:
+            ra, rb = rb, ra
+        self.parent[rb] = ra
+        if self.rank[ra] == self.rank[rb]:
+            self.rank[ra] += 1
+        self.count -= 1
+        return True
+
+
+class Solution:
+    def maxStability(self, n: int, edges: List[List[int]], k: int) -> int:
+        mandatory = []
+        optional = []
+
+        for u, v, s, must in edges:
+            if must == 1:
+                mandatory.append((u, v, s))
+            else:
+                optional.append((u, v, s))
+
+        # Mandatory edges must themselves be acyclic, otherwise no valid spanning tree exists.
+        check = DSU(n)
+        for u, v, _ in mandatory:
+            if not check.union(u, v):
+                return -1
+
+        def feasible(target: int) -> bool:
+            dsu = DSU(n)
+
+            # All mandatory edges must be present and strong enough.
+            for u, v, s in mandatory:
+                if s < target:
+                    return False
+                if not dsu.union(u, v):
+                    return False
+
+            # Cost 0 edges: optional edges already strong enough without upgrade.
+            for u, v, s in optional:
+                if s >= target:
+                    dsu.union(u, v)
+
+            # Cost 1 edges: optional edges that become strong enough after one upgrade.
+            used_upgrades = 0
+            for u, v, s in optional:
+                if s < target <= 2 * s:
+                    if dsu.union(u, v):
+                        used_upgrades += 1
+                        if used_upgrades > k:
+                            return False
+                        if dsu.count == 1:
+                            return True
+
+            return dsu.count == 1 and used_upgrades <= k
+
+        if not feasible(1):
+            return -1
+
+        hi = 0
+        for _, _, s in mandatory:
+            if s > hi:
+                hi = s
+        for _, _, s in optional:
+            if 2 * s > hi:
+                hi = 2 * s
+
+        lo, ans = 1, 1
+        while lo <= hi:
+            mid = (lo + hi) // 2
+            if feasible(mid):
+                ans = mid
+                lo = mid + 1
+            else:
+                hi = mid - 1
+
+        return ans
+
+
+"""
+Approach & Reasoning:
+
+We want to maximize the minimum edge strength in a valid spanning tree.
+
+If we fix a candidate stability value T, then every chosen edge in the spanning tree must have
+effective strength at least T.
+
+For each edge:
+- Mandatory edge (must = 1):
+  it must be included, and it cannot be upgraded, so it is usable only if s >= T.
+- Optional edge (must = 0):
+  - usable with cost 0 if s >= T
+  - usable with cost 1 if s < T <= 2*s (upgrade once)
+  - unusable if 2*s < T
+
+So for a fixed T, the problem becomes:
+
+Can we build a spanning tree that:
+1) contains all mandatory edges,
+2) uses at most k optional upgraded edges?
+
+That is exactly a minimum-cost connectivity problem where optional edges have cost 0 or 1.
+The minimum number of upgrades needed is found by Kruskal on 0/1 weights:
+
+1) Union all mandatory edges first.
+   - If they form a cycle, a spanning tree is impossible.
+   - If any mandatory edge has s < T, T is impossible.
+2) Union all optional cost-0 edges (already strong enough).
+3) Then union optional cost-1 edges greedily.
+   Every successful union uses one upgrade.
+4) T is feasible iff all nodes become connected and upgrades used <= k.
+
+This is correct because in a graph with only edge costs 0 and 1,
+Kruskal’s greedy order (all 0-cost edges first, then 1-cost edges) minimizes the number of 1-cost
+edges needed to connect the graph.
+
+Since feasibility is monotonic:
+- if T is feasible, then any smaller value is also feasible,
+we can binary search the maximum feasible T.
+
+Time Complexity:
+- Each feasibility check is O(m * alpha(n))
+- Binary search over strength values up to 2 * 10^5 gives O(log 10^5) checks
+- Total: O(m log C * alpha(n)), where C is the max possible strength
+
+Space Complexity: O(n)
+"""

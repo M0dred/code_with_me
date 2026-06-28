@@ -1,0 +1,47 @@
+from typing import List
+
+class Solution:
+    def movesToChessboard(self, board: List[List[int]]) -> int:
+        n = len(board)
+
+        # Check if the board is valid for transformation
+        for i in range(n):
+            for j in range(n):
+                if (board[0][0] ^ board[i][0] ^ board[0][j] ^ board[i][j]) != 0:
+                    return -1
+
+        # Count the number of 1s in the first row and column
+        row_sum = sum(board[0])
+        col_sum = sum(board[i][0] for i in range(n))
+        row_mismatch = sum(board[i][0] == i % 2 for i in range(n))
+        col_mismatch = sum(board[0][i] == i % 2 for i in range(n))
+
+        # Check if the row/column counts are valid
+        if not (n // 2 <= row_sum <= (n + 1) // 2) or not (n // 2 <= col_sum <= (n + 1) // 2):
+            return -1
+
+        # Calculate the minimum number of swaps
+        if n % 2 == 0:
+            row_swaps = min(row_mismatch, n - row_mismatch)
+            col_swaps = min(col_mismatch, n - col_mismatch)
+        else:
+            row_swaps = row_mismatch if row_mismatch % 2 == 0 else n - row_mismatch
+            col_swaps = col_mismatch if col_mismatch % 2 == 0 else n - col_mismatch
+
+        return (row_swaps + col_swaps) // 2
+
+'''
+Explanation
+
+Validity Check:
+Ensure the XOR pattern across rows and columns matches a valid chessboard structure.
+
+Counting Patterns:
+Count the number of 1s in the first row and column to ensure it matches chessboard constraints.
+
+Mismatch Handling:
+Compute mismatches (elements out of position for alternation) for both rows and columns.
+
+Swap Calculation:
+Minimize the number of swaps required to align rows and columns to match a chessboard.
+'''

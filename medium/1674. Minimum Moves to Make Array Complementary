@@ -1,0 +1,50 @@
+class Solution:
+    def minMoves(self, nums: List[int], limit: int) -> int:
+        n = len(nums)
+        num_pairs = n // 2
+        MAX = 2 * limit + 2
+        diff = [0] * MAX
+        good0 = [0] * MAX
+        for i in range(num_pairs):
+            a = nums[i]
+            b = nums[n - 1 - i]
+            if a > b:
+                a, b = b, a
+            l = a + 1
+            r = b + limit
+            if l < MAX:
+                diff[l] += 1
+            if r + 1 < MAX:
+                diff[r + 1] -= 1
+            s = a + b
+            if 0 <= s < MAX:
+                good0[s] += 1
+        good1 = [0] * MAX
+        cur = 0
+        for s in range(MAX):
+            cur += diff[s]
+            good1[s] = cur
+        ans = float('inf')
+        for s in range(2, 2 * limit + 1):
+            moves = n - good1[s] - good0[s]
+            ans = min(ans, moves)
+        return ans
+
+"""
+Approach & Reasoning:
+Pair each nums[i] with nums[n-1-i]. For each pair let x = min(a,b), y = max(a,b). For a target sum s:
+- Cost 0 if s == x + y
+- Cost 1 if x+1 <= s <= y + limit
+- Cost 2 otherwise
+
+Use a difference array to compute num_cover[s] = number of pairs where cost <=1 for that s (good1).
+Separately count num_exact[s] = number of pairs with cost 0 (good0).
+
+For each possible s (2 to 2*limit), the total moves needed is n - good1[s] - good0[s].
+The answer is the minimum over all such s.
+
+This correctly computes the minimum changes needed for the best target sum s.
+
+Time Complexity: O(n + limit)
+Space Complexity: O(limit)
+"""

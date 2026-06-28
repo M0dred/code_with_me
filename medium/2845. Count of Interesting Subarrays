@@ -1,0 +1,37 @@
+class Solution:
+    def countInterestingSubarrays(self, nums: List[int], modulo: int, k: int) -> int:
+        from collections import defaultdict
+
+        prefix_mod = 0
+        freq = defaultdict(int)
+        freq[0] = 1  # Initial prefix with mod 0
+
+        result = 0
+
+        for num in nums:
+            if num % modulo == k:
+                prefix_mod = (prefix_mod + 1) % modulo
+            else:
+                prefix_mod = prefix_mod % modulo
+
+            # We want previous prefix sums where (prefix_mod - target + modulo) % modulo == 0
+            target = (prefix_mod - k + modulo) % modulo
+            result += freq[target]
+            freq[prefix_mod] += 1
+
+        return result
+
+'''
+Approach:
+1. We count prefix sums of how many nums[i] % modulo == k up to index i, modulo `modulo`.
+2. Let prefix_mod be the current prefix sum modulo `modulo`. We want to count how many previous prefix sums exist such that:
+     (current_prefix - previous_prefix) % modulo == k
+   That translates to:
+     previous_prefix == (current_prefix - k + modulo) % modulo
+3. We use a dictionary `freq` to store how many times each prefix_mod value has occurred so far.
+4. For each index, we add to the result the count of such valid previous prefix values.
+5. This works because subarrays with the right count difference will satisfy the interesting condition.
+
+Time Complexity: O(n), where n is the length of nums.
+Space Complexity: O(modulo), for storing prefix frequency.
+'''

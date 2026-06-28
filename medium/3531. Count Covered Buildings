@@ -1,0 +1,61 @@
+class Solution:
+    def countCoveredBuildings(self, n: int, buildings: List[List[int]]) -> int:
+        from bisect import bisect_left, bisect_right
+        
+        if len(buildings) < 5:
+            return 0
+            
+        # Group buildings by row and column
+        rows = [[] for _ in range(n + 1)]
+        cols = [[] for _ in range(n + 1)]
+        
+        for x, y in buildings:
+            rows[x].append(y)
+            cols[y].append(x)
+        
+        # Sort all rows and columns
+        for i in range(1, n + 1):
+            rows[i].sort()
+            cols[i].sort()
+        
+        count = 0
+        for x, y in buildings:
+            # Check four directions using binary search on sorted lists
+            
+            # Same column y: check if there's any building above (row < x)
+            col = cols[y]
+            has_up = bisect_left(col, x) > 0                     # any row < x
+            
+            # Any building below (row > x)
+            has_down = bisect_right(col, x) < len(col)           # any row > x
+            
+            # Same row x: check left (col < y)
+            row = rows[x]
+            has_left = bisect_left(row, y) > 0                   # any col < y
+            
+            # Check right (col > y)
+            has_right = bisect_right(row, y) < len(row)          # any col > y
+            
+            if has_up and has_down and has_left and has_right:
+                count += 1
+                
+        return count
+
+"""
+Approach & Reasoning:
+
+A building at (x,y) is covered if:
+- Same column y: at least one building with row < x (above)
+- Same column y: at least one building with row > x (below)
+- Same row x: at least one building with col < y (left)
+- Same row x: at least one building with col > y (right)
+
+We pre-group and sort all buildings by row and column.
+
+For each building (x,y):
+- Use bisect_left / bisect_right on sorted lists to check existence in O(log n)
+
+This guarantees:
+- Time Complexity: O(m log m) for sorting + O(m log n) for queries → easily passes n,m ≤ 1e5
+- Space Complexity: O(m)
+"""

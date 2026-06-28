@@ -1,0 +1,46 @@
+class Solution:
+    def numEquivDominoPairs(self, dominoes: List[List[int]]) -> int:
+        # Initialize a dictionary to store the count of each unique domino
+        domino_count = {}
+        # Initialize result to store the number of equivalent pairs
+        pairs = 0
+        
+        # Iterate through each domino
+        for a, b in dominoes:
+            # Normalize the domino by sorting the values (handles rotations)
+            key = tuple(sorted([a, b]))
+            # If this domino configuration has been seen before
+            if key in domino_count:
+                # Add the number of previous occurrences to pairs
+                pairs += domino_count[key]
+                # Increment the count of this domino configuration
+                domino_count[key] += 1
+            else:
+                # Initialize the count for this new domino configuration
+                domino_count[key] = 1
+        
+        # Return the total number of equivalent pairs
+        return pairs
+
+'''
+Approach:
+1. Initialize a dictionary to store the count of each unique domino configuration.
+2. Initialize a variable to track the number of equivalent domino pairs.
+3. Iterate through each domino in the input list:
+   - Normalize the domino by sorting its values ([a, b] or [b, a] become the same tuple) to handle rotations.
+   - If this normalized domino configuration exists in the dictionary:
+     - Add the current count of this configuration to the pairs count (each previous occurrence forms a pair with the current domino).
+     - Increment the count of this configuration in the dictionary.
+   - If the configuration is new, initialize its count to 1.
+4. Return the total number of equivalent pairs.
+
+Time Complexity: O(N), where N is the length of the dominoes list.
+   - Iterating through the dominoes list takes O(N).
+   - Sorting each domino's values (two elements) is O(1) per domino.
+   - Dictionary operations (lookup and update) are O(1) on average.
+   - Total: O(N).
+
+Space Complexity: O(K), where K is the number of unique domino configurations.
+   - The dictionary stores at most min(N, 81) entries, as each domino has two values from 1 to 9 (9 * 9 = 81 possible unique pairs).
+   - Additional variables use O(1) space.
+'''

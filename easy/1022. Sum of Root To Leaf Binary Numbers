@@ -1,0 +1,44 @@
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+
+from typing import Optional
+
+class Solution:
+    def sumRootToLeaf(self, root: Optional["TreeNode"]) -> int:
+        def dfs(node: Optional["TreeNode"], cur: int) -> int:
+            if not node:
+                return 0
+
+            cur = (cur << 1) | node.val
+
+            if not node.left and not node.right:
+                return cur
+
+            return dfs(node.left, cur) + dfs(node.right, cur)
+
+        return dfs(root, 0)
+
+
+"""
+Approach & Reasoning:
+
+Each root-to-leaf path forms a binary number where the root is the most significant bit.
+While traversing the tree, we maintain the current value of the path.
+
+When we go from a node to its child:
+- Shift the current value left by 1 (multiply by 2)
+- Add the child's bit (0 or 1)
+
+So if cur is the value so far and node.val is the current bit:
+    cur = (cur << 1) | node.val
+
+When we reach a leaf, cur is exactly the number represented by that path.
+We sum these values over all leaves using DFS.
+
+Time Complexity: O(n) (visit each node once)
+Space Complexity: O(h) for recursion stack, where h is tree height (worst-case O(n))
+"""

@@ -1,0 +1,50 @@
+from collections import defaultdict
+import heapq
+
+class NumberContainers:
+
+    def __init__(self):
+        self.index_to_num = {}
+        self.num_to_indices = defaultdict(set)
+        self.num_to_heap = defaultdict(list)
+
+    def change(self, index: int, number: int) -> None:
+        old_num = self.index_to_num.get(index, None)
+        if old_num == number:
+            return
+        if old_num is not None:
+            self.num_to_indices[old_num].discard(index)
+        self.index_to_num[index] = number
+        self.num_to_indices[number].add(index)
+        heapq.heappush(self.num_to_heap[number], index)
+
+    def find(self, number: int) -> int:
+        if number not in self.num_to_indices or not self.num_to_indices[number]:
+            return -1
+        heap = self.num_to_heap[number]
+        indices_set = self.num_to_indices[number]
+        while heap and heap[0] not in indices_set:
+            heapq.heappop(heap)
+        return heap[0] if heap else -1
+'''
+Approach:
+The solution implements a number container system to track indices and numbers efficiently:
+1. Initialize three data structures in __init__:
+   - index_to_num: Dictionary mapping index to its current number.
+   - num_to_indices: Dictionary mapping number to a set of indices where it appears.
+   - num_to_heap: Dictionary mapping number to a min-heap of indices for finding the smallest index.
+2. For change(index, number):
+   - If the index already has the same number, do nothing.
+   - If the index has a different number, remove the index from the old number's set.
+   - Update index_to_num with the new number.
+   - Add the index to the new number's set and push it to the corresponding heap.
+3. For find(number):
+   - If the number has no indices, return -1.
+   - Use the heap to get the smallest index, removing outdated indices (not in the set) as needed.
+   - Return the smallest valid index or -1 if none exists.
+Time Complexity:
+   - __init__: O(1), initializing empty data structures.
+   - change: O(log k), where k is the number of indices for the number (heap push).
+   - find: O(log k) amortized, where k is the number of indices for the number (heap pops and checks).
+Space Complexity: O(n), where n is the number of unique indices stored across all data structures.
+'''

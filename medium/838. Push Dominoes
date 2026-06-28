@@ -1,0 +1,70 @@
+class Solution:
+    def pushDominoes(self, dominoes: str) -> str:
+        # Get the length of the dominoes string
+        N = len(dominoes)
+        # Initialize force array to store net force on each domino
+        force = [0] * N
+
+        # Populate forces going from left to right
+        f = 0
+        for i in range(N):
+            # If domino is 'R', start a new force with maximum strength
+            if dominoes[i] == 'R':
+                f = N
+            # If domino is 'L', reset force to zero
+            elif dominoes[i] == 'L':
+                f = 0
+            # For unpushed domino, decrease force by 1, but not below 0
+            else:
+                f = max(f - 1, 0)
+            # Add the current force to the force array (positive for right)
+            force[i] += f
+
+        # Populate forces going from right to left
+        f = 0
+        for i in range(N - 1, -1, -1):
+            # If domino is 'L', start a new force with maximum strength
+            if dominoes[i] == 'L':
+                f = N
+            # If domino is 'R', reset force to zero
+            elif dominoes[i] == 'R':
+                f = 0
+            # For unpushed domino, decrease force by 1, but not below 0
+            else:
+                f = max(f - 1, 0)
+            # Subtract the current force from the force array (negative for left)
+            force[i] -= f
+
+        # Convert forces to final domino states
+        # Positive force -> 'R', Negative force -> 'L', Zero force -> '.'
+        return "".join('.' if f == 0 else 'R' if f > 0 else 'L' for f in force)
+
+'''
+Approach:
+1. Initialize an array 'force' of size N to store the net force on each domino.
+2. Calculate forces from left to right:
+   - For an 'R', set force to N (maximum strength).
+   - For an 'L', reset force to 0 (blocks rightward force).
+   - For '.', decrease force by 1 (force diminishes with distance), but not below 0.
+   - Add the current force to the force array (positive for rightward).
+3. Calculate forces from right to left:
+   - For an 'L', set force to N (maximum strength).
+   - For an 'R', reset force to 0 (blocks leftward force).
+   - For '.', decrease force by 1 (force diminishes with distance), but not below 0.
+   - Subtract the current force from the force array (negative for leftward).
+4. Determine the final state of each domino based on the net force:
+   - If net force is 0, domino remains '.' (no net force or balanced forces).
+   - If net force is positive, domino becomes 'R' (rightward force dominates).
+   - If net force is negative, domino becomes 'L' (leftward force dominates).
+5. Join the characters into a string and return the final state.
+
+Time Complexity: O(N), where N is the length of the dominoes string.
+   - Iterating through the string twice (left to right and right to left) takes O(N).
+   - Converting the force array to the final string takes O(N).
+   - Total: O(N).
+
+Space Complexity: O(N), where N is the length of the dominoes string.
+   - The force array requires O(N) space.
+   - Additional variables use O(1) space.
+   - The output string is not counted in space complexity as it is part of the return value.
+'''

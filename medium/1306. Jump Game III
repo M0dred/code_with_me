@@ -1,0 +1,36 @@
+from collections import deque
+
+class Solution:
+    def canReach(self, arr: List[int], start: int) -> bool:
+        n = len(arr)
+        if arr[start] == 0:
+            return True
+        visited = [False] * n
+        q = deque([start])
+        visited[start] = True
+        while q:
+            i = q.popleft()
+            for d in [-arr[i], arr[i]]:
+                j = i + d
+                if 0 <= j < n and not visited[j]:
+                    if arr[j] == 0:
+                        return True
+                    visited[j] = True
+                    q.append(j)
+        return False
+
+"""
+Approach & Reasoning:
+Model the problem as a graph where each index i has at most two outgoing edges: to i + arr[i] and i - arr[i] (if they stay inside the array bounds).
+
+Perform a BFS starting from the given start index:
+- Use a queue to explore reachable indices level by level.
+- Maintain a visited array to prevent revisiting the same index (the graph may contain cycles).
+- As soon as any reachable index j with arr[j] == 0 is found, return true.
+- If the BFS finishes without encountering a zero, return false.
+
+Because each index is enqueued at most once, the algorithm runs in O(n) time and O(n) space, which is efficient given n ≤ 5·10^4.
+
+Time Complexity: O(n)
+Space Complexity: O(n)
+"""

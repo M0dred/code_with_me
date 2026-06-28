@@ -1,0 +1,52 @@
+from typing import List
+import bisect
+
+class Solution:
+    def maximumBeauty(self, items: List[List[int]], queries: List[int]) -> List[int]:
+        """
+        Returns the maximum beauty of an item whose price is less than or equal to each query.
+        """
+        # Step 1: Sort items by price
+        items.sort()
+
+        # Step 2: Prepare a list of prices and corresponding max beauties
+        max_beauty = 0
+        prices = []
+        beauties = []
+
+        for price, beauty in items:
+            max_beauty = max(max_beauty, beauty)  # Keep track of max beauty up to this price
+            prices.append(price)
+            beauties.append(max_beauty)
+
+        # Step 3: Process queries using binary search
+        result = []
+        for query in queries:
+            idx = bisect.bisect_right(prices, query) - 1  # Find the largest price <= query
+            result.append(beauties[idx] if idx >= 0 else 0)
+
+        return result
+
+# Example Usage:
+# obj = Solution()
+# result = obj.maximumBeauty([[1,2],[3,2],[2,4],[5,6],[3,5]], [1,2,3,4,5,6])  # Output: [2,4,5,5,6,6]
+# print(result)
+
+'''
+Approach:
+1. Sort the Items: Sort the items by price in ascending order.
+2. Precompute Maximum Beauty:
+   - Maintain a beauties list where beauties[i] stores the max beauty for prices[i].
+   - Ensure each price only keeps the highest beauty seen so far.
+3. Binary Search for Queries:
+   - Use binary search (bisect_right) to find the highest valid price ≤ query.
+   - Retrieve the precomputed max beauty from beauties.
+
+Time Complexity: O(n log n + m log n)
+Sorting items takes O(n log n).
+Building the prefix max array takes O(n).
+Each query is processed in O(log n), leading to O(m log n) total for queries.
+
+Space Complexity: O(n)
+The prices and beauties arrays store O(n) values.
+'''

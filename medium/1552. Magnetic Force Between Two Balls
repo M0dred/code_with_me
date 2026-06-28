@@ -1,0 +1,57 @@
+from typing import List
+
+class Solution:
+    def maxDistance(self, position: List[int], m: int) -> int:
+        """
+        Finds the maximum minimum magnetic force between any two balls.
+
+        Args:
+            position: A list of basket positions.
+            m: The number of balls.
+
+        Returns:
+            The maximum minimum magnetic force.
+        """
+        position.sort()  # Sort the positions to enable binary search
+        left, right = 1, position[-1] - position[0]  # Define the search space
+        ans = -1
+
+        while left <= right:
+            mid = (left + right) // 2  # Calculate the middle value (potential force)
+            count = 1  # Number of balls placed
+            last_pos = position[0]  # Position of the last ball placed
+
+            for i in range(1, len(position)):
+                if position[i] - last_pos >= mid:  # Check if we can place a ball here
+                    count += 1
+                    last_pos = position[i]
+
+            if count >= m:  # If we can place all balls with this force
+                ans = mid  # Update the answer
+                left = mid + 1  # Try to increase the force
+            else:
+                right = mid - 1  # Reduce the force
+
+        return ans
+
+'''
+Approach:
+The problem is to maximize the minimum distance between any two balls placed in the given positions.  We can solve this problem using binary search.
+
+1. Sort the positions array. This enables us to efficiently check if we can place all the balls given a certain minimum distance.
+
+2. Define the search space: The minimum possible distance is 1 (left), and the maximum possible distance is the difference between the largest and smallest positions (right).
+
+3. Binary Search:
+   - Calculate the middle value (mid) between left and right. This represents a potential minimum distance.
+   - Try to place the balls such that the minimum distance between any two balls is at least mid.
+   - If we can place all the balls with this minimum distance (count >= m), then this 'mid' value might be a possible answer. We update our answer and try to search for a larger minimum distance (left = mid + 1).
+   - If we cannot place all the balls with this minimum distance (count < m), then we need to reduce the minimum distance and search in the left half (right = mid - 1).
+
+4. Return the maximum possible minimum distance (ans).
+
+Time Complexity: O(N log(MAX)), where N is the number of positions and MAX is the maximum difference between positions. The sort takes O(N log N) time. The binary search takes O(log(MAX)) iterations, and each iteration involves iterating through the positions (O(N)).
+Since usually MAX >> N, then the time complexity can be approximated to O(N log(MAX))
+
+Space Complexity: O(1). We are using a constant amount of extra space. (excluding sorting algorithm's space)
+'''

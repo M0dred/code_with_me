@@ -1,0 +1,53 @@
+class Solution:
+    def minimumDistance(self, word: str) -> int:
+        n = len(word)
+        letters = [ord(c) - ord('A') for c in word]
+        D = 26  # dummy for initial free position
+        INF = float('inf')
+        prev = [[INF] * (D + 1) for _ in range(D + 1)]
+        prev[D][D] = 0
+        
+        def dist(a: int, b: int) -> int:
+            if a == D or b == D:
+                return 0
+            xa, ya = divmod(a, 6)
+            xb, yb = divmod(b, 6)
+            return abs(xa - xb) + abs(ya - yb)
+        
+        for i in range(n):
+            curr = [[INF] * (D + 1) for _ in range(D + 1)]
+            let = letters[i]
+            for p1 in range(D + 1):
+                for p2 in range(D + 1):
+                    if prev[p1][p2] == INF:
+                        continue
+                    # assign current letter to finger 1
+                    cost1 = dist(p1, let)
+                    curr[let][p2] = min(curr[let][p2], prev[p1][p2] + cost1)
+                    # assign current letter to finger 2
+                    cost2 = dist(p2, let)
+                    curr[p1][let] = min(curr[p1][let], prev[p1][p2] + cost2)
+            prev = curr
+        
+        ans = min(min(row) for row in prev)
+        return ans
+
+"""
+Approach & Reasoning:
+The keyboard maps each letter to coordinates (x, y) where x = (ord(c) - ord('A')) // 6 and y = (ord(c) - ord('A')) % 6. This places 'A' at (0,0), 'B' at (0,1), ..., 'P' at (2,3), 'Z' at (4,1) exactly as described.
+
+We use dynamic programming with state dp[p1][p2] = minimum cost after typing a prefix of the word when finger 1's last position is p1 and finger 2's last position is p2 (positions are 0-25 for A-Z, or D=26 for the dummy "unused" state representing a free initial placement).
+
+- Initialize prev[26][26] = 0 (both fingers unused, cost 0).
+- For each successive letter let in the word:
+  - Create a new dp table curr.
+  - For every reachable previous state (p1, p2):
+    - Option 1: Move finger 1 to the new letter → add dist(p1, let) (0 if p1 was dummy), update curr[let][p2].
+    - Option 2: Move finger 2 to the new letter → add dist(p2, let) (0 if p2 was dummy), update curr[p1][let].
+- After processing all letters, the answer is the minimum value over all states in the final dp table.
+
+The dummy state correctly makes the very first move of each finger free. Because we consider every possible assignment of each letter to either finger at every step, we explore all valid two-finger paths. The two-finger labeling is arbitrary but the final min over all symmetric states gives the global optimum.
+
+Time Complexity: O(n * 27 * 27) = O(n) (n ≤ 300)
+Space Complexity: O(27 * 27)
+"""

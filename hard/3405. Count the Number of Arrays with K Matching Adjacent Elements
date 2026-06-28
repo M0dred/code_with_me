@@ -1,0 +1,60 @@
+MOD = 10**9 + 7
+MX = 10**5
+
+fact = [0] * MX
+inv_fact = [0] * MX
+
+def qpow(x: int, n: int) -> int:
+    res = 1
+    while n:
+        if n & 1:
+            res = res * x % MOD
+        x = x * x % MOD
+        n >>= 1
+    return res
+
+def init():
+    if fact[0] != 0:
+        return
+    fact[0] = 1
+    for i in range(1, MX):
+        fact[i] = fact[i - 1] * i % MOD
+    inv_fact[MX - 1] = qpow(fact[MX - 1], MOD - 2)
+    for i in range(MX - 1, 0, -1):
+        inv_fact[i - 1] = inv_fact[i] * i % MOD
+
+def comb(n: int, m: int) -> int:
+    if n < m or n < 0 or m < 0:
+        return 0
+    return fact[n] * inv_fact[m] % MOD * inv_fact[n - m] % MOD
+
+class Solution:
+    def countGoodArrays(self, n: int, m: int, k: int) -> int:
+        init()
+        return comb(n - 1, k) * m % MOD * qpow(m - 1, n - k - 1) % MOD
+
+'''
+Approach:
+1. Initialize global arrays fact and inv_fact for factorials and their modular inverses up to MX (10^5), with MOD = 10^9 + 7.
+2. qpow(x, n): Compute x^n % MOD using fast exponentiation:
+   - Use bit manipulation to process n's binary representation.
+   - If n is odd, multiply res by x % MOD.
+   - Square x in each iteration.
+3. init(): Precompute factorials and inverse factorials:
+   - Set fact[0] = 1, compute fact[i] = fact[i-1] * i % MOD for i from 1 to MX-1.
+   - Compute inv_fact[MX-1] using Fermat's little theorem (qpow(fact[MX-1], MOD-2)).
+   - Compute inv_fact[i-1] = inv_fact[i] * i % MOD for i from MX-1 down to 1.
+4. comb(n, m): Compute binomial coefficient C(n, m) % MOD:
+   - Return 0 if n < m, n < 0, or m < 0.
+   - Compute fact[n] * inv_fact[m] * inv_fact[n-m] % MOD.
+5. countGoodArrays(n, m, k):
+   - Call init() to ensure factorials are precomputed.
+   - Compute result as comb(n-1, k) * m % MOD * qpow(m-1, n-k-1) % MOD:
+     - comb(n-1, k): Number of ways to choose k positions out of n-1 for a specific condition.
+     - m: Number of choices for the first element.
+     - qpow(m-1, n-k-1): Number of ways to fill remaining n-k-1 positions with m-1 choices.
+6. Return the result modulo MOD.
+
+Time Complexity: O(MX + log MOD + log (n-k-1)), where MX = 10^5. Initialization takes O(MX) for fact and inv_fact. qpow takes O(log n) per call, and comb is O(1) after initialization. The main computation is O(log (n-k-1)) for qpow(m-1, n-k-1).
+Space Complexity: O(MX), for the fact and inv_fact arrays of size MX = 10^5.
+'''

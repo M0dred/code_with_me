@@ -1,0 +1,26 @@
+class Solution:
+    def closestTarget(self, words: List[str], target: str, startIndex: int) -> int:
+        n = len(words)
+        min_steps = float('inf')
+        for i in range(n):
+            if words[i] == target:
+                diff = abs(i - startIndex)
+                steps = min(diff, n - diff)
+                min_steps = min(min_steps, steps)
+        return min_steps if min_steps != float('inf') else -1
+
+"""
+Approach & Reasoning:
+The array is circular, so the shortest distance between any two indices i and startIndex is the minimum of the linear difference and the wrap-around distance: min(|i - startIndex|, n - |i - startIndex|).
+
+To solve:
+- Iterate over every index i (0 to n-1).
+- If words[i] equals the target, compute the circular distance from startIndex as described above.
+- Track the smallest such distance across all matching positions.
+- If no matching position is found after the full pass, return -1 (as required).
+
+Because the problem only requires the minimum steps to the nearest occurrence (and allows moving left or right), considering every possible target location and taking the best circular distance guarantees the global optimum. No additional data structures or preprocessing are needed given the tiny constraint n <= 100.
+
+Time Complexity: O(n)
+Space Complexity: O(1)
+"""

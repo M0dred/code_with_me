@@ -1,0 +1,22 @@
+from typing import List
+
+class Solution:
+    def minimumOperations(self, nums: List[int]) -> int:
+        ops = 0
+        for v in nums:
+            r = v % 3
+            if r == 1 or r == 2:
+                ops += 1
+        return ops
+
+'''
+Approach:
+- Each number only needs to be adjusted to the nearest multiple of 3.
+- If v % 3 == 0, it is already divisible by 3 → 0 operations.
+- If v % 3 == 1, either subtract 1 or add 2 → minimum is 1 operation.
+- If v % 3 == 2, either add 1 or subtract 2 → minimum is 1 operation.
+- So the answer is simply the count of elements whose remainder is not 0.
+
+Time Complexity: O(n)
+Space Complexity: O(1)
+'''

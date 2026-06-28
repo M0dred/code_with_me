@@ -1,0 +1,30 @@
+from typing import List
+
+class Solution:
+    def mapWordWeights(self, words: List[str], weights: List[int]) -> str:
+        res = []
+        
+        for word in words:
+            total = 0
+            for ch in word:
+                total += weights[ord(ch) - ord('a')]
+            
+            mod = total % 26
+            # Reverse alphabetical order: 0 -> 'z', 1 -> 'y', ..., 25 -> 'a'
+            res.append(chr(ord('z') - mod))
+        
+        return ''.join(res)
+
+'''
+Approach:
+1. Iterate through each word in `words`.
+2. For each character in the word, add its corresponding weight from the `weights` 
+   array to a running total.
+3. Compute the total modulo 26.
+4. Map the result to a character using reverse alphabetical order 
+   (0 maps to 'z', 1 maps to 'y', ..., 25 maps to 'a').
+5. Append the mapped character to the result list and return the joined string.
+
+Time Complexity: O(T), where T is the total number of characters across all words.
+Space Complexity: O(L), where L is the length of `words` for the output string.
+'''

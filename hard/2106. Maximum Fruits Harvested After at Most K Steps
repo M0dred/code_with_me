@@ -1,0 +1,42 @@
+from bisect import bisect_left
+from typing import List
+
+class Solution:
+    def maxTotalFruits(self, fruits: List[List[int]], startPos: int, k: int) -> int:
+        left = bisect_left(fruits, [startPos - k])  # Leftmost index where position >= startPos - k
+        right = bisect_left(fruits, [startPos + 1])  # First index where position > startPos
+        ans = s = sum(f[1] for f in fruits[left:right])  # Sum of fruits from left to startPos
+        # Enumerate rightmost position fruits[right][0]
+        while right < len(fruits) and fruits[right][0] <= startPos + k:
+            s += fruits[right][1]
+            # Shrink window if steps exceed k for both possible paths
+            while fruits[right][0] * 2 - fruits[left][0] - startPos > k and \
+                  fruits[right][0] - fruits[left][0] * 2 + startPos > k:
+                s -= fruits[left][1]  # Remove leftmost fruits
+                left += 1
+            ans = max(ans, s)  # Update maximum fruits
+            right += 1  # Move to next right position
+        return ans
+
+'''
+Approach:
+1. Use binary search (bisect_left) to find:
+   - left: the leftmost index where position >= startPos - k, defining the left boundary of reachable positions.
+   - right: the first index where position > startPos, marking the start of positions to the right of startPos.
+2. Initialize the sum s with fruits from fruits[left][0] to startPos (positions <= startPos in the range).
+3. Use a sliding window to enumerate right endpoints (fruits[right][0]) up to startPos + k:
+   - Add fruits at the right endpoint to s.
+   - Check if the path exceeds k steps for both possible routes:
+     - Go right to fruits[right][0], then left to fruits[left][0]: steps = (fruits[right][0] - startPos) + (fruits[right][0] - fruits[left][0]) = 2 * fruits[right][0] - startPos - fruits[left][0].
+     - Go left to fruits[left][0], then right to fruits[right][0]: steps = (startPos - fruits[left][0]) + (fruits[right][0] - fruits[left][0]) = fruits[right][0] - 2 * fruits[left][0] + startPos.
+   - If both paths exceed k steps, shrink the window by removing fruits at the left endpoint and increment left.
+4. Update the maximum fruits (ans) with the current window's sum (s).
+5. Continue until right reaches the end or fruits[right][0] > startPos + k.
+6. Handle edge cases:
+   - If startPos has fruits, they are included in the initial sum.
+   - If no fruits are reachable, the window will be empty, returning 0.
+   - The solution accounts for both directions (right then left, left then right) implicitly through step constraints.
+
+Time Complexity: O(n log n), where n is the length of fruits. The binary searches take O(log n), and the sliding window iterates O(n) times, with each iteration potentially shrinking the window.
+Space Complexity: O(1), as only a constant amount of extra space is used (excluding input storage).
+'''

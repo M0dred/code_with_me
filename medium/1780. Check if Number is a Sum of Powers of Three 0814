@@ -1,0 +1,24 @@
+class Solution:
+    def checkPowersOfThree(self, n: int) -> bool:
+        while n > 0:
+            if n % 3 > 1:  # If any digit in base-3 is greater than 1
+                return False
+            n //= 3
+        return True
+
+"""
+Approach:
+1. A number n can be expressed as a sum of distinct powers of 3 if its base-3 (ternary) representation has only 0s and 1s.
+   - Each digit in base-3 corresponds to a power of 3: e.g., for n in base-3 as d_k...d_1d_0, n = d_k*3^k + ... + d_1*3^1 + d_0*3^0.
+   - We need distinct powers, so each d_i must be 0 or 1 (using a power at most once).
+2. Convert n to base-3 by repeatedly dividing by 3 and checking remainders.
+3. If any remainder (digit) is greater than 1 (i.e., 2), return False, as this would require using a power of 3 multiple times.
+4. If all remainders are 0 or 1, return True.
+
+Time Complexity:
+- O(log n): We divide n by 3 repeatedly, and the number of divisions is proportional to log base-3 of n, which is O(log n).
+- Since n <= 10^7, this is efficient.
+
+Space Complexity:
+- O(1): We only use a constant amount of extra space for variables.
+"""

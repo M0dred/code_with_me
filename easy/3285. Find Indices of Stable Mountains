@@ -1,0 +1,18 @@
+class Solution:
+    def stableMountains(self, height: List[int], threshold: int) -> List[int]:
+        stable_mountains = []
+        for i in range(1, len(height)):
+            if height[i - 1] > threshold:
+                stable_mountains.append(i)
+        return stable_mountains
+
+'''
+Approach:
+    1. Initialize an empty list to store the indices of stable mountains.
+    2. Iterate through the height array starting from the second element (index 1).
+    3. For each mountain, check if the height of the mountain immediately before it is strictly greater than the threshold.
+    4. If it is, add the current mountain's index to the list of stable mountains.
+    5. Finally, return the list of stable mountain indices.
+
+    Time Complexity: O(n), where n is the number of mountains. The algorithm iterates through the input array once.
+'''

@@ -1,0 +1,48 @@
+class Solution:
+    def maximumLength(self, nums: List[int]) -> int:
+        n = len(nums)
+        # Convert nums to parity array (0 for even, 1 for odd)
+        parity = [num % 2 for num in nums]
+        
+        # Step 1: Count even and odd numbers for same-parity subsequences
+        even_count = parity.count(0)
+        odd_count = parity.count(1)
+        max_same_parity = max(even_count, odd_count)
+        
+        # Step 2: Find longest alternating subsequence using DP
+        dp = [[0, 0] for _ in range(n)]
+        # Initialize for first element
+        dp[0][parity[0]] = 1
+        
+        for i in range(1, n):
+            # Copy previous state
+            dp[i][0] = dp[i-1][0]
+            dp[i][1] = dp[i-1][1]
+            # If current number can be included
+            if parity[i] == 0:
+                # Even number: can extend odd-ending subsequence
+                dp[i][0] = dp[i-1][1] + 1
+            else:
+                # Odd number: can extend even-ending subsequence
+                dp[i][1] = dp[i-1][0] + 1
+        
+        max_alternating = max(dp[n-1][0], dp[n-1][1])
+        
+        # Return maximum of same-parity and alternating subsequences
+        return max(max_same_parity, max_alternating)
+
+'''
+Approach:
+The problem requires finding the longest valid subsequence where the parity of the sum of consecutive pairs is the same.
+1. Convert the input array to a parity array (0 for even, 1 for odd) to simplify the problem.
+2. For same-parity subsequences (all even or all odd numbers, producing even pair sums):
+   - Count the number of even and odd numbers.
+   - The longest same-parity subsequence is the maximum of these counts.
+3. For alternating subsequences (alternating even and odd numbers, producing odd pair sums):
+   - Use dynamic programming with dp[i][j], where j is the parity (0 or 1) of the last number at index i.
+   - For each index, either skip the number or include it if it matches the required parity, extending from the opposite parity.
+   - Compute the maximum alternating subsequence length.
+4. Return the maximum of the same-parity and alternating subsequence lengths.
+Time Complexity: O(n) for parity conversion, counting, and DP.
+Space Complexity: O(n) for the parity array and DP table.
+'''

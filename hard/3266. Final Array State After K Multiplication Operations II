@@ -1,0 +1,55 @@
+from typing import List
+from heapq import heapify, heapreplace
+
+class Solution:
+    def getFinalState(self, nums: List[int], k: int, multiplier: int) -> List[int]:
+        if multiplier == 1:  # If multiplier is 1, the array remains unchanged
+            return nums
+
+        MOD = 1_000_000_007
+        n = len(nums)
+        mx = max(nums)  # Determine the maximum value in the array
+        h = [(x, i) for i, x in enumerate(nums)]  # Create a heap with values and indices
+        heapify(h)  # Convert the array into a min-heap
+
+        # Simulate operations until the smallest value reaches the maximum or k operations are used
+        while k and h[0][0] < mx:
+            x, i = h[0]  # Extract the minimum value
+            heapreplace(h, (x * multiplier, i))  # Replace it with its updated value
+            k -= 1
+
+        # Sort the heap and compute remaining updates using modular exponentiation
+        h.sort()  # Sort the heap to handle residual operations efficiently
+        for i, (x, j) in enumerate(h):
+            # Apply the remaining k // n full cycles and adjust for k % n
+            nums[j] = x * pow(multiplier, k // n + (i < k % n), MOD) % MOD
+
+        return nums
+
+"""
+Approach:
+1. Handle trivial cases:
+   - If the multiplier is 1, no changes occur to the array, so return the original array.
+
+2. Initialize the heap:
+   - Create a min-heap from the array, storing each value and its index for efficient updates.
+
+3. Simulate operations:
+   - While k > 0 and the smallest value in the heap is less than the maximum value:
+     - Replace the smallest value in the heap with its updated value (multiplied by the multiplier).
+     - Decrement k for each operation.
+
+4. Handle remaining operations:
+   - Sort the heap to ensure efficient processing of residual operations.
+   - Use modular exponentiation to efficiently compute updates for each element based on the remaining operations.
+
+5. Return the final state:
+   - After processing all operations, return the updated array.
+
+Complexity:
+- Time Complexity: O(n log n + k log n):
+  - Heap initialization and sorting take O(n log n).
+  - Each heap operation (up to k) takes O(log n).
+- Space Complexity: O(n):
+  - Space for the heap and input array.
+"""

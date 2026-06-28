@@ -1,0 +1,60 @@
+class Solution:
+    def maxFreeTime(self, eventTime: int, startTime: List[int], endTime: List[int]) -> int:
+        n = len(startTime)
+        # Track if each meeting can be moved to start or end
+        can_move = [False] * n
+        # Track gaps when moving left (towards start)
+        left_gap = 0
+        # Track gaps when moving right (towards end)
+        right_gap = 0
+        
+        # Forward pass: check if meeting can be moved to start
+        for i in range(n):
+            duration = endTime[i] - startTime[i]
+            # Can move to start or previous meeting's end if duration fits
+            if duration <= left_gap:
+                can_move[i] = True
+            # Update gap: distance from current start to previous end (or 0)
+            prev_end = 0 if i == 0 else endTime[i - 1]
+            left_gap = max(left_gap, startTime[i] - prev_end)
+        
+        # Backward pass: check if meeting can be moved to end
+        for i in range(n - 1, -1, -1):
+            duration = endTime[i] - startTime[i]
+            # Can move to end or next meeting's start if duration fits
+            if duration <= right_gap:
+                can_move[i] = True
+            # Update gap: distance from next start (or eventTime) to current end
+            next_start = eventTime if i == n - 1 else startTime[i + 1]
+            right_gap = max(right_gap, next_start - endTime[i])
+        
+        # Calculate max free time
+        max_free = 0
+        for i in range(n):
+            # Gap boundaries: from previous end to next start
+            left = 0 if i == 0 else endTime[i - 1]
+            right = eventTime if i == n - 1 else startTime[i + 1]
+            # If movable, entire gap is free; otherwise, subtract duration
+            if can_move[i]:
+                max_free = max(max_free, right - left)
+            else:
+                max_free = max(max_free, right - left - (endTime[i] - startTime[i]))
+        
+        return max_free
+
+'''
+Approach:
+1. Initialize array to track if each meeting can be moved to start or end.
+2. Forward pass:
+   - Check if meeting's duration fits in gap before it (to move to start or prev end).
+   - Update max gap as distance from current start to previous end.
+3. Backward pass:
+   - Check if meeting's duration fits in gap after it (to move to end or next start).
+   - Update max gap as distance from next start to current end.
+4. For each meeting:
+   - Calculate gap from previous end to next start.
+   - If movable, max free time is entire gap; else, subtract meeting duration.
+5. Return maximum free time found.
+6. Time Complexity: O(n) for two passes and one final loop.
+7. Space Complexity: O(n) for can_move array.
+'''

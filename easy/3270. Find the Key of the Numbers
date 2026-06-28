@@ -1,0 +1,30 @@
+class Solution:
+    def generateKey(self, num1: int, num2: int, num3: int) -> int:
+        # Convert numbers to padded four-digit strings
+        num1_str = f"{num1:04}"
+        num2_str = f"{num2:04}"
+        num3_str = f"{num3:04}"
+
+        # Generate the key by taking the minimum of corresponding digits
+        key = ""
+        for i in range(4):
+            key += str(min(int(num1_str[i]), int(num2_str[i]), int(num3_str[i])))
+
+        # Convert the key to an integer to remove leading zeros and return
+        return int(key)
+
+'''
+Approach:
+1. Convert each of the input numbers `num1`, `num2`, and `num3` to four-digit strings with leading zeros using `f"{num:04}"`.
+2. Iterate through each digit position (1 to 4):
+   - Take the minimum of the corresponding digits from the three padded strings.
+   - Append the minimum value to the `key` string.
+3. Convert the final `key` string to an integer to remove any leading zeros.
+4. Return the resulting integer.
+
+Time Complexity:
+- O(1), as the length of each number is fixed at 4 digits.
+
+Space Complexity:
+- O(1), as only a few variables and strings of fixed size are used.
+'''

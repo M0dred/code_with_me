@@ -1,0 +1,71 @@
+class Solution:
+    def lengthAfterTransformations(self, s: str, t: int, nums: List[int]) -> int:
+        MOD = 10**9 + 7
+        
+        # Count initial frequency of each character in s
+        count = [0] * 26
+        for c in s:
+            count[ord(c) - ord('a')] += 1
+        
+        # Create transformation matrix
+        # matrix[i][j] = how many j's are produced by one i after one transformation
+        matrix = [[0] * 26 for _ in range(26)]
+        for i in range(26):
+            # Character i transforms to nums[i] consecutive characters
+            for j in range(nums[i]):
+                # Next character index, wrapping around
+                next_char = (i + j + 1) % 26
+                matrix[i][next_char] = 1
+        
+        # Matrix exponentiation to compute t transformations
+        def matrix_multiply(A, B):
+            result = [[0] * 26 for _ in range(26)]
+            for i in range(26):
+                for j in range(26):
+                    for k in range(26):
+                        result[i][j] = (result[i][j] + A[i][k] * B[k][j]) % MOD
+            return result
+        
+        def matrix_power(matrix, power):
+            if power == 1:
+                return matrix
+            half = matrix_power(matrix, power // 2)
+            if power % 2 == 0:
+                return matrix_multiply(half, half)
+            return matrix_multiply(matrix_multiply(half, half), matrix)
+        
+        # Compute matrix^t
+        if t > 0:
+            result_matrix = matrix_power(matrix, t)
+        else:
+            result_matrix = [[1 if i == j else 0 for j in range(26)] for i in range(26)]
+        
+        # Compute final character counts
+        final_count = [0] * 26
+        for i in range(26):
+            for j in range(26):
+                final_count[j] = (final_count[j] + count[i] * result_matrix[i][j]) % MOD
+        
+        # Sum counts to get total length
+        total_length = sum(final_count) % MOD
+        return total_length
+
+'''
+Approach:
+1. Count the initial frequency of each character in s (a to z, indices 0 to 25).
+2. Build a transformation matrix:
+   - For each character i (a to z), it transforms to nums[i] consecutive characters.
+   - Set matrix[i][j] = 1 for each character j produced by i's transformation.
+   - Handle wrap-around (e.g., y with nums=3 produces z, a, b).
+3. Use matrix exponentiation to compute the effect of t transformations:
+   - Matrix multiplication computes one transformation.
+   - Matrix^t gives the total effect of t transformations.
+   - Each entry [i][j] in matrix^t is the number of j's produced by one i.
+4. Compute final counts:
+   - Multiply initial counts by matrix^t to get counts after t transformations.
+5. Sum the final counts to get the total string length, modulo 10^9 + 7.
+Time Complexity: O(n + 26^3 * log(t)) 
+   - O(n) for initial counting.
+   - O(26^3 * log(t)) for matrix exponentiation (26x26 matrices, log(t) for power).
+Space Complexity: O(26^2) - for the transformation matrix and temporary matrices.
+'''

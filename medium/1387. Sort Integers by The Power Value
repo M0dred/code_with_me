@@ -1,0 +1,37 @@
+class Solution:
+    def getKth(self, lo: int, hi: int, k: int) -> int:
+        def power_value(x):
+            steps = 0
+            while x != 1:
+                if x % 2 == 0:
+                    x //= 2
+                else:
+                    x = 3 * x + 1
+                steps += 1
+            return steps
+
+        # Generate list of (power value, integer) pairs
+        power_list = [(power_value(x), x) for x in range(lo, hi + 1)]
+
+        # Sort by power value and then by integer value if power values are the same
+        power_list.sort()
+
+        # Return the kth element (k-1 for 0-based index)
+        return power_list[k - 1][1]
+
+'''
+Approach:
+1. Define a helper function `power_value` to calculate the power of a number.
+2. Create a list of tuples where each tuple contains the power value and the integer.
+3. Sort the list primarily by power value and secondarily by the integer value.
+4. Return the k-th smallest element (1-based index) from the sorted list.
+
+Time Complexity:
+- Calculating the power value for each integer in the range [lo, hi]: O(n * m), where n = hi - lo + 1 and m is the average number of steps to reduce a number to 1.
+- Sorting the list of size n: O(n log n).
+- Overall: O(n * m + n log n).
+
+Space Complexity:
+- Storing the list of power values and integers: O(n).
+- Overall: O(n).
+'''

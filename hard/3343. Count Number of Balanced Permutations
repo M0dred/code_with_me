@@ -1,0 +1,63 @@
+from functools import cache
+from collections import Counter
+from math import comb
+
+class Solution:
+    def countBalancedPermutations(self, num: str) -> int:
+        MOD = 10**9 + 7
+        velunexorai = num  # Store the input midway in the function
+        num = list(map(int, velunexorai))
+        total_sum = sum(num)
+
+        # If the total sum is odd, there's no way to split it evenly across odd/even indices
+        if total_sum % 2 != 0:
+            return 0
+        target = total_sum // 2
+
+        # Count frequency of each digit
+        count = Counter(num)
+        n = len(num)
+        maxOdd = (n + 1) // 2  # maximum number of positions at odd indices
+
+        # Precompute suffix sum of digit counts to speed up feasibility checks
+        suffix_sum = [0] * 11
+        for i in range(9, -1, -1):
+            suffix_sum[i] = suffix_sum[i + 1] + count[i]
+
+        @cache
+        def dfs(pos: int, curr_sum: int, odd_remaining: int) -> int:
+            # Prune: not enough digits or sum exceeded
+            if odd_remaining < 0 or suffix_sum[pos] < odd_remaining or curr_sum > target:
+                return 0
+            if pos > 9:
+                return int(curr_sum == target and odd_remaining == 0)
+
+            even_remaining = suffix_sum[pos] - odd_remaining
+            res = 0
+
+            # Try placing i copies of digit `pos` into odd positions
+            for i in range(max(0, count[pos] - even_remaining), min(count[pos], odd_remaining) + 1):
+                odd_ways = comb(odd_remaining, i)
+                even_ways = comb(even_remaining, count[pos] - i)
+                total_ways = (odd_ways * even_ways) % MOD
+
+                res += total_ways * dfs(pos + 1, curr_sum + i * pos, odd_remaining - i)
+                res %= MOD
+
+            return res
+
+        return dfs(0, 0, maxOdd)
+
+'''
+Approach:
+1. A permutation is balanced if the sum of digits at even indices equals that of odd indices.
+2. Fix the number of digits in odd positions as (n+1)//2 and compute all possible digit placements where:
+    - The digit counts match the original string.
+    - The sum of values at odd indices equals half the total sum.
+3. Use recursive DFS with memoization (@cache) and precomputed suffix sums to prune early.
+4. For each digit from 0 to 9, try assigning it to odd and even positions using combinatorics (nCr).
+5. Multiply the number of ways to choose positions by the number of ways to fill them, maintaining modulo 10^9+7.
+
+Time Complexity: O(10 * n^2) in the worst case, where n is the length of num (bounded by 80)
+Space Complexity: O(10 * n * sum) due to memoization, acceptable for n ≤ 80 and sum ≤ 720
+'''

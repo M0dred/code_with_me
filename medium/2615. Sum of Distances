@@ -1,0 +1,44 @@
+class Solution:
+    def distance(self, nums: List[int]) -> List[int]:
+        from collections import defaultdict
+        pos = defaultdict(list)
+        for i, num in enumerate(nums):
+            pos[num].append(i)
+        
+        n = len(nums)
+        arr = [0] * n
+        
+        for p in pos.values():
+            m = len(p)
+            if m < 2:
+                continue
+            prefix = [0] * (m + 1)
+            for i in range(1, m + 1):
+                prefix[i] = prefix[i - 1] + p[i - 1]
+            total = prefix[m]
+            for r in range(m):
+                left_c = r
+                left_s = prefix[r]
+                right_c = m - 1 - r
+                right_s = total - prefix[r + 1]
+                pos_val = p[r]
+                s = left_c * pos_val - left_s + right_s - right_c * pos_val
+                arr[p[r]] = s
+        return arr
+
+"""
+Approach & Reasoning:
+Group all indices by their value using a dict of lists (each list is already sorted since we iterate left to right).
+
+For each group with positions p[0] < p[1] < ... < p[m-1]:
+- Compute prefix sums of the positions.
+- For every index r in the group, the required sum of absolute distances to all other positions in the same group is:
+  left_count * pos - left_sum + right_sum - right_count * pos
+  where left/right refer to positions before/after the current one in the sorted list.
+- This is O(m) per group, total time O(n).
+
+If a value appears only once, arr[i] stays 0 automatically.
+
+Time Complexity: O(n)
+Space Complexity: O(n)
+"""

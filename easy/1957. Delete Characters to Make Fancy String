@@ -1,0 +1,31 @@
+class Solution:
+    def makeFancyString(self, s: str) -> str:
+        result = []
+        count = 0
+        prev = None
+        
+        for char in s:
+            if char == prev:
+                count += 1
+                if count < 3:
+                    result.append(char)
+            else:
+                prev = char
+                count = 1
+                result.append(char)
+        
+        return "".join(result)
+
+'''
+Approach:
+The problem requires deleting the minimum number of characters from a string to ensure no three consecutive characters are equal, creating a "fancy" string.
+1. Initialize an empty list to build the result string.
+2. Track the previous character (prev) and the count of its consecutive occurrences.
+3. Iterate through each character in the input string:
+   - If the character matches the previous one, increment the count.
+     - If count is less than 3, append the character to the result.
+   - If the character differs, reset the previous character to the current one, set count to 1, and append the character.
+4. Join the result list into a string and return it.
+Time Complexity: O(n), where n is the length of the input string, for a single pass and string joining.
+Space Complexity: O(n) for the result list storing up to n characters.
+'''

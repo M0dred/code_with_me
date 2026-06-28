@@ -1,0 +1,46 @@
+class Solution:
+    def firstCompleteIndex(self, arr: List[int], mat: List[List[int]]) -> int:
+        m = len(mat)
+        n = len(mat[0])
+        
+        # Create a dictionary to map each value to its (row, col) position in mat
+        value_to_pos = {}
+        for i in range(m):
+            for j in range(n):
+                value_to_pos[mat[i][j]] = (i, j)
+        
+        # Initialize arrays to keep track of the number of painted cells in each row and column
+        row_counts = [0] * m
+        col_counts = [0] * n
+        
+        # Iterate through the array arr
+        for idx, val in enumerate(arr):
+            # Get the position of the current value in mat
+            row, col = value_to_pos[val]
+            # Increment the count of painted cells for the corresponding row and column
+            row_counts[row] += 1
+            col_counts[col] += 1
+            # Check if any row or column is completely painted
+            if row_counts[row] == n or col_counts[col] == m:
+                return idx
+        
+        # If no such index is found, return -1 (though the problem guarantees one)
+        return -1
+
+'''
+Approach:
+1. The problem requires finding the smallest index in `arr` such that after painting the cells in `mat` up to that index, either a row or a column in `mat` becomes completely painted.
+2. We create a dictionary to map each value in `mat` to its corresponding row and column indices.
+3. We use two arrays to keep track of the number of painted cells in each row and each column.
+4. We iterate through `arr`, and for each value, we find its position in `mat` and update the counts of painted cells for the corresponding row and column.
+5. If the count of painted cells for any row or column reaches the total number of columns or rows, respectively, we return the current index.
+6. If no such index is found, we return -1 (though the problem guarantees one).
+
+Time Complexity: O(m * n)
+- We iterate through `mat` once to create the dictionary, which takes O(m * n) time.
+- We iterate through `arr` once, and for each element, we perform constant-time operations to update the counts and check if a row or column is completely painted.
+
+Space Complexity: O(m * n)
+- We use a dictionary to store the positions of each value in `mat`, which requires O(m * n) space.
+- We use two arrays to keep track of the counts of painted cells in each row and each column, which require O(m + n) space.
+'''

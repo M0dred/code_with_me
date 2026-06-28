@@ -1,0 +1,67 @@
+class Solution:
+    def numberOfPowerfulInt(self, start: int, finish: int, limit: int, s: str) -> int:
+        def count_up_to(n: str) -> int:
+            if not n:
+                return 0
+            n_len = len(n)
+            s_len = len(s)
+            if n_len < s_len:
+                return 0
+                
+            # dp[pos][is_tight] = count of valid numbers from pos to end
+            # is_tight: whether we're bound by the original number's digit
+            dp = {}
+            
+            def solve(pos: int, is_tight: bool) -> int:
+                if pos == n_len:
+                    return 1
+                    
+                if (pos, is_tight) in dp:
+                    return dp[(pos, is_tight)]
+                    
+                # If we're in the suffix part
+                if pos >= n_len - s_len:
+                    target_digit = int(s[pos - (n_len - s_len)])
+                    if is_tight:
+                        upper = int(n[pos])
+                        if target_digit > upper:
+                            return 0
+                        elif target_digit == upper:
+                            return solve(pos + 1, True)
+                        else:
+                            return solve(pos + 1, False)
+                    else:
+                        return solve(pos + 1, False) if target_digit <= limit else 0
+                        
+                # For positions before suffix
+                upper = int(n[pos]) if is_tight else limit
+                total = 0
+                for d in range(min(limit + 1, upper + 1)):
+                    total += solve(pos + 1, is_tight and d == upper)
+                    
+                dp[(pos, is_tight)] = total
+                return total
+                
+            return solve(0, True)
+        
+        # Convert to strings for digit manipulation
+        start_str = str(start)
+        finish_str = str(finish)
+        
+        # Count numbers up to finish and subtract numbers up to start-1
+        finish_count = count_up_to(finish_str)
+        start_count = count_up_to(str(start - 1)) if start > 1 else 0
+        
+        return finish_count - start_count
+
+'''
+Approach:
+1. Use a helper function count_up_to(n) that counts valid numbers from 1 to n
+2. For each number:
+   - Use DP with states: position and whether we're tight (bound by original number)
+   - For digits before suffix: try all possible digits up to limit (or number's digit if tight)
+   - For suffix digits: must match s, respecting tight constraint
+3. Final result = count_up_to(finish) - count_up_to(start-1)
+Time Complexity: O(log(finish) * limit) for each count_up_to call
+Space Complexity: O(log(finish)) for DP table
+'''

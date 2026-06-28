@@ -1,0 +1,39 @@
+class Solution:
+    def canConstruct(self, s: str, k: int) -> bool:
+        from collections import Counter
+
+        # If k is greater than the length of s, it's impossible to form k palindromes
+        if k > len(s):
+            return False
+
+        # Count the frequency of each character in the string
+        char_count = Counter(s)
+
+        # Count characters with odd frequencies
+        odd_count = sum(1 for count in char_count.values() if count % 2 != 0)
+
+        # We can form at least `odd_count` palindromes
+        return odd_count <= k
+
+'''
+Approach:
+1. **Immediate Check:**
+   - If `k` is greater than the length of `s`, return `False` because each palindrome must have at least one character.
+
+2. **Character Frequency Count:**
+   - Use `Counter` to count the frequency of each character in `s`.
+
+3. **Odd Frequency Check:**
+   - Count the number of characters with odd frequencies (`odd_count`).
+   - Each palindrome can include at most one character with an odd frequency in the center.
+   - Hence, the minimum number of palindromes required is equal to `odd_count`.
+
+4. **Validation:**
+   - Return `True` if `odd_count <= k`, meaning it's possible to form `k` palindromes; otherwise, return `False`.
+
+Time Complexity:
+- O(n), where `n` is the length of the string `s`, as we iterate through the characters once to count frequencies.
+
+Space Complexity:
+- O(1), as the `Counter` stores at most 26 keys (for lowercase English letters).
+'''

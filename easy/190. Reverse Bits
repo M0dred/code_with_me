@@ -1,0 +1,30 @@
+class Solution:
+    def reverseBits(self, n: int) -> int:
+        res = 0
+        for _ in range(32):
+            res = (res << 1) | (n & 1)
+            n >>= 1
+        return res
+
+
+"""
+Approach & Reasoning:
+
+We must reverse the bits of a 32-bit integer.
+
+Algorithm:
+- Iterate 32 times (since the number is 32-bit).
+- At each step:
+    1) Extract the lowest bit of n using (n & 1).
+    2) Shift result left by 1.
+    3) Append the extracted bit.
+    4) Shift n right by 1.
+- After 32 iterations, res contains the reversed bit pattern.
+
+Example:
+If the current lowest bit of n is 1,
+we append it to the left side of res by shifting and OR-ing.
+
+Time Complexity: O(1) (always 32 iterations)
+Space Complexity: O(1)
+"""

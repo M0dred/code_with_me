@@ -1,0 +1,75 @@
+from bisect import bisect_left
+
+class Solution:
+    def closestRoom(self, rooms: List[List[int]], queries: List[List[int]]) -> List[int]:
+        # Add an index to each query to keep track of the original order
+        indexed_queries = [(preferred, minSize, i) for i, (preferred, minSize) in enumerate(queries)]
+        # Sort queries by minSize in descending order
+        indexed_queries.sort(key=lambda x: x[1], reverse=True)
+        # Sort rooms by size in descending order
+        rooms.sort(key=lambda x: x[1], reverse=True)
+
+        answer = [-1] * len(queries)
+        valid_room_ids = []  # To store valid room IDs for current queries
+        room_index = 0  # Pointer to iterate over rooms
+
+        # Process each query
+        for preferred, minSize, query_index in indexed_queries:
+            # Add all rooms that meet the size requirement to valid_room_ids
+            while room_index < len(rooms) and rooms[room_index][1] >= minSize:
+                valid_room_ids.append(rooms[room_index][0])
+                room_index += 1
+
+            # Sort valid room IDs for efficient closest search
+            valid_room_ids.sort()
+
+            # Find the closest room using binary search
+            pos = bisect_left(valid_room_ids, preferred)
+            closest = None
+
+            # Check the room on the left, if it exists
+            if pos > 0:
+                left_room = valid_room_ids[pos - 1]
+                if closest is None or abs(left_room - preferred) < abs(closest - preferred) or \
+                        (abs(left_room - preferred) == abs(closest - preferred) and left_room < closest):
+                    closest = left_room
+
+            # Check the room on the right, if it exists
+            if pos < len(valid_room_ids):
+                right_room = valid_room_ids[pos]
+                if closest is None or abs(right_room - preferred) < abs(closest - preferred) or \
+                        (abs(right_room - preferred) == abs(closest - preferred) and right_room < closest):
+                    closest = right_room
+
+            # Assign the closest room or -1 if no valid room exists
+            answer[query_index] = closest if closest is not None else -1
+
+        return answer
+
+"""
+Approach:
+1. Preprocess Queries:
+   - Append indices to each query to preserve their original order in the result array.
+   - Sort queries by the `minSize` constraint in descending order.
+
+2. Preprocess Rooms:
+   - Sort the rooms by their size in descending order.
+
+3. Efficient Query Processing:
+   - For each query:
+     - Add rooms that meet the size requirement to a list of valid room IDs.
+     - Use binary search on the sorted `valid_room_ids` to find the room closest to the `preferred` room ID.
+     - Check both the left and right neighbors for the closest match, resolving ties by selecting the smaller ID.
+
+4. Invalid Queries:
+   - If no room satisfies the size constraint for a query, assign `-1` to the result.
+
+5. Return Result:
+   - After processing all queries, return the result array.
+
+Complexity:
+- Time Complexity: O(n log n + k log k + k log n):
+  - Sorting rooms and queries takes O(n log n + k log k).
+  - For each query, updating valid rooms and binary search takes O(log n).
+- Space Complexity: O(n): To store valid room IDs.
+"""

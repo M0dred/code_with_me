@@ -1,0 +1,32 @@
+class Solution:
+    def lexicalOrder(self, n: int) -> List[int]:
+        result = []
+        curr = 1
+        
+        for _ in range(n):
+            result.append(curr)
+            # Try to multiply by 10 if within bounds
+            if curr * 10 <= n:
+                curr *= 10
+            else:
+                # If we can't multiply by 10, increment
+                while curr % 10 == 9 or curr + 1 > n:
+                    curr //= 10
+                curr += 1
+        
+        return result
+
+'''
+Approach:
+1. Initialize an empty result list and set curr to 1 (first number).
+2. Iterate n times to generate n numbers:
+   - Append curr to result.
+   - If curr * 10 <= n, multiply curr by 10 to explore next lexicographical prefix (e.g., 1 → 10).
+   - Otherwise, increment curr, but handle cases where curr ends in 9 or curr + 1 > n:
+     - Divide curr by 10 until curr % 10 != 9 and curr + 1 <= n.
+     - Then increment curr by 1.
+3. Return the result list containing numbers in lexicographical order.
+
+Time Complexity: O(n), as we generate each of the n numbers with constant-time operations (multiplication, division, and comparisons).
+Space Complexity: O(1) extra space, excluding the output array, as we only use a constant amount of variables (curr and loop counters).
+'''

@@ -1,0 +1,36 @@
+from collections import Counter
+
+class Solution:
+    def nextBeautifulNumber(self, n: int) -> int:
+        x = n + 1
+        while True:
+            if self._is_balanced(x):
+                return x
+            x += 1
+
+    def _is_balanced(self, x: int) -> bool:
+        cnt = Counter(str(x))
+        # digit '0' must not appear
+        if '0' in cnt:
+            return False
+        # for every digit that appears, its count must equal its value
+        for d, c in cnt.items():
+            if c != (ord(d) - 48):  # int(d)
+                return False
+        return True
+
+'''
+Approach:
+- Brute-force from n+1 upward. For each candidate x, count its digit frequencies.
+- A number is numerically balanced iff:
+  - digit '0' does not appear, and
+  - for every digit d that appears, its count equals d.
+- Return the first x that satisfies this.
+
+Time Complexity:
+- Let L be the number of digits (~ up to 7 for n ≤ 1e6). Each check is O(L).
+- In practice, the gap to the next balanced number is small for this range, so this simple search runs fast.
+
+Space Complexity:
+- O(L) for the digit counter per check.
+'''

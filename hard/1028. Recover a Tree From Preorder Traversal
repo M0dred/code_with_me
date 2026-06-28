@@ -1,0 +1,66 @@
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+
+class Solution:
+    def recoverFromPreorder(self, traversal: str) -> Optional[TreeNode]:
+        """
+        Recovers the binary tree from its preorder traversal string.
+        """
+        stack = []  # Stack to keep track of nodes at different depths
+        i = 0
+        n = len(traversal)
+        
+        while i < n:
+            depth = 0
+            # Count dashes to determine depth
+            while i < n and traversal[i] == '-':
+                depth += 1
+                i += 1
+            
+            # Extract node value
+            value = 0
+            while i < n and traversal[i].isdigit():
+                value = value * 10 + int(traversal[i])
+                i += 1
+            
+            # Create a new node
+            node = TreeNode(value)
+            
+            # If depth is equal to stack size, it's a left child
+            if depth == len(stack):
+                if stack:
+                    stack[-1].left = node
+            else:
+                # Otherwise, it's a right child of an ancestor
+                while len(stack) > depth:
+                    stack.pop()
+                stack[-1].right = node
+            
+            # Push current node to stack
+            stack.append(node)
+        
+        return stack[0]  # Root node is at the bottom of the stack
+
+'''
+Approach:
+1. Use a stack to keep track of nodes at different depths.
+2. Iterate through the traversal string while maintaining the current depth:
+   - Count the number of dashes (`-`) to determine the depth of the current node.
+   - Extract the numerical value of the node.
+   - Create a TreeNode with the extracted value.
+3. Determine the parent of the current node:
+   - If the stack length matches the depth, it means the node is a left child of the last node in the stack.
+   - If the depth is less than the stack size, it means we need to pop elements from the stack to find the correct parent, then assign the node as a right child.
+4. Push the newly created node onto the stack.
+5. Return the root node, which remains at the bottom of the stack.
+
+Time Complexity: O(n), where n is the length of the traversal string.
+- Each character in the string is processed once.
+
+Space Complexity: O(n), where n is the number of nodes in the tree.
+- The stack stores at most one node per level of depth in the worst case.
+'''

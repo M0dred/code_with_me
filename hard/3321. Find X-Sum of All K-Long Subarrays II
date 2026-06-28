@@ -1,0 +1,213 @@
+from typing import List
+import heapq
+
+class Solution:
+    def findXSum(self, nums: List[int], k: int, x: int) -> List[int]:
+        n = len(nums)
+        res: List[int] = []
+
+        freq = {}          # value -> frequency in window
+        in_big = {}        # value -> bool (only meaningful when freq[v] > 0)
+
+        # Heaps store tuples:
+        #  big:  (freq, value)
+        #  small:(-freq, -value)
+        big: List[tuple[int, int]] = []
+        small: List[tuple[int, int]] = []
+        sum_big = 0
+        size_big = 0
+
+        def clean_big():
+            # discard stale entries from 'big'
+            while big:
+                f, v = big[0]
+                if freq.get(v, 0) != f or not in_big.get(v, False):
+                    heapq.heappop(big)
+                else:
+                    break
+
+        def clean_small():
+            # discard stale entries from 'small'
+            while small:
+                nf, nv = small[0]
+                f, v = -nf, -nv
+                if freq.get(v, 0) != f or in_big.get(v, False):
+                    heapq.heappop(small)
+                else:
+                    break
+
+        def push_big(v):
+            nonlocal sum_big, size_big
+            f = freq[v]
+            if f == 0:
+                return
+            if not in_big.get(v, False):
+                in_big[v] = True
+                size_big += 1
+                sum_big += v * f
+            else:
+                # already in big; just adjust sum by delta freq
+                # (caller ensures freq changed)
+                # However we don't know old f here; we adjust elsewhere on updates.
+                pass
+            heapq.heappush(big, (f, v))
+
+        def push_small(v):
+            f = freq[v]
+            if f == 0:
+                return
+            in_big[v] = False
+            heapq.heappush(small, (-f, -v))
+
+        def ensure_order():
+            """
+            Rebalance so that all items in 'big' are >= all items in 'small' under key (freq,value),
+            and |big| <= x. Promote best from small if |big| < x. Demote worst from big if |big| > x.
+            Also swap across boundary if needed.
+            """
+            nonlocal sum_big, size_big
+
+            # First, fill up big to size x with best from small
+            clean_small(); clean_big()
+            while size_big < x and small:
+                clean_small()
+                if not small:
+                    break
+                nf, nv = heapq.heappop(small)
+                f, v = -nf, -nv
+                # promote v
+                # ensure it's still valid
+                if freq.get(v, 0) != f or in_big.get(v, False):
+                    continue
+                in_big[v] = True
+                size_big += 1
+                sum_big += v * f
+                heapq.heappush(big, (f, v))
+                clean_big()
+
+            # If too many in big, demote worst to small
+            clean_big()
+            while size_big > x:
+                clean_big()
+                if not big:
+                    break
+                f, v = heapq.heappop(big)
+                if freq.get(v, 0) != f or not in_big.get(v, False):
+                    continue
+                in_big[v] = False
+                size_big -= 1
+                sum_big -= v * f
+                heapq.heappush(small, (-f, -v))
+                clean_small()
+
+            # Now swap across boundary if the best in small beats the worst in big
+            while True:
+                clean_small(); clean_big()
+                if not big or not small:
+                    break
+                f_big, v_big = big[0]
+                f_small, v_small = -small[0][0], -small[0][1]
+                # If small's best is better than big's worst, swap one each
+                if (f_small, v_small) > (f_big, v_big):
+                    # demote worst of big
+                    heapq.heappop(big)
+                    if freq.get(v_big, 0) == f_big and in_big.get(v_big, False):
+                        in_big[v_big] = False
+                        size_big -= 1
+                        sum_big -= v_big * f_big
+                        heapq.heappush(small, (-f_big, -v_big))
+                    # promote best of small
+                    heapq.heappop(small)
+                    if freq.get(v_small, 0) == f_small and not in_big.get(v_small, False):
+                        in_big[v_small] = True
+                        size_big += 1
+                        sum_big += v_small * f_small
+                        heapq.heappush(big, (f_small, v_small))
+                else:
+                    break
+
+        def add_value(v):
+            """Add one occurrence of v to window."""
+            old = freq.get(v, 0)
+            new = old + 1
+            freq[v] = new
+            if old == 0:
+                # newcomer goes to small first; we'll rebalance
+                in_big[v] = False
+                heapq.heappush(small, (-new, -v))
+            else:
+                # Update its partition
+                if in_big.get(v, False):
+                    # adjust sum by +v
+                    nonlocal sum_big
+                    sum_big += v
+                    heapq.heappush(big, (new, v))
+                else:
+                    heapq.heappush(small, (-new, -v))
+            ensure_order()
+
+        def remove_value(v):
+            """Remove one occurrence of v from window."""
+            old = freq.get(v, 0)
+            if old == 0:
+                return
+            new = old - 1
+            if in_big.get(v, False):
+                # adjust sum by -v
+                nonlocal sum_big, size_big
+                sum_big -= v
+                if new == 0:
+                    # disappears from big entirely
+                    in_big[v] = False
+                    size_big -= 1
+                    freq[v] = 0
+                else:
+                    freq[v] = new
+                    heapq.heappush(big, (new, v))
+            else:
+                if new == 0:
+                    freq[v] = 0
+                else:
+                    freq[v] = new
+                    heapq.heappush(small, (-new, -v))
+            ensure_order()
+            # After removal, we might have room to promote from small
+            ensure_order()
+
+        # Build first window
+        for i in range(k):
+            add_value(nums[i])
+        res.append(sum_big)
+
+        # Slide windows
+        for i in range(k, n):
+            add_value(nums[i])
+            remove_value(nums[i - k])
+            res.append(sum_big)
+
+        return res
+
+'''
+Approach (efficient, sliding window):
+
+- We slide a window of length k across nums and need, for each window, the sum of the occurrences of the “top x” by (frequency desc, value desc).
+- Maintain:
+  - `freq[v]` = frequency of value v in the current window.
+  - Two heaps partitioning all distinct v:
+    - `big`  (min-heap by (freq, value)) holds the top-x items; its root is the worst among the top set.
+    - `small`(max-heap via negatives) holds the remaining items; its root is the best outside the top set.
+  - `in_big[v]` indicates which partition v is in.
+  - `sum_big` = Σ v * freq[v] over v in `big` (this is exactly the required x-sum).
+- Updates:
+  - When frequency of v increases/decreases by 1, we push a fresh tuple into the relevant heap and use **lazy deletion** (discard stale heap entries that no longer match `freq`/`in_big` when peeking).
+  - If v currently belongs to `big`, adjust `sum_big` by ±v immediately since its freq changed.
+  - Rebalance with `ensure_order()`:
+    1) Promote from `small` while `size_big < x`.
+    2) Demote from `big` while `size_big > x`.
+    3) While the best in `small` is better than the worst in `big`, swap one element between the heaps.
+- The answer for each window is simply `sum_big`.
+
+Complexity:
+- Each add/remove is amortized **O(log D)** where D is the number of distinct values in the window (≤ k), due to heap operations and lazy cleanup.
+- Overall time **O(n log k)**, space **O(k)**, which satisfies n up to 1e5.
+'''

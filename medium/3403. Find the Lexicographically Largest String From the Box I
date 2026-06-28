@@ -1,0 +1,23 @@
+class Solution:
+    def answerString(self, word: str, numFriends: int) -> str:
+        if numFriends == 1:
+            return word
+        n = len(word)
+        res = ""
+        for i in range(n):
+            res = max(res, word[i : min(i + n - numFriends + 1, n)])
+        return res
+
+'''
+Approach:
+1. If numFriends is 1, return the entire word as it's the only part.
+2. Initialize an empty string res to track the lexicographically largest substring.
+3. Iterate over each starting index i from 0 to n-1.
+4. For each i, consider the substring starting at i with length up to n - numFriends + 1, ensuring at least numFriends - 1 characters remain for the other parts.
+5. Use min(i + n - numFriends + 1, n) to prevent indexing beyond the word's length.
+6. Update res with the lexicographically largest substring seen so far using max().
+7. Return res as the lexicographically largest substring possible in any valid split.
+
+Time Complexity: O(n), where n is the length of the word. We iterate through each starting index (O(n)), and string comparisons are O(1) amortized, as the total length of compared substrings is bounded.
+Space Complexity: O(n) for storing the result string res, which can be up to n characters long.
+'''

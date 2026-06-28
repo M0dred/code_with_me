@@ -1,0 +1,45 @@
+class Solution:
+    def isValidSudoku(self, board: List[List[str]]) -> bool:
+        # Initialize sets for rows, columns, and 3x3 boxes
+        rows = [set() for _ in range(9)]
+        cols = [set() for _ in range(9)]
+        boxes = [set() for _ in range(9)]
+        
+        # Iterate through each cell in the 9x9 board
+        for i in range(9):
+            for j in range(9):
+                if board[i][j] == '.':
+                    continue  # Skip empty cells
+                
+                num = board[i][j]
+                # Check if number already exists in row, column, or box
+                if num in rows[i] or num in cols[j] or num in boxes[(i // 3) * 3 + j // 3]:
+                    return False
+                
+                # Add number to row, column, and box sets
+                rows[i].add(num)
+                cols[j].add(num)
+                boxes[(i // 3) * 3 + j // 3].add(num)
+        
+        return True
+
+"""
+Approach:
+The solution validates a 9x9 Sudoku board by checking that each filled cell adheres to the rules (no digit repetition in rows, columns, or 3x3 sub-boxes):
+1. Create three lists of sets:
+   - One for each row (9 sets to track digits in each row).
+   - One for each column (9 sets to track digits in each column).
+   - One for each 3x3 sub-box (9 sets, indexed by (i // 3) * 3 + j // 3).
+2. Iterate through each cell (i, j) in the board:
+   - Skip empty cells ('.').
+   - For a digit, check if it already exists in the corresponding row, column, or box set.
+   - If it does, the board is invalid (return False).
+   - Otherwise, add the digit to the respective row, column, and box sets.
+3. If all cells are checked without violations, return True.
+
+Time Complexity:
+- O(1), since the board is fixed at 9x9 (81 cells), and set operations (add, check) are O(1) on average. The total is O(81) = O(1).
+
+Space Complexity:
+- O(1), as we use 27 sets (9 for rows, 9 for columns, 9 for boxes), each storing at most 9 digits. This is a constant amount of space (27 * 9 = 243 elements).
+"""

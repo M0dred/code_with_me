@@ -1,0 +1,45 @@
+class Solution:
+    def productQueries(self, n: int, queries: List[List[int]]) -> List[int]:
+        MOD = 1000000007
+        
+        # Get powers of 2 that sum to n
+        powers = []
+        power = 0
+        while n > 0:
+            if n & 1:  # If current bit is 1
+                powers.append(1 << power)
+            n >>= 1
+            power += 1
+        
+        # For each query, compute product of powers[left:right+1]
+        answers = []
+        for left, right in queries:
+            product = 1
+            for i in range(left, right + 1):
+                product = (product * powers[i]) % MOD
+            answers.append(product)
+            
+        return answers
+
+"""
+Approach:
+1. Finding Powers Array:
+   - Convert n to binary and identify powers of 2 that sum to n.
+   - Use bitwise operations: check least significant bit with n & 1, right shift n with n >>= 1.
+   - For each bit set to 1, include 2^power in powers array using 1 << power.
+2. Processing Queries:
+   - For each query [left, right], compute product of powers[left] to powers[right].
+   - Multiply each powers[i] in the range, taking modulo 10^9 + 7 to prevent overflow.
+   - Append each result to the answers list.
+
+Time Complexity:
+- Generating powers: O(log n) as we process each bit of n.
+- Processing queries: O(Q * M) where Q is number of queries and M is max range size.
+- Since powers array length is at most log n (up to 30 for n ≤ 10^9), worst case is O(Q * log n).
+- Overall: O(log n + Q * log n).
+
+Space Complexity:
+- O(log n) for the powers array.
+- O(Q) for the output answers array.
+- Overall: O(log n + Q).
+"""

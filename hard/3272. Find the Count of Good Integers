@@ -1,0 +1,60 @@
+from collections import Counter
+from math import factorial
+
+class Solution:
+    def countGoodIntegers(self, n: int, k: int) -> int:
+        # Precompute factorials up to n for permutation calculations
+        fac = [factorial(i) for i in range(n + 1)]
+        ans = 0  # Total count of good integers
+        vis = set()  # Track unique sorted digit strings to avoid duplicates
+        # Base for left half of palindrome (e.g., for n=3: 100-999, n=4: 10-99)
+        base = 10 ** ((n - 1) // 2)
+        
+        # Enumerate left half of palindrome numbers
+        for i in range(base, base * 10):
+            # Construct palindrome: append reversed left half (adjust for odd n)
+            s = str(i)
+            s += s[::-1][n % 2:]  # For odd n, skip middle digit in reverse
+            # Check if palindrome is divisible by k
+            if int(s) % k:
+                continue
+            
+            # Get sorted string of digits for uniqueness
+            sorted_s = ''.join(sorted(s))
+            # Skip if this digit combination was already counted
+            if sorted_s in vis:
+                continue
+            vis.add(sorted_s)
+            
+            # Calculate permutations excluding leading zeros
+            cnt = Counter(sorted_s)  # Frequency of each digit
+            # Start with (n - count of zeros) choices for first position
+            res = (n - cnt['0']) * fac[n - 1]
+            # Divide by factorials of digit frequencies for total permutations
+            for c in cnt.values():
+                res //= fac[c]
+            # Add to total count
+            ans += res
+        
+        return ans
+
+'''
+Approach:
+1. Precompute factorials up to n for efficient permutation calculations.
+2. Determine the range for the left half of the palindrome based on n:
+   - For n=3: 100-999 (aba form).
+   - For n=4: 10-99 (abba form).
+3. For each number i in this range:
+   - Construct the full palindrome by appending the reversed left half.
+   - For odd n, exclude the middle digit when reversing.
+   - Check if the palindrome is divisible by k.
+4. For valid palindromes:
+   - Create a sorted string of digits to ensure uniqueness.
+   - Skip if already seen to avoid counting duplicate digit sets.
+   - Calculate permutations:
+     - First digit can't be 0: (n - count['0']) choices.
+     - Remaining (n-1) positions: (n-1)! / (product of digit frequency factorials).
+5. Sum all valid permutations to get the total count of good integers.
+Time Complexity: O(10^((n+1)/2) * log(n)) - enumerating half-palindromes and computing permutations.
+Space Complexity: O(n) - for factorial array, Counter, and set of visited patterns.
+'''

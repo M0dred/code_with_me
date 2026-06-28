@@ -1,0 +1,33 @@
+class Solution:
+    def isPossibleToSplit(self, nums: List[int]) -> bool:
+        # Count the frequency of each element in nums
+        count = {}
+        for num in nums:
+            count[num] = count.get(num, 0) + 1
+            # If any element appears more than 2 times, return False
+            if count[num] > 2:
+                return False
+
+        # Check if the total distinct elements are enough to split into two parts
+        distinct_elements = len(count)
+        n = len(nums) // 2
+
+        # There must be at least n distinct elements to split
+        return distinct_elements >= n
+
+'''
+Approach:
+1. Count the frequency of each element in the array using a dictionary.
+2. If any element appears more than twice, return `False` because it would make splitting into two distinct halves impossible.
+3. Check the number of distinct elements:
+   - If the number of distinct elements is at least `n` (half the array length), return `True`.
+   - Otherwise, return `False`.
+
+Time Complexity:
+- Counting frequencies: O(n), where n is the length of nums.
+- Checking conditions: O(1).
+- Total: O(n).
+
+Space Complexity:
+- O(k), where k is the number of unique elements to store in the dictionary.
+'''

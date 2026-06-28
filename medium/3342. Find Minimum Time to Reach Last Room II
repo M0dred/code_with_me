@@ -1,0 +1,80 @@
+from heapq import heappush, heappop
+from math import inf
+
+class Solution:
+    def minTimeToReach(self, moveTime: List[List[int]]) -> int:
+        # Get dimensions of the grid
+        n, m = len(moveTime), len(moveTime[0])
+        
+        # Initialize distances array with infinity
+        # dist[i][j][k] represents min time to reach (i,j) with k%2 moves (0 for even, 1 for odd)
+        dist = [[[inf] * 2 for _ in range(m)] for _ in range(n)]
+        dist[0][0][0] = 0
+        
+        # Priority queue to store (time, row, col, move_count)
+        pq = [(0, 0, 0, 0)]  # (time, row, col, move_count)
+        
+        # Possible directions: right, down, left, up
+        directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]
+        
+        # Dijkstra's algorithm
+        while pq:
+            time, row, col, move_count = heappop(pq)
+            
+            # If current time is greater than known minimum for this state, skip
+            if time > dist[row][col][move_count % 2]:
+                continue
+                
+            # If reached destination, return time
+            if row == n - 1 and col == m - 1:
+                return time
+            
+            # Explore all adjacent cells
+            for dr, dc in directions:
+                new_row, new_col = row + dr, col + dc
+                
+                # Check if new position is within bounds
+                if 0 <= new_row < n and 0 <= new_col < m:
+                    # Determine move time: 1 second for odd moves, 2 seconds for even moves
+                    move_time = 1 if (move_count + 1) % 2 == 1 else 2
+                    # Time to reach new cell is max of moveTime and current time, plus move time
+                    new_time = max(moveTime[new_row][new_col], time) + move_time
+                    # New move count parity
+                    new_move_count = move_count + 1
+                    
+                    # If we found a shorter time to reach the new cell for this move count parity
+                    if new_time < dist[new_row][new_col][new_move_count % 2]:
+                        dist[new_row][new_col][new_move_count % 2] = new_time
+                        heappush(pq, (new_time, new_row, new_col, new_move_count))
+        
+        # Return the minimum time to reach destination (should not reach here)
+        return min(dist[n-1][m-1])
+
+'''
+Approach:
+1. Use Dijkstra's algorithm to find the shortest path in terms of time to reach the destination (n-1, m-1).
+2. Since move times alternate (1 second for odd moves, 2 seconds for even moves), track the parity of the move count.
+3. Initialize a 3D distance array `dist[i][j][k]` with infinity, where k is 0 (even moves) or 1 (odd moves), setting dist[0][0][0] = 0.
+4. Use a priority queue to store tuples of (time, row, col, move_count), starting with (0, 0, 0, 0).
+5. Define possible moves: right, down, left, up.
+6. While the priority queue is not empty:
+   - Pop the cell with the smallest time.
+   - Skip if the time is greater than the known minimum for that cell and move count parity.
+   - If the destination is reached, return the time.
+   - For each adjacent cell:
+     - Check if the new position is within bounds.
+     - Calculate move time: 1 second for odd moves (move_count + 1 is odd), 2 seconds for even moves.
+     - Compute new time: max(moveTime[new_row][new_col], current_time) + move_time.
+     - Update dist and push to the priority queue if a shorter time is found for the new cell's move count parity.
+7. Return the minimum time to reach dist[n-1][m-1][0] or dist[n-1][m-1][1].
+
+Time Complexity: O(N * M * log(N * M)), where N and M are the dimensions of the grid.
+   - Each cell with each move parity (0 or 1) can be pushed/popped at most once, with O(log(N * M)) for heap operations.
+   - For each cell, explore up to 4 neighbors, which is O(1) per cell.
+   - Total: O(N * M * 2 * log(N * M)) = O(N * M * log(N * M)).
+
+Space Complexity: O(N * M).
+   - The distance array `dist` requires O(N * M * 2) = O(N * M) space.
+   - The priority queue can store up to O(N * M) entries in the worst case.
+   - Additional variables and the directions list use O(1) space.
+'''

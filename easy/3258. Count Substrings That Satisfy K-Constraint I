@@ -1,0 +1,26 @@
+class Solution:
+    def countKConstraintSubstrings(self, s: str, k: int) -> int:
+        n = len(s)
+        count_0 = count_1 = 0
+        start = 0
+        result = 0
+        
+        for end in range(n):
+            # Add the current character to the window
+            if s[end] == '0':
+                count_0 += 1
+            else:
+                count_1 += 1
+            
+            # If window becomes invalid, move the start pointer
+            while count_0 > k and count_1 > k:
+                if s[start] == '0':
+                    count_0 -= 1
+                else:
+                    count_1 -= 1
+                start += 1
+            
+            # Every substring from `start` to `end` is valid
+            result += (end - start + 1)
+        
+        return result

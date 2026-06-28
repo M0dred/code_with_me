@@ -1,0 +1,29 @@
+class Solution:
+    def countPrimeSetBits(self, left: int, right: int) -> int:
+        primes = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31}
+
+        ans = 0
+        for x in range(left, right + 1):
+            if x.bit_count() in primes:
+                ans += 1
+        return ans
+
+
+"""
+Approach & Reasoning:
+
+We need to count numbers in [left, right] whose number of 1-bits (set bits) is prime.
+
+Observation:
+For values up to 10^6, the maximum number of set bits is small (<= 20),
+so we can predefine the prime set-bit counts.
+
+Steps:
+1) Precompute a set of prime numbers that could appear as bit counts.
+2) For each number x in [left, right]:
+   - compute popcount = x.bit_count()
+   - if popcount is prime, increment answer.
+
+Time Complexity: O(right - left + 1)
+Space Complexity: O(1)
+"""

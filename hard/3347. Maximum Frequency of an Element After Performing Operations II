@@ -1,0 +1,64 @@
+from typing import List
+from collections import defaultdict
+import bisect
+
+class Solution:
+    def maxFrequency(self, nums: List[int], k: int, numOperations: int) -> int:
+        nums.sort()
+        n = len(nums)
+
+        # Count frequencies of each distinct value
+        freq = defaultdict(int)
+        last = 0
+        best = 0
+        for i in range(n):
+            if nums[i] != nums[last]:
+                cnt = i - last
+                freq[nums[last]] = cnt
+                best = max(best, cnt)
+                last = i
+        cnt = n - last
+        freq[nums[last]] = cnt
+        best = max(best, cnt)
+
+        # Candidate targets to test: for each distinct value v, try v, v-k, v+k
+        candidates = set()
+        for v in freq.keys():
+            candidates.add(v)
+            candidates.add(v - k)
+            candidates.add(v + k)
+
+        # For each candidate target t:
+        # All values x with |x - t| <= k can be shifted to t in one operation.
+        # Let window size w = count of nums in [t-k, t+k] (via two bisections).
+        # Let base = freq[t] (already t) if t exists, else 0.
+        # With at most numOperations changes, achievable frequency at t is min(w, base + numOperations).
+        for t in sorted(candidates):
+            L = t - k
+            R = t + k
+            left = bisect.bisect_left(nums, L)
+            right = bisect.bisect_right(nums, R)
+            window = right - left
+            base = freq.get(t, 0)
+            best = max(best, min(window, base + numOperations))
+
+        return best
+
+'''
+Approach:
+- Each number x can be changed at most once to any integer in [x−k, x+k].
+- If we choose a target value t, all numbers within [t−k, t+k] are convertible to t in one step; numbers already equal to t cost 0.
+- For a fixed t:
+  - Let w = count of nums in [t−k, t+k].
+  - Let base = frequency of t already present (0 if t not in nums).
+  - With ≤ numOperations changes, achievable frequency at t is min(w, base + numOperations).
+- It suffices to test t among {v, v−k, v+k} for every distinct v in nums:
+  - Sorting nums allows w to be computed with two binary searches.
+  - Precompute freq[v] in one pass.
+
+Time Complexity:
+- O(n log n) to sort, then O(u log n) to evaluate candidates (u = #distinct values, u ≤ n).
+
+Space Complexity:
+- O(u) for the frequency map and O(1) extra besides input/output.
+'''

@@ -1,0 +1,47 @@
+class Solution:
+    def minDeletionSize(self, strs: List[str]) -> int:
+        n, m = len(strs), len(strs[0])
+        check_list = list(range(n - 1))  # pairs of rows that are still tied
+        ans = 0
+        
+        for j in range(m):
+            # Check if this column causes any inversion in tied pairs
+            to_delete = False
+            for i in check_list:
+                if strs[i][j] > strs[i + 1][j]:
+                    to_delete = True
+                    break
+            
+            if to_delete:
+                ans += 1
+            else:
+                # Keep this column: filter tied pairs where characters are equal
+                new_size = 0
+                for i in check_list:
+                    if strs[i][j] == strs[i + 1][j]:
+                        check_list[new_size] = i
+                        new_size += 1
+                check_list[new_size:] = []  # truncate the list
+        
+        return ans
+
+"""
+Approach & Reasoning:
+
+We need to find the minimum number of columns to delete so that the remaining strings are in non-decreasing lexicographical order.
+
+Greedy solution:
+- Maintain a list of row pairs (i, i+1) that are still tied (equal in all previously kept columns).
+- For each column j:
+  - If any tied pair has strs[i][j] > strs[i+1][j], this column causes an inversion → must delete it.
+  - Otherwise, the column is non-decreasing for all tied pairs → we can keep it.
+  - Update the tied pairs: keep only those where chars in this column are equal.
+- Count the number of deleted columns.
+
+This works because:
+- We only keep columns that don't violate the order for currently tied strings.
+- Once strings differ in a kept column, their order is fixed and future columns can't reverse it.
+
+Time Complexity : O(n × m)
+Space Complexity: O(n)
+"""

@@ -1,0 +1,33 @@
+class Solution:
+    def minOperations(self, grid: List[List[int]], x: int) -> int:
+        if not grid or not grid[0]:
+            return 0
+        vals = []
+        for row in grid:
+            vals.extend(row)
+        if not vals:
+            return 0
+        r = vals[0] % x
+        for v in vals:
+            if v % x != r:
+                return -1
+        vals.sort()
+        median = vals[len(vals) // 2]
+        ans = 0
+        for v in vals:
+            ans += abs(v - median) // x
+        return ans
+
+"""
+Approach & Reasoning:
+All possible target values t must satisfy t ≡ grid[0][0] (mod x). If any cell value has a different remainder when divided by x, it is impossible to reach a common value, so return -1.
+
+If all values share the same remainder r, any valid target t also satisfies t ≡ r (mod x). To minimize the total number of operations (each ±x on any cell), we must minimize Σ |v - t| / x over all cells v. Because /x is a positive constant, it suffices to minimize Σ |v - t|.
+
+For the L1 norm (sum of absolute deviations) the optimal t is any median of the flattened list of all grid values. Since every grid value ≡ r (mod x), the median also satisfies this congruence, so it is a feasible target.
+
+After sorting the flattened list, we pick the median (vals[N//2] in 0-based indexing; for even N this choice gives the same sum as any other feasible median). The answer is then the sum of |v - median| // x over all cells v.
+
+Time Complexity: O(N log N) where N = m * n ≤ 10^5 (dominated by sorting).
+Space Complexity: O(N) for the flattened list.
+"""

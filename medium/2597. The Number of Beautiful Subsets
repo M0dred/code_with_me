@@ -1,0 +1,51 @@
+from typing import List
+from collections import Counter
+
+class Solution:
+    def beautifulSubsets(self, nums: List[int], k: int) -> int:
+        """
+        Returns the number of non-empty beautiful subsets of nums.
+        """
+        count = Counter()
+        nums.sort()  # Sorting ensures subsets are considered in lexicographical order
+        result = 0
+
+        def backtrack(index):
+            nonlocal result
+            if index == len(nums):
+                result += 1  # A valid subset has been formed
+                return
+            
+            # Option 1: Skip the current number
+            backtrack(index + 1)
+
+            # Option 2: Include the current number if it does not form an invalid pair
+            if count[nums[index] - k] == 0:  # Ensure no conflicting value
+                count[nums[index]] += 1
+                backtrack(index + 1)
+                count[nums[index]] -= 1  # Backtrack
+
+        backtrack(0)
+        return result - 1  # Exclude the empty subset
+
+# Example Usage:
+# obj = Solution()
+# result = obj.beautifulSubsets([2,4,6], 2)  # Output: 4
+# print(result)
+
+'''
+Approach:
+1. Use backtracking to generate all possible subsets.
+2. Use a hash map `count` to track frequency of elements in the current subset.
+3. At each step, decide whether to include `nums[index]`:
+   - If including it does not violate the condition (`nums[index] - k` is not already in `count`), proceed.
+   - Otherwise, skip to the next element.
+4. The base case is when `index == len(nums)`, at which point we count the subset.
+5. Since we count the empty subset, subtract 1 before returning.
+
+Time Complexity: O(2^n)
+- Each element can either be included or not.
+
+Space Complexity: O(n)
+- The recursion depth and hash map use O(n).
+'''

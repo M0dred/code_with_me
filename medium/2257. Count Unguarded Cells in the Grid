@@ -1,0 +1,88 @@
+from typing import List
+
+class Solution:
+    def countUnguarded(self, m: int, n: int, guards: List[List[int]], walls: List[List[int]]) -> int:
+        # 0 = empty, 1 = guard, 2 = wall
+        grid = [0] * (m * n)
+        for r, c in guards:
+            grid[r * n + c] = 1
+        for r, c in walls:
+            grid[r * n + c] = 2
+
+        guarded = [False] * (m * n)
+
+        # Sweep rows: left -> right
+        for r in range(m):
+            active = False
+            base = r * n
+            for c in range(n):
+                idx = base + c
+                if grid[idx] == 2:          # wall blocks vision
+                    active = False
+                elif grid[idx] == 1:        # guard starts vision
+                    active = True
+                else:                        # empty
+                    if active:
+                        guarded[idx] = True
+
+        # Sweep rows: right -> left
+        for r in range(m):
+            active = False
+            base = r * n
+            for c in range(n - 1, -1, -1):
+                idx = base + c
+                if grid[idx] == 2:
+                    active = False
+                elif grid[idx] == 1:
+                    active = True
+                else:
+                    if active:
+                        guarded[idx] = True
+
+        # Sweep cols: top -> bottom
+        for c in range(n):
+            active = False
+            for r in range(m):
+                idx = r * n + c
+                if grid[idx] == 2:
+                    active = False
+                elif grid[idx] == 1:
+                    active = True
+                else:
+                    if active:
+                        guarded[idx] = True
+
+        # Sweep cols: bottom -> top
+        for c in range(n):
+            active = False
+            for r in range(m - 1, -1, -1):
+                idx = r * n + c
+                if grid[idx] == 2:
+                    active = False
+                elif grid[idx] == 1:
+                    active = True
+                else:
+                    if active:
+                        guarded[idx] = True
+
+        # Count unoccupied (not guard, not wall) and not guarded
+        res = 0
+        for i in range(m * n):
+            if grid[i] == 0 and not guarded[i]:
+                res += 1
+        return res
+
+'''
+Approach:
+- Represent the grid as a 1-D array with states: 0 empty, 1 guard, 2 wall.
+- A cell is guarded if some guard sees it horizontally or vertically with no walls/guards blocking.
+- Do four linear sweeps:
+  1) Row-wise left→right, 2) right→left, 3) Column-wise top→bottom, 4) bottom→top.
+  Keep an `active` flag meaning "a guard is currently seeing along this direction until blocked".
+  When encountering a wall, reset `active`; when encountering a guard, set `active=True`.
+  Mark empty cells as guarded if `active` is True.
+- Finally, count cells that are empty and not marked guarded.
+
+Time Complexity: O(m·n)  
+Space Complexity: O(m·n) for grid + guarded arrays (fits since m·n ≤ 1e5).
+'''

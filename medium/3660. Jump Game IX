@@ -1,0 +1,57 @@
+class Solution:
+    def maxValue(self, nums: List[int]) -> List[int]:
+        n = len(nums)
+        if n == 0:
+            return []
+        
+        # Precompute suffix minimum
+        suf_min = [0] * n
+        suf_min[n - 1] = nums[n - 1]
+        for i in range(n - 2, -1, -1):
+            suf_min[i] = min(suf_min[i + 1], nums[i])
+        
+        ans = [0] * n
+        i = 0
+        while i < n:
+            cur_max = nums[i]
+            j = i
+            while j + 1 < n:
+                next_val = nums[j + 1]
+                # Direct connection: some previous in segment has larger value
+                direct = cur_max > next_val
+                # Future bridge: exists r > j+1 with nums[r] < next_val and cur_max > nums[r]
+                bridge = (j + 2 < n and suf_min[j + 2] < next_val and cur_max > suf_min[j + 2])
+                if direct or bridge:
+                    j += 1
+                    cur_max = max(cur_max, nums[j])
+                else:
+                    break
+            # Assign the segment maximum to all positions in [i, j]
+            for k in range(i, j + 1):
+                ans[k] = cur_max
+            i = j + 1
+        return ans
+
+"""
+Approach & Reasoning:
+The allowed jumps create a directed graph where there is a bidirectional edge between i < j precisely when nums[i] > nums[j].
+
+The connected components of this graph are contiguous segments of the array. Within each segment all positions can reach each other, and the answer for every index in the segment is the maximum value inside that segment.
+
+To identify these segments in linear time:
+- Precompute suf_min[i] = minimum value in nums[i..n-1].
+- Scan the array with a sliding window [i, j]:
+  - Start a segment at i with cur_max = nums[i].
+  - Try to extend to j+1 if it can connect to the current segment:
+    - Direct connection if cur_max > nums[j+1] (some position in the segment has a strictly larger value).
+    - Or a future bridge exists: there is some r > j+1 with nums[r] < nums[j+1] (so j+1 can jump forward to r) and cur_max > nums[r] (so some position in the segment can jump forward/backward to r). This is efficiently checked using suf_min[j+2].
+  - If either condition holds, extend the segment and update cur_max.
+  - Otherwise, the current segment [i, j] is complete; assign cur_max to all positions in it and start the next segment at j+1.
+
+Because each position is visited exactly once and the extension checks are O(1), the total time is O(n).
+
+This correctly merges segments across ascents when they are bridgeable either directly by a previous larger value or indirectly via a sufficiently small future value, while handling equals and decreases naturally.
+
+Time Complexity: O(n)
+Space Complexity: O(n)
+"""

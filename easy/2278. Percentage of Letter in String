@@ -1,0 +1,17 @@
+class Solution:
+    def percentageLetter(self, s: str, letter: str) -> int:
+        count = s.count(letter)
+        return (count * 100) // len(s)
+
+'''
+Approach:
+1. Use the `count()` function to count how many times `letter` appears in the string `s`.
+2. Compute the percentage by: (count of letter * 100) // total length of the string.
+3. Use integer division `//` to automatically round down the result to the nearest whole number.
+
+Time Complexity: O(n)
+- n is the length of string s. The count operation is O(n).
+
+Space Complexity: O(1)
+- Only a few variables are used regardless of the input size.
+'''

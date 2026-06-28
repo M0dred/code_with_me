@@ -1,0 +1,91 @@
+from typing import List
+from collections import deque
+
+HOLE, MOUSE_START, CAT_START = 0, 1, 2
+MOUSE_TURN, CAT_TURN = 0, 1
+MOUSE_WIN, CAT_WIN, TIE = 1, 2, 0
+
+class Solution:
+    def catMouseGame(self, graph: List[List[int]]) -> int:
+        def get_prev_states(state):
+            m, c, t = state
+            pt = t ^ 1  # Toggle turn
+            pre = []
+            if pt == CAT_TURN:
+                for pc in graph[c]:
+                    if pc != HOLE:
+                        pre.append((m, pc, pt))
+            else:
+                for pm in graph[m]:
+                    pre.append((pm, c, pt))
+            return pre
+
+        n = len(graph)
+        ans = [[[TIE, TIE] for _ in range(n)] for _ in range(n)]
+        degree = [[[0, 0] for _ in range(n)] for _ in range(n)]
+        
+        # Compute degree of each state
+        for i in range(n):
+            for j in range(1, n):
+                degree[i][j][MOUSE_TURN] = len(graph[i])
+                degree[i][j][CAT_TURN] = len(graph[j])
+            for j in graph[HOLE]:
+                degree[i][j][CAT_TURN] -= 1
+        
+        q = deque()
+        
+        # Initialize base cases
+        for j in range(1, n):
+            ans[0][j][MOUSE_TURN] = ans[0][j][CAT_TURN] = MOUSE_WIN
+            q.append((0, j, MOUSE_TURN))
+            q.append((0, j, CAT_TURN))
+        for i in range(1, n):
+            ans[i][i][MOUSE_TURN] = ans[i][i][CAT_TURN] = CAT_WIN
+            q.append((i, i, MOUSE_TURN))
+            q.append((i, i, CAT_TURN))
+        
+        # Process the queue with topological sorting
+        while q:
+            state = q.popleft()
+            t = ans[state[0]][state[1]][state[2]]
+            for prev_state in get_prev_states(state):
+                pm, pc, pt = prev_state
+                if ans[pm][pc][pt] == TIE:
+                    win = (t == MOUSE_WIN and pt == MOUSE_TURN) or (
+                        t == CAT_WIN and pt == CAT_TURN
+                    )
+                    if win:
+                        ans[pm][pc][pt] = t
+                        q.append(prev_state)
+                    else:
+                        degree[pm][pc][pt] -= 1
+                        if degree[pm][pc][pt] == 0:
+                            ans[pm][pc][pt] = t
+                            q.append(prev_state)
+        
+        return ans[MOUSE_START][CAT_START][MOUSE_TURN]
+
+'''
+Approach:
+1. **Graph Representation:**
+   - The graph is represented as an adjacency list.
+   - Each state in the game is `(mouse_position, cat_position, turn)`.
+
+2. **Base Cases:**
+   - If the mouse reaches node `0`, it wins.
+   - If the mouse and cat are in the same position, the cat wins.
+
+3. **Degree Calculation:**
+   - Compute the number of available moves for the mouse and the cat.
+   - Adjust the cat’s degree to avoid the hole (node `0`).
+
+4. **Topological Sorting Using BFS:**
+   - We process known winning and losing states first.
+   - If a state has no remaining moves, its result is determined by the last move.
+
+5. **Time Complexity:**
+   - O(n^3), as each state `(mouse, cat, turn)` is processed at most once.
+
+6. **Space Complexity:**
+   - O(n^3), storing the DP and degree tracking tables.
+'''

@@ -1,0 +1,56 @@
+class Solution:
+    def lenOfVDiagonal(self, grid: List[List[int]]) -> int:
+        m, n = len(grid), len(grid[0])
+        # Define diagonal directions: bottom-right, bottom-left, top-left, top-right
+        DIRS = [(1, 1), (1, -1), (-1, -1), (-1, 1)]
+        
+        from functools import cache
+        
+        @cache
+        def dfs(cx: int, cy: int, direction: int, turn: bool, target: int) -> int:
+            # Calculate next position
+            nx, ny = cx + DIRS[direction][0], cy + DIRS[direction][1]
+            
+            # Check if next position is out of bounds or doesn't match target value
+            if nx < 0 or ny < 0 or nx >= m or ny >= n or grid[nx][ny] != target:
+                return 0
+            
+            # Continue in the same direction
+            max_step = dfs(nx, ny, direction, turn, 2 - target)
+            
+            # If turn is available, try a 90-degree clockwise turn
+            if turn:
+                max_step = max(max_step, dfs(nx, ny, (direction + 1) % 4, False, 2 - target))
+            
+            return max_step + 1
+        
+        max_length = 0
+        # Iterate through each cell as a potential starting point
+        for i in range(m):
+            for j in range(n):
+                if grid[i][j] == 1:  # Segment must start with 1
+                    for direction in range(4):
+                        max_length = max(max_length, dfs(i, j, direction, True, 2) + 1)
+        
+        return max_length
+
+"""
+Approach:
+The solution finds the longest V-shaped diagonal segment in a grid where the segment starts with 1 and follows the sequence [1, 2, 0, 2, 0, ...], allowing at most one 90-degree clockwise turn. The steps are:
+1. Define four diagonal directions: bottom-right, bottom-left, top-left, top-right.
+2. Use a memoized DFS function to explore segments starting from a cell with value 1:
+   - The DFS takes the current position (cx, cy), direction, whether a turn is available (turn), and the expected next value (target).
+   - Check if the next position in the current direction is valid and matches the target value (2 after 1, 0 after 2, 2 after 0, etc.).
+   - Continue in the same direction recursively, updating the target value (2 - target alternates between 2 and 0).
+   - If a turn is available, try a 90-degree clockwise turn by changing the direction (using modulo to cycle through directions).
+   - Return the length of the longest valid segment from the current position.
+3. Iterate through each cell with value 1, try all four directions, and track the maximum segment length.
+4. Return the maximum length found, including the starting point.
+
+Time Complexity:
+- O(m * n * D * S), where m and n are the grid dimensions, D is the number of directions (4), and S is the number of states (bounded by min(m, n) for segment length). The DFS is memoized with states (cx, cy, direction, turn, target), but target alternates between 0 and 2, and turn is a boolean, so the state space is effectively O(m * n * 4 * 2 * 2). Each state computation is O(1) excluding recursive calls.
+- Worst case: O(m * n * min(m, n)), as the segment length is limited by the grid size.
+
+Space Complexity:
+- O(m * n * 4 * 2 * 2) = O(m * n) for the memoization cache, which stores states for each position, direction, turn availability, and target value. The recursion stack depth is bounded by O(min(m, n)).
+"""
