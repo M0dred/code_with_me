@@ -1,0 +1,26 @@
+from typing import List
+
+class Solution:
+    def numOfStrings(self, patterns: List[str], word: str) -> int:
+        # Initialize counter for matching patterns
+        count = 0
+        
+        # Check each pattern to see if it appears as a substring in word
+        for p in patterns:
+            if p in word:
+                count += 1
+        
+        return count
+
+'''
+Approach:
+1. Initialize a counter to 0.
+2. Iterate through each string in `patterns`.
+3. Use the `in` operator to check if the current pattern exists as a contiguous 
+   substring within `word`.
+4. If it does, increment the counter.
+5. Return the final count.
+
+Time Complexity: O(P * W), where P is the length of patterns and W is the length of word.
+Space Complexity: O(1).
+'''
