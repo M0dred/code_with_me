@@ -1,0 +1,35 @@
+class Solution:
+    def numberOfSubstrings(self, s: str) -> int:
+        # Track the last occurrence index of each character
+        last_a = last_b = last_c = -1
+        ans = 0
+        
+        for i, ch in enumerate(s):
+            if ch == 'a':
+                last_a = i
+            elif ch == 'b':
+                last_b = i
+            else:
+                last_c = i
+            
+            # Once all three characters have been seen
+            if last_a != -1 and last_b != -1 and last_c != -1:
+                # The leftmost valid start is the minimum of the three last occurrences
+                ans += min(last_a, last_b, last_c) + 1
+        
+        return ans
+
+'''
+Approach:
+1. Maintain the most recent index where each of 'a', 'b', and 'c' has been seen.
+2. Iterate through the string from left to right. At each index i, update the last 
+   occurrence of the current character.
+3. Once all three characters have been seen at least once, any substring ending at i 
+   that starts at an index from 0 up to the minimum of the three last occurrences 
+   will contain all three characters. The number of valid starts is 
+   min(last_a, last_b, last_c) + 1.
+4. Accumulate this count for each valid position and return the total.
+
+Time Complexity: O(N), where N is the length of s.
+Space Complexity: O(1).
+'''
