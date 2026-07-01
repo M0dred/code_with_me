@@ -1,0 +1,68 @@
+from typing import List
+import heapq
+from collections import deque
+
+class Solution:
+    def maximumSafenessFactor(self, grid: List[List[int]]) -> int:
+        n = len(grid)
+        
+        # Multi-source BFS: compute Manhattan distance to the nearest thief for every cell
+        dist = [[-1] * n for _ in range(n)]
+        q = deque()
+        
+        for r in range(n):
+            for c in range(n):
+                if grid[r][c] == 1:
+                    dist[r][c] = 0
+                    q.append((r, c))
+        
+        dirs = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+        while q:
+            r, c = q.popleft()
+            for dr, dc in dirs:
+                nr, nc = r + dr, c + dc
+                if 0 <= nr < n and 0 <= nc < n and dist[nr][nc] == -1:
+                    dist[nr][nc] = dist[r][c] + 1
+                    q.append((nr, nc))
+        
+        # Modified Dijkstra: maximize the minimum dist value along the path
+        # Use a max-heap simulated with a min-heap on negative values
+        heap = [(-dist[0][0], 0, 0)]
+        visited = [[False] * n for _ in range(n)]
+        
+        while heap:
+            safe, r, c = heapq.heappop(heap)
+            safe = -safe
+            
+            if r == n - 1 and c == n - 1:
+                return safe
+            if visited[r][c]:
+                continue
+            visited[r][c] = True
+            
+            for dr, dc in dirs:
+                nr, nc = r + dr, c + dc
+                if 0 <= nr < n and 0 <= nc < n and not visited[nr][nc]:
+                    new_safe = min(safe, dist[nr][nc])
+                    heapq.heappush(heap, (-new_safe, nr, nc))
+        
+        return 0
+
+'''
+Approach:
+1. Compute the minimum Manhattan distance from every cell to the nearest thief using 
+   multi-source BFS starting from all thief cells simultaneously.
+2. The problem reduces to finding a path from (0,0) to (n-1,n-1) that maximizes the 
+   minimum distance value encountered along the path.
+3. Use a modified Dijkstra's algorithm with a max-heap. The priority of a path is 
+   its current safeness factor (the minimum distance value seen so far). Start with 
+   the distance value of cell (0,0).
+4. For each popped cell, if it is the destination, return its safeness factor. 
+   Otherwise, for each unvisited neighbor, compute the new safeness factor as the 
+   minimum of the current factor and the neighbor's distance, then push it into the heap.
+5. The first time the destination is popped from the heap yields the maximum possible 
+   safeness factor.
+
+Time Complexity: O(N^2 log N), where N is the side length of the grid.
+Space Complexity: O(N^2).
+'''
