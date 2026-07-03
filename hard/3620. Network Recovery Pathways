@@ -1,0 +1,84 @@
+from typing import List
+import collections
+
+class Solution:
+    def findMaxPathScore(self, edges: List[List[int]], online: List[bool], k: int) -> int:
+        n = len(online)
+        adj = [[] for _ in range(n)]
+        indeg = [0] * n
+        all_costs = set()
+        
+        for u, v, c in edges:
+            all_costs.add(c)
+            if online[u] and online[v]:
+                adj[u].append((v, c))
+                indeg[v] += 1
+        
+        # Topological sort of the valid subgraph (only online nodes)
+        indeg_copy = indeg[:]
+        q = collections.deque()
+        for i in range(n):
+            if online[i] and indeg_copy[i] == 0:
+                q.append(i)
+        
+        topo = []
+        while q:
+            u = q.popleft()
+            topo.append(u)
+            for v, c in adj[u]:
+                indeg_copy[v] -= 1
+                if indeg_copy[v] == 0:
+                    q.append(v)
+        
+        costs = sorted(all_costs)
+        if not costs:
+            return -1
+        
+        def feasible(T: int) -> bool:
+            INF = 10**18
+            dist = [INF] * n
+            dist[0] = 0
+            
+            for u in topo:
+                if dist[u] == INF:
+                    continue
+                for v, c in adj[u]:
+                    if c >= T and dist[v] > dist[u] + c:
+                        dist[v] = dist[u] + c
+            
+            return dist[n - 1] <= k
+        
+        # If no valid path exists even when all edges are allowed
+        if not feasible(costs[0]):
+            return -1
+        
+        lo, hi = 0, len(costs) - 1
+        ans = costs[0]
+        while lo <= hi:
+            mid = (lo + hi) // 2
+            if feasible(costs[mid]):
+                ans = costs[mid]
+                lo = mid + 1
+            else:
+                hi = mid - 1
+        
+        return ans
+
+'''
+Approach:
+1. Build a subgraph containing only edges between online nodes. Since the original 
+   graph is a DAG, this subgraph is also a DAG.
+2. Compute a topological order of the valid subgraph using Kahn's algorithm.
+3. The score of a path is the minimum edge cost along that path. The answer must be 
+   one of the unique edge costs present in the graph.
+4. Binary search over the sorted unique edge costs. For a given threshold T, check 
+   if there exists a path from 0 to n-1 using only edges with cost >= T and whose 
+   total cost sum does not exceed k.
+5. The feasibility check is a shortest-path DP over the DAG in topological order, 
+   since all edge costs are non-negative. If the shortest path distance to n-1 is 
+   <= k, the threshold T is feasible.
+6. If no path exists even when allowing all edges (T = minimum cost), return -1.
+
+Time Complexity: O((N + M) log M), where N is the number of nodes and M is the number of edges.
+Space Complexity: O(N + M).
+'''
