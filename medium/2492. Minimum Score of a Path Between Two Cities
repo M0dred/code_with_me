@@ -1,0 +1,38 @@
+from typing import List
+from collections import deque
+
+class Solution:
+    def minScore(self, n: int, roads: List[List[int]]) -> int:
+        adj = [[] for _ in range(n + 1)]
+        for u, v, w in roads:
+            adj[u].append((v, w))
+            adj[v].append((u, w))
+        
+        visited = [False] * (n + 1)
+        q = deque([1])
+        visited[1] = True
+        ans = float('inf')
+        
+        while q:
+            u = q.popleft()
+            for v, w in adj[u]:
+                ans = min(ans, w)
+                if not visited[v]:
+                    visited[v] = True
+                    q.append(v)
+        
+        return ans
+
+'''
+Approach:
+1. Build an adjacency list for the undirected graph.
+2. Perform BFS starting from city 1 to explore its entire connected component.
+3. During traversal, for every edge encountered from a visited node, update the 
+   minimum edge weight seen so far.
+4. Since the graph is undirected and cities 1 and n are guaranteed to be connected, 
+   the minimum edge weight found in this connected component is the answer.
+5. Return the minimum edge weight.
+
+Time Complexity: O(N + M), where N is the number of cities and M is the number of roads.
+Space Complexity: O(N + M).
+'''
