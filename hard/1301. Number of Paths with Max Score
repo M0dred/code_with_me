@@ -1,0 +1,65 @@
+from typing import List
+
+class Solution:
+    def pathsWithMaxScore(self, board: List[str]) -> List[int]:
+        n = len(board)
+        MOD = 10**9 + 7
+        
+        dp = [[0] * n for _ in range(n)]
+        count = [[0] * n for _ in range(n)]
+        
+        # Start at bottom-right 'S'
+        dp[n - 1][n - 1] = 0
+        count[n - 1][n - 1] = 1
+        
+        # Reverse of allowed moves: down, right, down-right
+        dirs = [(1, 0), (0, 1), (1, 1)]
+        
+        for i in range(n - 1, -1, -1):
+            for j in range(n - 1, -1, -1):
+                if i == n - 1 and j == n - 1:
+                    continue
+                if board[i][j] == 'X':
+                    continue
+                
+                ch = board[i][j]
+                val = 0 if ch == 'E' or ch == 'S' else int(ch)
+                
+                best = -1
+                ways = 0
+                
+                for di, dj in dirs:
+                    ni, nj = i + di, j + dj
+                    if ni < n and nj < n and count[ni][nj] > 0:
+                        cand = dp[ni][nj] + val
+                        if cand > best:
+                            best = cand
+                            ways = count[ni][nj]
+                        elif cand == best:
+                            ways = (ways + count[ni][nj]) % MOD
+                
+                if ways > 0:
+                    dp[i][j] = best
+                    count[i][j] = ways
+        
+        if count[0][0] == 0:
+            return [0, 0]
+        return [dp[0][0], count[0][0] % MOD]
+
+'''
+Approach:
+1. Process the board from bottom-right to top-left. Since moves are only up, left, 
+   and up-left, the reverse predecessors are down, right, and down-right.
+2. Maintain two DP tables: `dp[i][j]` stores the maximum numeric sum to reach cell 
+   (i, j) from the start; `count[i][j]` stores the number of paths achieving that 
+   maximum sum.
+3. For each cell, examine its three predecessors. If a predecessor is reachable, 
+   compute the candidate sum. Update `dp` and `count` when a larger sum is found, or 
+   add to `count` when an equal sum is found.
+4. The destination 'E' and start 'S' contribute value 0; obstacles 'X' are skipped.
+5. If the top-left cell is unreachable, return [0, 0]. Otherwise return 
+   [dp[0][0], count[0][0]].
+
+Time Complexity: O(N^2), where N is the side length of the board.
+Space Complexity: O(N^2).
+'''
