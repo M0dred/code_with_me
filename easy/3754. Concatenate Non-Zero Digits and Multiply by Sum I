@@ -1,0 +1,24 @@
+class Solution:
+    def sumAndMultiply(self, n: int) -> int:
+        x = 0
+        digit_sum = 0
+        
+        # Iterate through each digit of n
+        for ch in str(n):
+            if ch != '0':
+                d = ord(ch) - ord('0')
+                x = x * 10 + d
+                digit_sum += d
+        
+        return x * digit_sum
+
+'''
+Approach:
+1. Convert n to a string and iterate through each character.
+2. For each non-zero digit, append it to the integer x by multiplying x by 10 and adding the digit.
+3. Simultaneously accumulate the sum of these non-zero digits.
+4. Return the product of x and the digit sum.
+
+Time Complexity: O(D), where D is the number of digits in n.
+Space Complexity: O(1).
+'''
