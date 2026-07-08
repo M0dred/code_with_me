@@ -1,0 +1,52 @@
+import bisect
+from typing import List
+
+class Solution:
+    def sumAndMultiply(self, s: str, queries: List[List[int]]) -> List[int]:
+        MOD = 10**9 + 7
+        pos = []
+        vals = []
+        
+        # Collect positions and values of non-zero digits
+        for i, ch in enumerate(s):
+            if ch != '0':
+                pos.append(i)
+                vals.append(ord(ch) - ord('0'))
+        
+        k = len(vals)
+        pref_sum = [0] * (k + 1)
+        pref_num = [0] * (k + 1)
+        pow10 = [1] * (k + 1)
+        
+        for i in range(k):
+            d = vals[i]
+            pref_sum[i + 1] = pref_sum[i] + d
+            pref_num[i + 1] = (pref_num[i] * 10 + d) % MOD
+            pow10[i + 1] = (pow10[i] * 10) % MOD
+        
+        ans = []
+        for l, r in queries:
+            a = bisect.bisect_left(pos, l)
+            b = bisect.bisect_right(pos, r) - 1
+            if a > b:
+                ans.append(0)
+                continue
+            length = b - a + 1
+            sum_val = pref_sum[b + 1] - pref_sum[a]
+            x_val = (pref_num[b + 1] - pref_num[a] * pow10[length]) % MOD
+            ans.append((x_val * sum_val) % MOD)
+        
+        return ans
+
+'''
+Approach:
+1. Collect the positions and values of all non-zero digits in s.
+2. Precompute prefix sums of digit values, prefix numbers modulo MOD, and powers of 10.
+3. For each query, use binary search to find the range of non-zero digits within [l, r].
+4. If no non-zero digits exist in the range, the answer is 0.
+5. Otherwise, compute the sum of digits and the value x formed by concatenating them 
+   using the prefix arrays. The answer is (x * sum) % MOD.
+
+Time Complexity: O(N + Q log N), where N is the length of s and Q is the number of queries.
+Space Complexity: O(N).
+'''
