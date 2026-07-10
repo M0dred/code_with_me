@@ -1,0 +1,81 @@
+from typing import List
+
+class Solution:
+    def pathExistenceQueries(self, n: int, nums: List[int], maxDiff: int, queries: List[List[int]]) -> List[int]:
+        # Sort nodes by their values
+        order = sorted(range(n), key=lambda i: nums[i])
+        vals = [nums[i] for i in order]
+        pos = [0] * n
+        for i, idx in enumerate(order):
+            pos[idx] = i
+        
+        # Assign connected components based on gaps in sorted order
+        comp = [0] * n
+        comp_id = 0
+        for i in range(1, n):
+            if vals[i] - vals[i - 1] > maxDiff:
+                comp_id += 1
+            comp[i] = comp_id
+        
+        # Two-pointer to find farthest reachable index from each position
+        nxt = [0] * n
+        j = 0
+        for i in range(n):
+            while j + 1 < n and vals[j + 1] - vals[i] <= maxDiff:
+                j += 1
+            nxt[i] = j
+        
+        # Binary lifting table
+        LOG = (n).bit_length()
+        up = [[0] * n for _ in range(LOG)]
+        up[0] = nxt[:]
+        for k in range(1, LOG):
+            for i in range(n):
+                up[k][i] = up[k - 1][up[k - 1][i]]
+        
+        ans = []
+        for u, v in queries:
+            if u == v:
+                ans.append(0)
+                continue
+            
+            pu, pv = pos[u], pos[v]
+            if comp[pu] != comp[pv]:
+                ans.append(-1)
+                continue
+            
+            if pu > pv:
+                pu, pv = pv, pu
+            
+            cur = pu
+            steps = 0
+            for k in range(LOG - 1, -1, -1):
+                if up[k][cur] < pv:
+                    steps += (1 << k)
+                    cur = up[k][cur]
+            
+            ans.append(steps + 1)
+        
+        return ans
+
+'''
+Approach:
+1. Sort the nodes by their `nums` values. In this sorted order, the graph decomposes 
+   into contiguous connected components: a new component starts whenever the gap 
+   between two consecutive values exceeds `maxDiff`.
+2. For each position `i` in the sorted array, compute `nxt[i]`, the farthest index 
+   reachable from `i` in one step (i.e., the last index with value <= vals[i] + maxDiff). 
+   This is done with a two-pointer scan in O(n).
+3. The shortest path between two nodes in the same component always moves monotonically 
+   in the sorted order (going left never helps reach farther right). Thus, the distance 
+   from `pu` to `pv` (pu < pv) is the minimum number of jumps needed to reach an 
+   index >= pv using the `nxt` array.
+4. Precompute a binary lifting table `up[k][i]` = the index reached from `i` after 
+   2^k jumps. This allows each distance query to be answered in O(log n) by greedily 
+   taking the largest jumps that keep us strictly below `pv`, then adding one final 
+   jump.
+5. If two nodes are in different components, the answer is -1.
+
+Time Complexity: O((N + Q) log N), where N is the number of nodes and Q is the number of queries.
+Space Complexity: O(N log N).
+'''
