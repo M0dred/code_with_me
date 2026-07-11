@@ -1,0 +1,56 @@
+from typing import List
+
+class Solution:
+    def countCompleteComponents(self, n: int, edges: List[List[int]]) -> int:
+        adj = [[] for _ in range(n)]
+        for u, v in edges:
+            adj[u].append(v)
+            adj[v].append(u)
+        
+        visited = [False] * n
+        
+        def dfs(u: int, comp: List[int]):
+            visited[u] = True
+            comp.append(u)
+            for v in adj[u]:
+                if not visited[v]:
+                    dfs(v, comp)
+        
+        ans = 0
+        for i in range(n):
+            if not visited[i]:
+                comp = []
+                dfs(i, comp)
+                k = len(comp)
+                in_comp = [False] * n
+                for u in comp:
+                    in_comp[u] = True
+                
+                is_complete = True
+                for u in comp:
+                    cnt = 0
+                    for v in adj[u]:
+                        if in_comp[v]:
+                            cnt += 1
+                    if cnt != k - 1:
+                        is_complete = False
+                        break
+                
+                if is_complete:
+                    ans += 1
+        
+        return ans
+
+'''
+Approach:
+1. Build an adjacency list from the given undirected edges.
+2. Use DFS to find every connected component and record its vertices.
+3. For a component with k vertices to be complete, each vertex must have exactly 
+   k - 1 neighbors within that same component.
+4. For each component, verify this degree condition. If it holds for all vertices, 
+   the component is complete and increments the answer.
+5. Return the total count of complete connected components.
+
+Time Complexity: O(N + M), where N is the number of vertices and M is the number of edges.
+Space Complexity: O(N + M).
+'''
