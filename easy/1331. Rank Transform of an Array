@@ -1,0 +1,22 @@
+from typing import List
+
+class Solution:
+    def arrayRankTransform(self, arr: List[int]) -> List[int]:
+        # Create a sorted list of unique elements to determine ranks
+        sorted_unique = sorted(set(arr))
+        
+        # Map each unique value to its 1-based rank
+        rank_map = {val: i + 1 for i, val in enumerate(sorted_unique)}
+        
+        # Replace each element in the original array with its rank
+        return [rank_map[x] for x in arr]
+
+'''
+Approach:
+1. Extract the unique elements from `arr` and sort them in ascending order.
+2. Assign ranks starting from 1 to each unique value in the sorted order, creating a mapping.
+3. Iterate through the original array and replace each element with its corresponding rank from the mapping.
+
+Time Complexity: O(N log N), where N is the length of arr.
+Space Complexity: O(N).
+'''
