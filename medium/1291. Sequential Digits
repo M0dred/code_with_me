@@ -1,0 +1,29 @@
+from typing import List
+
+class Solution:
+    def sequentialDigits(self, low: int, high: int) -> List[int]:
+        res = []
+        
+        # Generate all sequential digit numbers by choosing a starting digit and length
+        for length in range(2, 11):
+            for start in range(1, 11 - length):
+                num = 0
+                for i in range(length):
+                    num = num * 10 + (start + i)
+                if low <= num <= high:
+                    res.append(num)
+        
+        return res
+
+'''
+Approach:
+1. A sequential digit number is completely determined by its first digit and its length.
+2. Iterate over all possible lengths (from 2 up to 10) and all valid starting digits 
+   (from 1 up to 10 - length) so that the digits never exceed 9.
+3. Construct the number digit by digit. If it falls within [low, high], add it to the result.
+4. Since the generation order is naturally sorted by length then by starting digit, 
+   and all sequential digit numbers are unique, the collected list is already sorted.
+
+Time Complexity: O(1).
+Space Complexity: O(1).
+'''
