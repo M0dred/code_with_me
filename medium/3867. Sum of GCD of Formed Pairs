@@ -1,0 +1,34 @@
+import math
+
+class Solution:
+    def gcdSum(self, nums: list[int]) -> int:
+        n = len(nums)
+        prefix_gcd = []
+        mx = 0
+        
+        # Build prefixGcd: running max and gcd(nums[i], mx)
+        for x in nums:
+            mx = max(mx, x)
+            prefix_gcd.append(math.gcd(x, mx))
+        
+        # Sort and pair smallest with largest
+        prefix_gcd.sort()
+        ans = 0
+        for i in range(n // 2):
+            ans += math.gcd(prefix_gcd[i], prefix_gcd[n - 1 - i])
+        
+        return ans
+
+'''
+Approach:
+1. Compute the running maximum `mx` while iterating through `nums`.
+2. For each element, compute `gcd(nums[i], mx)` and store it in `prefix_gcd`.
+3. Sort `prefix_gcd` in non-decreasing order.
+4. Pair the smallest unpaired element with the largest unpaired element 
+   (i.e., pair `prefix_gcd[i]` with `prefix_gcd[n-1-i]` for `i = 0..n//2-1`).
+5. Compute the GCD of each pair and accumulate the sum.
+6. If `n` is odd, the middle element is naturally ignored by the loop bound `n // 2`.
+
+Time Complexity: O(N log N), where N is the length of nums.
+Space Complexity: O(N).
+'''
