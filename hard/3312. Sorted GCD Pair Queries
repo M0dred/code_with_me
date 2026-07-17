@@ -1,0 +1,55 @@
+import bisect
+from typing import List
+
+class Solution:
+    def gcdValues(self, nums: List[int], queries: List[int]) -> List[int]:
+        MAX = max(nums)
+        freq = [0] * (MAX + 1)
+        for x in nums:
+            freq[x] += 1
+        
+        # Count how many numbers in nums are multiples of g
+        count_multiples = [0] * (MAX + 1)
+        for g in range(1, MAX + 1):
+            for m in range(g, MAX + 1, g):
+                count_multiples[g] += freq[m]
+        
+        # Pairs where both numbers are multiples of g
+        pairs_multiples = [0] * (MAX + 1)
+        for g in range(1, MAX + 1):
+            c = count_multiples[g]
+            pairs_multiples[g] = c * (c - 1) // 2
+        
+        # Exact pairs with GCD exactly g (Möbius inversion)
+        exact_pairs = [0] * (MAX + 1)
+        for g in range(MAX, 0, -1):
+            exact_pairs[g] = pairs_multiples[g]
+            for k in range(g * 2, MAX + 1, g):
+                exact_pairs[g] -= exact_pairs[k]
+        
+        # Prefix sum: pref[g] = number of pairs with GCD <= g
+        pref = [0] * (MAX + 1)
+        for g in range(1, MAX + 1):
+            pref[g] = pref[g - 1] + exact_pairs[g]
+        
+        # For each query, find the smallest g such that pref[g] > q
+        ans = [bisect.bisect_right(pref, q) for q in queries]
+        return ans
+
+'''
+Approach:
+1. Let MAX = max(nums). For each possible g from 1 to MAX, count how many numbers in 
+   nums are multiples of g. This gives count_multiples[g].
+2. The number of pairs (i, j) where both nums[i] and nums[j] are multiples of g is 
+   C(count_multiples[g], 2). This counts pairs whose GCD is a multiple of g.
+3. Use Möbius inversion (process g from MAX down to 1) to subtract overcounts and 
+   obtain exact_pairs[g], the number of pairs with GCD exactly g.
+4. Build a prefix sum array pref where pref[g] = sum_{x=1..g} exact_pairs[x]. Since 
+   gcdPairs is sorted in ascending order, pref[g] represents how many sorted entries 
+   are <= g.
+5. For a query index q, the answer is the smallest g such that pref[g] > q, which is 
+   found via binary search (bisect_right) on the prefix array.
+
+Time Complexity: O(MAX log MAX + Q log MAX), where MAX = max(nums) and Q is the number of queries.
+Space Complexity: O(MAX).
+'''
