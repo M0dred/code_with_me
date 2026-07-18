@@ -1,0 +1,17 @@
+import math
+from typing import List
+
+class Solution:
+    def findGCD(self, nums: List[int]) -> int:
+        mn = min(nums)
+        mx = max(nums)
+        return math.gcd(mn, mx)
+
+'''
+Approach:
+1. Find the minimum and maximum values in the array `nums`.
+2. Compute and return the greatest common divisor of these two values using the Euclidean algorithm.
+
+Time Complexity: O(N), where N is the length of nums.
+Space Complexity: O(1).
+'''
