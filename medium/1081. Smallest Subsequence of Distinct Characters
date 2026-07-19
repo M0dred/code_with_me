@@ -1,0 +1,39 @@
+class Solution:
+    def smallestSubsequence(self, s: str) -> str:
+        # Count remaining occurrences of each character
+        last_occurrence = {ch: i for i, ch in enumerate(s)}
+        count = {}
+        for ch in s:
+            count[ch] = count.get(ch, 0) + 1
+        
+        stack = []
+        in_stack = set()
+        
+        for i, ch in enumerate(s):
+            count[ch] -= 1
+            
+            if ch in in_stack:
+                continue
+            
+            # Maintain monotonic increasing stack: pop larger chars that appear later
+            while stack and stack[-1] > ch and count[stack[-1]] > 0:
+                in_stack.remove(stack.pop())
+            
+            stack.append(ch)
+            in_stack.add(ch)
+        
+        return ''.join(stack)
+
+'''
+Approach:
+1. Use a monotonic stack to build the result character by character.
+2. For each character, if it is already in the stack, skip it.
+3. Otherwise, while the top of the stack is greater than the current character and 
+   that top character appears again later in the string, pop it from the stack to 
+   allow a lexicographically smaller result.
+4. Push the current character onto the stack.
+5. Track which characters are currently in the stack with a set to avoid duplicates.
+
+Time Complexity: O(N), where N is the length of s.
+Space Complexity: O(N).
+'''
