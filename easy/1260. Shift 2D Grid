@@ -1,0 +1,35 @@
+from typing import List
+
+class Solution:
+    def shiftGrid(self, grid: List[List[int]], k: int) -> List[List[int]]:
+        m, n = len(grid), len(grid[0])
+        total = m * n
+        k = k % total
+        
+        if k == 0:
+            return grid
+        
+        # Flatten the grid into a 1D array
+        flat = [grid[i][j] for i in range(m) for j in range(n)]
+        
+        # Perform the shift in the flattened array
+        shifted = flat[-k:] + flat[:-k]
+        
+        # Reconstruct the 2D grid
+        res = [[0] * n for _ in range(m)]
+        for i in range(m):
+            for j in range(n):
+                res[i][j] = shifted[i * n + j]
+        
+        return res
+
+'''
+Approach:
+1. Flatten the 2D grid into a 1D array by row-major order.
+2. Reduce k modulo the total number of elements to handle large k values.
+3. Perform a right circular shift on the flattened array by k positions.
+4. Reconstruct the 2D grid from the shifted flattened array.
+
+Time Complexity: O(M * N), where M and N are the grid dimensions.
+Space Complexity: O(M * N).
+'''
