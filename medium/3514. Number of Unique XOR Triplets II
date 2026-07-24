@@ -1,0 +1,57 @@
+class Solution:
+    def uniqueXorTriplets(self, nums: List[int]) -> int:
+        # Since nums[i] <= 1500 < 2048 = 2^11, the XOR of any three elements
+        # also fits within 11 bits, so the maximum possible value is 2047.
+        MAX_XOR = 2048
+        
+        # pair_xor[p] is True if p can be written as nums[i] ^ nums[j]
+        # for some indices i <= j that have been processed so far.
+        pair_xor = [False] * MAX_XOR
+        
+        # Set of distinct values in the prefix nums[0..k-1].
+        prefix_values = set()
+        
+        # result[v] is True if v is an achievable XOR triplet value.
+        result = [False] * MAX_XOR
+        
+        for val in nums:
+            # Add all new pair XORs where the right index is the current element.
+            # This includes val ^ val = 0 (when i = j = current index).
+            pair_xor[0] = True
+            for v in prefix_values:
+                pair_xor[v ^ val] = True
+            
+            # Expand the prefix value set with the current element.
+            prefix_values.add(val)
+            
+            # Form triplets by XORing every achievable pair value with the
+            # current element (which serves as the rightmost index k).
+            for p in range(MAX_XOR):
+                if pair_xor[p]:
+                    result[p ^ val] = True
+        
+        # The number of True entries in result is the count of unique triplets.
+        return sum(result)
+
+'''
+Approach:
+1. Observe that since nums[i] <= 1500 < 2048, any XOR of three elements is strictly less than 2048. This bounds the value space to a constant size (2048), allowing us to use boolean arrays as bitsets.
+2. Maintain a boolean array `pair_xor` where `pair_xor[p]` indicates whether `p` can be expressed as `nums[i] ^ nums[j]` for some `i <= j` among the indices processed so far.
+3. Maintain a set `prefix_values` containing the distinct values seen before the current index.
+4. Iterate through each element `val` in `nums` (treating it as the rightmost index `k` of the triplet):
+   - Update `pair_xor` by adding `val ^ val = 0` and `v ^ val` for every `v` in `prefix_values`. This captures all new pairwise XORs where the second index is the current position.
+   - Add `val` to `prefix_values`.
+   - For every achievable pair XOR value `p`, mark `p ^ val` as achievable in the `result` array. This corresponds to triplets `(i, j, k)` where `nums[i] ^ nums[j] ^ nums[k] = p ^ val`.
+5. Return the count of True values in `result`, which equals the number of unique XOR triplet values.
+
+Time Complexity: O(N * V), where N is the length of nums and V = 2048 is the maximum possible XOR value.
+   - The outer loop runs N times.
+   - The inner loop over `prefix_values` executes at most O(N^2) times in total across all iterations (sum of distinct prefix sizes), which is ~1.1M for N = 1500.
+   - The scan over the fixed-size `pair_xor` array costs O(V) per element, giving N * V ≈ 3M operations.
+   - Overall, the algorithm performs roughly 4–5 million elementary operations, easily fitting within standard time limits.
+
+Space Complexity: O(V), where V = 2048.
+   - `pair_xor` and `result` each use O(V) space.
+   - `prefix_values` stores at most min(N, V) distinct integers.
+   - With V being a small constant (2048), the total auxiliary space is effectively O(1) relative to the input bound.
+'''
