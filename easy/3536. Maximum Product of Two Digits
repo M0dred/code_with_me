@@ -1,0 +1,27 @@
+class Solution:
+    def maxProduct(self, n: int) -> int:
+        # Convert the integer to a list of its digits
+        digits = [int(c) for c in str(n)]
+        
+        # Sort digits in ascending order
+        digits.sort()
+        
+        # The maximum product comes from the two largest digits
+        # (the same digit can be used twice if it appears more than once)
+        return digits[-1] * digits[-2]
+
+'''
+Approach:
+1. Extract all digits from the integer n by converting it to a string and parsing each character.
+2. Sort the digit array in ascending order.
+3. The maximum product of any two digits must come from the two largest digits in the array. Because we are allowed to use the same digit twice if it appears multiple times, simply taking the last two elements after sorting handles this naturally (e.g., [2, 2] -> 2 * 2 = 4).
+4. Return the product of the two largest digits.
+
+Time Complexity: O(D log D), where D is the number of digits in n.
+   - Converting to string and extracting digits is O(D).
+   - Sorting the digits dominates: O(D log D).
+   - Since n <= 10^9, D <= 10, making this effectively constant time.
+
+Space Complexity: O(D)
+   - We store the digits in a list of size D (at most 10 integers).
+'''
