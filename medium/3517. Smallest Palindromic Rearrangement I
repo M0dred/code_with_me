@@ -1,0 +1,32 @@
+from collections import Counter
+
+class Solution:
+    def smallestPalindrome(self, s: str) -> str:
+        freq = Counter(s)
+        first_half = []
+        middle = ""
+        
+        # Build the first half using half the count of each character, in sorted order
+        for ch in sorted(freq.keys()):
+            count = freq[ch]
+            first_half.append(ch * (count // 2))
+            if count % 2 == 1:
+                middle = ch
+        
+        first = "".join(first_half)
+        return first + middle + first[::-1]
+
+'''
+Approach:
+1. Count the frequency of each character in the palindromic string `s`.
+2. Since a palindrome reads the same forwards and backwards, the first half of the 
+   string completely determines the second half.
+3. To make the palindrome lexicographically smallest, construct the first half by 
+   taking floor(count / 2) occurrences of each character and arranging them in 
+   ascending alphabetical order.
+4. Identify the middle character (the one with an odd count, if any).
+5. The result is first_half + middle + reverse(first_half).
+
+Time Complexity: O(N), where N is the length of s.
+Space Complexity: O(N).
+'''
