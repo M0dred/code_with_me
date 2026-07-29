@@ -1,0 +1,91 @@
+class Solution:
+    def smallestPalindrome(self, s: str, k: int) -> str:
+        # Count frequencies of each character
+        freq = [0] * 26
+        for ch in s:
+            freq[ord(ch) - ord('a')] += 1
+        
+        # Identify the middle character (at most one odd count in a palindrome)
+        middle = ""
+        for i in range(26):
+            if freq[i] % 2 == 1:
+                middle = chr(ord('a') + i)
+                freq[i] -= 1
+                break
+        
+        # Build the multiset for the first half of the palindrome
+        half = [f // 2 for f in freq]
+        n = sum(half)
+        
+        def count_perms_capped(cnt, rem, cap):
+            """Return the number of distinct permutations of the remaining multiset,
+            capped at cap. If the exact count exceeds cap, return cap + 1."""
+            ways = 1
+            for c in cnt:
+                if c == 0:
+                    continue
+                r = c
+                if r > rem - r:
+                    r = rem - r
+                comb = 1
+                for i in range(1, r + 1):
+                    comb = comb * (rem - r + i) // i
+                    if comb > cap:
+                        comb = cap + 1
+                        break
+                ways *= comb
+                if ways > cap:
+                    return cap + 1
+                rem -= c
+            return ways
+        
+        # If total distinct palindromic permutations is less than k, return ""
+        total = count_perms_capped(half, n, k)
+        if total < k:
+            return ""
+        
+        # Greedily construct the k-th lexicographically smallest first half
+        res = []
+        for pos in range(n):
+            for i in range(26):
+                if half[i] == 0:
+                    continue
+                half[i] -= 1
+                rem = n - pos - 1
+                ways = count_perms_capped(half, rem, k)
+                if ways >= k:
+                    res.append(chr(ord('a') + i))
+                    break
+                else:
+                    k -= ways
+                    half[i] += 1
+            else:
+                return ""
+        
+        first = "".join(res)
+        return first + middle + first[::-1]
+
+'''
+Approach:
+1. A palindrome is completely determined by its first half (and a middle character 
+   if the length is odd). Thus, finding the k-th smallest palindromic permutation 
+   reduces to finding the k-th lexicographically smallest permutation of the first 
+   half's character multiset.
+2. Extract the middle character from the odd-frequency count (if any). The first half 
+   uses half of each character's frequency.
+3. To avoid computing enormous factorials, we use a capped multinomial counter. It 
+   computes the exact number of distinct permutations of a multiset if that number 
+   is <= cap, otherwise returns cap + 1. Because cap is at most k (<= 10^6), all 
+   intermediate values stay small and the computation terminates early.
+4. If the total number of distinct palindromes is less than k, return "".
+5. Otherwise, build the first half greedily: for each position, try characters from 
+   'a' to 'z'. For each candidate, tentatively place it and compute how many valid 
+   completions the suffix can produce. If this count is >= k, fix the character. 
+   If not, subtract the count from k and continue to the next character.
+6. The final answer is first_half + middle + reverse(first_half).
+
+Time Complexity: O(N * 26 * log k), where N = len(s)//2. At each position we try at 
+   most 26 characters, and each multinomial evaluation performs O(log k) arithmetic 
+   operations due to early capping at k.
+Space Complexity: O(N).
+'''
