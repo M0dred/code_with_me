@@ -1,0 +1,19 @@
+class Solution:
+    def minimumPushes(self, word: str) -> int:
+        m = len(word)
+        q, r = divmod(m, 8)
+        return 8 * q * (q + 1) // 2 + r * (q + 1)
+
+'''
+Approach:
+1. There are 8 usable keys (2 through 9). To minimize the total number of pushes, 
+   distribute the letters as evenly as possible across these keys.
+2. The optimal strategy places the first 8 distinct letters at position 1 (cost 1 each), 
+   the next 8 at position 2 (cost 2 each), and so on.
+3. If m = len(word), then q = m // 8 is the number of complete groups of 8, and 
+   r = m % 8 is the remaining letters in the next partial group.
+4. The total cost is 8 * (1 + 2 + ... + q) + r * (q + 1) = 8*q*(q+1)/2 + r*(q+1).
+
+Time Complexity: O(1).
+Space Complexity: O(1).
+'''
