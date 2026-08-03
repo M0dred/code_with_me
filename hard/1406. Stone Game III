@@ -1,0 +1,42 @@
+from typing import List
+
+class Solution:
+    def stoneGameIII(self, stoneValue: List[int]) -> str:
+        n = len(stoneValue)
+        # dp[i] = maximum score difference (current player's score - opponent's score)
+        # achievable starting from index i
+        dp = [0] * (n + 1)
+        
+        for i in range(n - 1, -1, -1):
+            dp[i] = float('-inf')
+            take = 0
+            # Try taking 1, 2, or 3 stones
+            for k in range(3):
+                if i + k < n:
+                    take += stoneValue[i + k]
+                    # Current player gets `take`, then opponent plays optimally from i+k+1
+                    dp[i] = max(dp[i], take - dp[i + k + 1])
+        
+        if dp[0] > 0:
+            return "Alice"
+        elif dp[0] < 0:
+            return "Bob"
+        else:
+            return "Tie"
+
+'''
+Approach:
+1. Let dp[i] be the maximum score difference (current player's score minus the 
+   opponent's score) achievable from the subarray starting at index i when both 
+   play optimally.
+2. Process the array from right to left. For each position i, the current player 
+   can take 1, 2, or 3 stones. Accumulate the sum of the taken stones, then the 
+   net score difference for taking k stones is `take - dp[i+k+1]` (since the 
+   opponent then plays from position i+k+1 with advantage dp[i+k+1]).
+3. Take the maximum over the three choices.
+4. After filling dp, dp[0] represents Alice's score minus Bob's score. Return 
+   "Alice" if positive, "Bob" if negative, "Tie" if zero.
+
+Time Complexity: O(N), where N is the length of stoneValue.
+Space Complexity: O(N).
+'''
