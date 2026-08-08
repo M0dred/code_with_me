@@ -1,0 +1,163 @@
+from collections import deque
+from typing import List
+
+class Solution:
+    def smallestNumber(self, num: str, t: int) -> str:
+        # Factor t into prime exponents for 2, 3, 5, 7
+        need2 = need3 = need5 = need7 = 0
+        temp = t
+        while temp % 2 == 0:
+            need2 += 1
+            temp //= 2
+        while temp % 3 == 0:
+            need3 += 1
+            temp //= 3
+        while temp % 5 == 0:
+            need5 += 1
+            temp //= 5
+        while temp % 7 == 0:
+            need7 += 1
+            temp //= 7
+        if temp != 1:
+            return "-1"
+        
+        n = len(num)
+        digits = [ord(c) - 48 for c in num]
+        
+        # Exponent vectors for digits 1..9
+        DV = [(0,0,0,0), (1,0,0,0), (0,1,0,0), (2,0,0,0), (0,0,1,0),
+              (1,1,0,0), (0,0,0,1), (3,0,0,0), (0,2,0,0)]
+        
+        a, b, c, d = need2, need3, need5, need7
+        size = (a + 1) * (b + 1) * (c + 1) * (d + 1)
+        INF = 10 ** 9
+        
+        def get_idx(e2, e3, e5, e7):
+            return ((e2 * (b + 1) + e3) * (c + 1) + e5) * (d + 1) + e7
+        
+        # BFS: min digits needed to achieve at least each state
+        dp = [INF] * size
+        q = deque()
+        dp[get_idx(0, 0, 0, 0)] = 0
+        q.append((0, 0, 0, 0))
+        
+        while q:
+            e2, e3, e5, e7 = q.popleft()
+            cur = dp[get_idx(e2, e3, e5, e7)]
+            for v2, v3, v5, v7 in DV:
+                ne2 = min(a, e2 + v2)
+                ne3 = min(b, e3 + v3)
+                ne5 = min(c, e5 + v5)
+                ne7 = min(d, e7 + v7)
+                nidx = get_idx(ne2, ne3, ne5, ne7)
+                if dp[nidx] == INF:
+                    dp[nidx] = cur + 1
+                    q.append((ne2, ne3, ne5, ne7))
+        
+        # Check if num itself is zero-free and satisfies t
+        p2 = p3 = p5 = p7 = 0
+        valid = True
+        for dig in digits:
+            if dig == 0:
+                valid = False
+                break
+            v2, v3, v5, v7 = DV[dig - 1]
+            p2 += v2
+            p3 += v3
+            p5 += v5
+            p7 += v7
+        
+        if valid and p2 >= need2 and p3 >= need3 and p5 >= need5 and p7 >= need7:
+            return num
+        
+        # Prefix sums and prefix validity
+        pref2 = [0] * (n + 1)
+        pref3 = [0] * (n + 1)
+        pref5 = [0] * (n + 1)
+        pref7 = [0] * (n + 1)
+        good = [True] * (n + 1)
+        
+        for i in range(n):
+            dig = digits[i]
+            good[i + 1] = good[i] and (dig != 0)
+            if dig != 0:
+                v2, v3, v5, v7 = DV[dig - 1]
+                pref2[i + 1] = pref2[i] + v2
+                pref3[i + 1] = pref3[i] + v3
+                pref5[i + 1] = pref5[i] + v5
+                pref7[i + 1] = pref7[i] + v7
+            else:
+                pref2[i + 1] = pref2[i]
+                pref3[i + 1] = pref3[i]
+                pref5[i + 1] = pref5[i]
+                pref7[i + 1] = pref7[i]
+        
+        # Build the lexicographically smallest suffix of exact length
+        def build_suffix(length, r2, r3, r5, r7):
+            res = []
+            rem2, rem3, rem5, rem7 = r2, r3, r5, r7
+            for _ in range(length):
+                for nd in range(1, 10):
+                    nv2, nv3, nv5, nv7 = DV[nd - 1]
+                    nr2 = max(0, rem2 - nv2)
+                    nr3 = max(0, rem3 - nv3)
+                    nr5 = max(0, rem5 - nv5)
+                    nr7 = max(0, rem7 - nv7)
+                    remaining = length - len(res) - 1
+                    if remaining >= dp[get_idx(nr2, nr3, nr5, nr7)]:
+                        res.append(str(nd))
+                        rem2, rem3, rem5, rem7 = nr2, nr3, nr5, nr7
+                        break
+            return ''.join(res)
+        
+        # Try same length: increase a digit from right to left
+        for i in range(n - 1, -1, -1):
+            if not good[i]:
+                continue
+            p2 = pref2[i]
+            p3 = pref3[i]
+            p5 = pref5[i]
+            p7 = pref7[i]
+            for nd in range(digits[i] + 1, 10):
+                if nd == 0:
+                    continue
+                v2, v3, v5, v7 = DV[nd - 1]
+                r2 = max(0, need2 - p2 - v2)
+                r3 = max(0, need3 - p3 - v3)
+                r5 = max(0, need5 - p5 - v5)
+                r7 = max(0, need7 - p7 - v7)
+                if n - i - 1 >= dp[get_idx(r2, r3, r5, r7)]:
+                    suffix = build_suffix(n - i - 1, r2, r3, r5, r7)
+                    return num[:i] + str(nd) + suffix
+        
+        # Longer length
+        min_len = dp[get_idx(need2, need3, need5, need7)]
+        if min_len == INF:
+            return "-1"
+        L = max(n + 1, min_len)
+        return build_suffix(L, need2, need3, need5, need7)
+
+'''
+Approach:
+1. Factor t into prime exponents for 2, 3, 5, and 7. If t has any other prime factor, 
+   it is impossible to satisfy using only digits 1-9, so return "-1".
+2. Precompute min_digits[e2][e3][e5][e7] via BFS on the bounded state space, 
+   representing the minimum number of digits needed to achieve at least those 
+   exponents.
+3. Check if num itself is zero-free and its digit product already satisfies t. 
+   If yes, return num.
+4. Precompute prefix exponent sums and prefix validity (no zero digits) for num.
+5. To find the smallest number greater than num with the same length, iterate 
+   from the rightmost position to the leftmost. For each position with a valid 
+   prefix, try increasing the digit to a larger non-zero digit. Use the precomputed 
+   min_digits to check if the remaining suffix length can satisfy the residual 
+   exponents. If feasible, construct the lexicographically smallest valid suffix 
+   greedily and return the candidate.
+6. If no same-length candidate exists, the answer must be longer. The smallest 
+   feasible length is max(n+1, min_digits[target]). Construct the lexicographically 
+   smallest valid number of that length using the greedy suffix builder.
+
+Time Complexity: O(N + S), where N = len(num) and S = (need2+1)(need3+1)(need5+1)(need7+1) 
+   is the BFS state space (at most ~2.7 * 10^5).
+Space Complexity: O(N + S).
+'''
