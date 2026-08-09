@@ -1,0 +1,31 @@
+import math
+
+class Solution:
+    def winnerSquareGame(self, n: int) -> bool:
+        dp = [False] * (n + 1)
+        squares = [i * i for i in range(1, int(math.isqrt(n)) + 1)]
+        
+        for i in range(1, n + 1):
+            for sq in squares:
+                if sq > i:
+                    break
+                if not dp[i - sq]:
+                    dp[i] = True
+                    break
+        
+        return dp[n]
+
+'''
+Approach:
+1. Use dynamic programming where dp[i] represents whether the current player wins 
+   when there are i stones remaining.
+2. Base case: dp[0] = False, since a player with no stones cannot make a move and 
+   therefore loses.
+3. For each i from 1 to n, the current player wins if there exists any square 
+   number sq <= i such that dp[i - sq] = False. This means the opponent loses 
+   after the current player removes sq stones.
+4. Return dp[n], which indicates whether Alice (the first player) wins with n stones.
+
+Time Complexity: O(N * sqrt(N)), where N = n.
+Space Complexity: O(N).
+'''
