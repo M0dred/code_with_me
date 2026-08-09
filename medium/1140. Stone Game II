@@ -1,0 +1,44 @@
+from typing import List
+
+class Solution:
+    def stoneGameII(self, piles: List[int]) -> int:
+        n = len(piles)
+        
+        # suffix[i] = sum of piles[i:]
+        suffix = [0] * (n + 1)
+        for i in range(n - 1, -1, -1):
+            suffix[i] = suffix[i + 1] + piles[i]
+        
+        # dp[i][M] = maximum stones the current player can collect
+        # starting from pile i with current M value
+        dp = [[0] * (n + 1) for _ in range(n + 1)]
+        
+        for i in range(n - 1, -1, -1):
+            for M in range(1, n + 1):
+                max_take = min(2 * M, n - i)
+                best = 0
+                for X in range(1, max_take + 1):
+                    # Current player takes X piles, then opponent plays optimally
+                    # from position i+X with M' = max(M, X)
+                    score = suffix[i] - dp[i + X][max(M, X)]
+                    if score > best:
+                        best = score
+                dp[i][M] = best
+        
+        return dp[0][1]
+
+'''
+Approach:
+1. Compute suffix sums where suffix[i] is the total stones remaining from pile i.
+2. Define dp[i][M] as the maximum stones the current player can collect starting 
+   from pile i with parameter M.
+3. From state (i, M), the current player can take X piles where 1 <= X <= 2M. 
+   After taking X piles, the opponent plays from state (i+X, max(M, X)).
+4. The current player's total score when taking X is: 
+   suffix[i] - dp[i+X][max(M, X)], because the opponent optimally takes 
+   dp[i+X][max(M, X)] from the remaining suffix[i+X].
+5. Fill the DP table from right to left. The answer is dp[0][1].
+
+Time Complexity: O(N^3), where N is the length of piles.
+Space Complexity: O(N^2).
+'''
