@@ -1,0 +1,72 @@
+from typing import List
+
+class Solution:
+    def stoneGameV(self, stoneValue: List[int]) -> int:
+        n = len(stoneValue)
+        
+        # f[left][right] = maximum score Alice can obtain from stoneValue[left..right]
+        f = [[0] * n for _ in range(n)]
+        
+        # maxl[left][right] = max over k in [left, right] of (sum(left..k) + f[left][k])
+        # Represents the best score when Alice takes the left portion.
+        maxl = [[0] * n for _ in range(n)]
+        
+        # maxr[left][right] = max over k in [left, right] of (sum(k..right) + f[k][right])
+        # Represents the best score when Alice takes the right portion.
+        maxr = [[0] * n for _ in range(n)]
+        
+        for left in range(n - 1, -1, -1):
+            maxl[left][left] = maxr[left][left] = stoneValue[left]
+            total = stoneValue[left]
+            suml = 0
+            i = left - 1
+            
+            for right in range(left + 1, n):
+                total += stoneValue[right]
+                
+                # Advance i to the largest split point where sum(left..i) <= sum(i+1..right)
+                while i + 1 < right and (suml + stoneValue[i + 1]) * 2 <= total:
+                    suml += stoneValue[i + 1]
+                    i += 1
+                
+                # Case 1: left_sum <= right_sum for all splits in [left, i].
+                # Bob discards the right half. Alice gets sum(left..k) + f[left][k].
+                if left <= i:
+                    f[left][right] = max(f[left][right], maxl[left][i])
+                
+                # Case 2: left_sum > right_sum for all splits in [i+1, right-1].
+                # Bob discards the left half. Alice gets sum(k+1..right) + f[k+1][right].
+                if i + 1 < right:
+                    f[left][right] = max(f[left][right], maxr[i + 2][right])
+                
+                # Case 3: left_sum == right_sum exactly at split i.
+                # Alice chooses the better half; maxr[i+1][right] captures taking the right side.
+                if suml * 2 == total:
+                    f[left][right] = max(f[left][right], maxr[i + 1][right])
+                
+                # Update maxl and maxr for future intervals
+                maxl[left][right] = max(maxl[left][right - 1], total + f[left][right])
+                maxr[left][right] = max(maxr[left + 1][right], total + f[left][right])
+        
+        return f[0][n - 1]
+
+'''
+Approach:
+1. Let f[left][right] be the maximum score Alice can obtain from the subarray 
+   stoneValue[left..right].
+2. For each interval [left, right], consider all split points k. As k increases, 
+   the left sum increases and the right sum decreases. Use a two-pointer `i` to 
+   find the boundary where sum(left..i) <= sum(i+1..right).
+3. Maintain two auxiliary arrays:
+   - maxl[left][right] = max over k in [left, right] of (sum(left..k) + f[left][k])
+   - maxr[left][right] = max over k in [left, right] of (sum(k..right) + f[k][right])
+4. For interval [left, right]:
+   - If left <= i: the best left-biased split is maxl[left][i].
+   - If i+1 < right: the best right-biased split is maxr[i+2][right].
+   - If sums are equal: also consider maxr[i+1][right] for the right-side choice.
+5. Update maxl and maxr incrementally so each interval is processed in O(1) amortized time.
+6. Return f[0][n-1].
+
+Time Complexity: O(N^2), where N is the length of stoneValue.
+Space Complexity: O(N^2).
+'''
