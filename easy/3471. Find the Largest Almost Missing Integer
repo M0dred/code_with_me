@@ -1,0 +1,29 @@
+from typing import List
+
+class Solution:
+    def largestInteger(self, nums: List[int], k: int) -> int:
+        n = len(nums)
+        ans = -1
+        
+        for x in set(nums):
+            count = 0
+            for i in range(n - k + 1):
+                if x in nums[i:i + k]:
+                    count += 1
+                    if count > 1:
+                        break
+            if count == 1:
+                ans = max(ans, x)
+        
+        return ans
+
+'''
+Approach:
+1. Iterate over every unique value x present in `nums`.
+2. For each x, count how many contiguous subarrays of length k contain x.
+3. If the count is exactly 1, x is an "almost missing" integer; track the maximum such x.
+4. Return the maximum found, or -1 if no value appears in exactly one subarray of size k.
+
+Time Complexity: O(U * N * K), where U is the number of unique values in nums, N is the length of nums, and K is the subarray size.
+Space Complexity: O(U).
+'''
