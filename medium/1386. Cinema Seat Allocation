@@ -1,0 +1,44 @@
+from typing import List
+from collections import defaultdict
+
+class Solution:
+    def maxNumberOfFamilies(self, n: int, reservedSeats: List[List[int]]) -> int:
+        # Map each row to the set of reserved seats in columns 2..9
+        rows = defaultdict(set)
+        for row, seat in reservedSeats:
+            if 2 <= seat <= 9:
+                rows[row].add(seat)
+        
+        # Rows with no reserved seats in 2..9 can always fit 2 groups
+        ans = 2 * (n - len(rows))
+        
+        # For rows with reservations, check available blocks
+        for seats in rows.values():
+            left = all(s not in seats for s in (2, 3, 4, 5))
+            middle = all(s not in seats for s in (4, 5, 6, 7))
+            right = all(s not in seats for s in (6, 7, 8, 9))
+            
+            if left and right:
+                ans += 2
+            elif left or middle or right:
+                ans += 1
+        
+        return ans
+
+'''
+Approach:
+1. Group reserved seats by row, keeping only seats in columns 2 through 9 since 
+   seats 1 and 10 never block any valid four-seat block.
+2. Any row without reservations in columns 2..9 can accommodate exactly 2 groups 
+   (the left block 2-5 and the right block 6-9 do not overlap).
+3. For each row that does have reservations in 2..9, check the three possible blocks:
+   - left: seats 2,3,4,5
+   - middle: seats 4,5,6,7
+   - right: seats 6,7,8,9
+   If both left and right are free, the row fits 2 groups. Otherwise, if any block 
+   is free, the row fits 1 group. If none are free, it fits 0 groups.
+4. Sum the counts across all rows and return the total.
+
+Time Complexity: O(R), where R is the length of reservedSeats.
+Space Complexity: O(R).
+'''
