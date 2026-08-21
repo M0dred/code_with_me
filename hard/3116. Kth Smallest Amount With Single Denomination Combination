@@ -1,0 +1,74 @@
+import math
+from typing import List
+from collections import defaultdict
+
+class Solution:
+    def findKthSmallest(self, coins: List[int], k: int) -> int:
+        # Remove redundant coins: if a divides b, all multiples of b are already multiples of a
+        coins.sort()
+        filtered = []
+        for c in coins:
+            for f in filtered:
+                if c % f == 0:
+                    break
+            else:
+                filtered.append(c)
+        coins = filtered
+        n = len(coins)
+        
+        if n == 0:
+            return -1
+        if n == 1:
+            return coins[0] * k
+        
+        # Precompute subset LCMs and combine signs for identical LCMs
+        lcm_sign = defaultdict(int)
+        for mask in range(1, 1 << n):
+            l = 1
+            bits = 0
+            for i in range(n):
+                if mask >> i & 1:
+                    bits += 1
+                    l = l * coins[i] // math.gcd(l, coins[i])
+            lcm_sign[l] += 1 if bits & 1 else -1
+        
+        # Build parallel arrays, filtering out zero-sign and over-bound LCMs
+        bound = coins[0] * k
+        lcms = []
+        signs = []
+        for l, s in lcm_sign.items():
+            if s != 0 and l <= bound:
+                lcms.append(l)
+                signs.append(s)
+        
+        # Count numbers in [1, x] divisible by at least one coin
+        def count(x: int) -> int:
+            total = 0
+            for i in range(len(lcms)):
+                li = lcms[i]
+                if li > x:
+                    continue
+                total += x // li * signs[i]
+            return total
+        
+        lo, hi = 1, bound
+        while lo < hi:
+            mid = (lo + hi) // 2
+            if count(mid) < k:
+                lo = mid + 1
+            else:
+                hi = mid
+        
+        return lo
+
+'''
+Approach:
+1. Remove redundant coins: if coin a divides coin b, then every multiple of b is already a multiple of a, so b can be discarded. This significantly reduces the number of coins.
+2. An amount is achievable iff it is a positive multiple of at least one remaining coin. The set of achievable amounts is the union of these arithmetic progressions.
+3. Use inclusion-exclusion principle to count how many integers in [1, x] are achievable. For each non-empty subset of coins, compute its LCM. Subsets of odd size contribute +x//LCM, even size contribute -x//LCM. Combine identical LCMs by summing their signs.
+4. Binary search for the smallest x such that count(x) >= k. The upper bound is the smallest remaining coin multiplied by k, since all its multiples are achievable.
+5. Handle edge cases: if only one coin remains, the answer is simply coin * k.
+
+Time Complexity: O(2^N * N + log(min(coin) * k) * 2^N), where N is the number of coins after redundancy removal (at most ~13 for coins <= 25).
+Space Complexity: O(2^N).
+'''
