@@ -1,0 +1,24 @@
+class Solution:
+    def checkDivisibility(self, n: int) -> bool:
+        digit_sum = 0
+        digit_prod = 1
+        temp = n
+        
+        while temp > 0:
+            d = temp % 10
+            digit_sum += d
+            digit_prod *= d
+            temp //= 10
+        
+        divisor = digit_sum + digit_prod
+        return n % divisor == 0
+
+'''
+Approach:
+1. Extract each digit of n to compute the digit sum and digit product.
+2. Add the digit sum and digit product to get the divisor.
+3. Return true if n is divisible by this divisor, otherwise false.
+
+Time Complexity: O(D), where D is the number of digits in n.
+Space Complexity: O(1).
+'''
