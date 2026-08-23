@@ -1,0 +1,47 @@
+class Solution:
+   def sumGame(self, num: str) -> bool:
+       n = len(num)
+       half = n // 2
+       
+       left_sum = 0
+       right_sum = 0
+       left_q = 0
+       right_q = 0
+       
+       for i in range(half):
+           if num[i] == '?':
+               left_q += 1
+           else:
+               left_sum += int(num[i])
+       
+       for i in range(half, n):
+           if num[i] == '?':
+               right_q += 1
+           else:
+               right_sum += int(num[i])
+       
+       diff = left_sum - right_sum
+       
+       # If total '?' is odd, Alice makes the last move and can always break equality
+       if (left_q + right_q) % 2 == 1:
+           return True
+       
+       # If total '?' is even, Bob can force equality iff 2*diff == 9*(right_q - left_q)
+       return 2 * diff != 9 * (right_q - left_q)
+
+'''
+Approach:
+1. Compute the sum of known digits in the left half and the right half, and count 
+  the number of '?' in each half.
+2. Let diff = left_sum - right_sum.
+3. If the total number of '?' is odd, Alice makes the last move. She can always 
+  choose a digit to ensure the two halves are unequal, so she wins.
+4. If the total number of '?' is even, both players make the same number of moves. 
+  With optimal play, Bob can force a tie if and only if 2 * diff == 9 * (right_q - left_q). 
+  This condition captures the exact balance between the current digit difference and 
+  the "question mark advantage" of the right half.
+5. Return True if Alice wins, False if Bob wins.
+
+Time Complexity: O(N), where N is the length of num.
+Space Complexity: O(1).
+'''
