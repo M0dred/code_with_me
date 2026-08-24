@@ -1,0 +1,36 @@
+from typing import List
+
+class Solution:
+    def stoneGameVIII(self, stones: List[int]) -> int:
+        n = len(stones)
+        total = sum(stones)
+        
+        # mx tracks max(prefix[j] - dp[j]) for all j > current i.
+        # Initially i = n, dp[n] = 0, so mx = prefix[n] - 0 = total.
+        mx = total
+        prefix_i = total  # Running prefix sum, starts at prefix[n]
+        
+        for i in range(n - 1, 0, -1):
+            prefix_i -= stones[i]  # Now prefix_i = prefix[i]
+            ans = mx               # dp[i] = best future value
+            mx = max(mx, prefix_i - ans)  # Update best for next state
+        
+        return ans
+
+'''
+Approach:
+1. Observe that after any sequence of moves, the leftmost stone is always a prefix 
+   sum of the original array. The game state can be characterized by an index i, 
+   where the row is [prefix[i], stones[i], stones[i+1], ..., stones[n-1]].
+2. From state i, a player can move to any state j > i by choosing x = j - i + 1, 
+   scoring prefix[j]. The game ends at state n.
+3. Let dp[i] be the maximum score difference (current player - opponent) from 
+   state i. Then dp[i] = max_{j>i} (prefix[j] - dp[j]).
+4. Process states from right to left. Maintain `mx` = max_{j>i} (prefix[j] - dp[j]). 
+   Then dp[i] = mx, and update mx = max(mx, prefix[i] - dp[i]) for the next state.
+5. The answer is dp[1], which corresponds to Alice's first move (she must choose 
+   some j >= 2, since x > 1).
+
+Time Complexity: O(N), where N is the length of stones.
+Space Complexity: O(1).
+'''
