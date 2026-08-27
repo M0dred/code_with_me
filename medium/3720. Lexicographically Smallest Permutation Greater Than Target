@@ -1,0 +1,52 @@
+from collections import Counter
+from typing import List
+
+class Solution:
+    def lexGreaterPermutation(self, s: str, target: str) -> str:
+        cnt = Counter(s)
+        matched = []
+        ans = None
+        
+        for i in range(len(target)):
+            t = target[i]
+            # Try to place the smallest character strictly greater than t
+            for c in range(ord(t) - ord('a') + 1, 26):
+                ch = chr(ord('a') + c)
+                if cnt[ch] > 0:
+                    candidate = matched + [ch]
+                    remaining = []
+                    for d in range(26):
+                        dh = chr(ord('a') + d)
+                        count = cnt[dh]
+                        if dh == ch:
+                            count -= 1
+                        remaining.extend([dh] * count)
+                    candidate.extend(remaining)
+                    ans = ''.join(candidate)
+                    break
+            
+            # Try to match target[i] exactly and continue to next position
+            if cnt[t] > 0:
+                matched.append(t)
+                cnt[t] -= 1
+            else:
+                break
+        
+        return ans if ans is not None else ""
+
+'''
+Approach:
+1. Maintain a frequency counter of characters in `s` and iterate through `target` 
+   from left to right, building a matched prefix.
+2. At each position i, before consuming target[i], check if any character strictly 
+   greater than target[i] is available. If so, construct a candidate by appending 
+   the smallest such character and then all remaining characters in sorted order.
+   Save this candidate (overwriting previous candidates, since a deviation at a 
+   later position always yields a lexicographically smaller valid string).
+3. After checking for a deviation, attempt to match target[i] exactly by 
+   consuming it from the counter. If unavailable, the process stops.
+4. Return the last saved candidate if any exist; otherwise return an empty string.
+
+Time Complexity: O(N * 26), where N is the length of s.
+Space Complexity: O(N).
+'''
