@@ -1,0 +1,101 @@
+from collections import Counter
+
+class Solution:
+    def lexPalindromicPermutation(self, s: str, target: str) -> str:
+        n = len(s)
+        m = n // 2
+        
+        # Check if palindromic permutation is possible
+        freq = Counter(s)
+        odd_count = sum(1 for v in freq.values() if v % 2 == 1)
+        if odd_count > 1:
+            return ""
+        
+        # Build half counts and middle character
+        half_counts = [0] * 26
+        mid = ""
+        for ch, cnt in freq.items():
+            half_counts[ord(ch) - ord('a')] = cnt // 2
+            if cnt % 2 == 1:
+                mid = ch
+        
+        # Build the lexicographically smallest string from remaining counts
+        def build_smallest(counts):
+            res = []
+            for i in range(26):
+                res.append(chr(ord('a') + i) * counts[i])
+            return ''.join(res)
+        
+        # Find the smallest permutation of counts strictly greater than t
+        def solve(counts, t):
+            lt = len(t)
+            
+            def dfs(pos):
+                if pos == lt:
+                    return None  # equal, not strictly greater
+                idx = ord(t[pos]) - ord('a')
+                # Try matching t[pos] exactly and recurse
+                if counts[idx] > 0:
+                    counts[idx] -= 1
+                    suffix = dfs(pos + 1)
+                    if suffix is not None:
+                        counts[idx] += 1
+                        return t[pos] + suffix
+                    counts[idx] += 1
+                # Try the smallest available character strictly greater than t[pos]
+                for c in range(idx + 1, 26):
+                    if counts[c] > 0:
+                        counts[c] -= 1
+                        rest = build_smallest(counts)
+                        counts[c] += 1
+                        return chr(ord('a') + c) + rest
+                return None
+            
+            return dfs(0)
+        
+        t_prefix = target[:m]
+        
+        # Check if using the exact target prefix yields a valid palindrome > target
+        can_form_prefix = True
+        temp_counts = half_counts[:]
+        for ch in t_prefix:
+            idx = ord(ch) - ord('a')
+            if temp_counts[idx] == 0:
+                can_form_prefix = False
+                break
+            temp_counts[idx] -= 1
+        
+        if can_form_prefix:
+            h = t_prefix
+            pal = h + mid + h[::-1]
+            if pal > target:
+                return pal
+        
+        # Find the smallest first half strictly greater than target's prefix
+        h = solve(half_counts[:], t_prefix)
+        if h is not None:
+            return h + mid + h[::-1]
+        
+        return ""
+
+'''
+Approach:
+1. Check if `s` can form any palindrome (at most one character has odd frequency). 
+   If not, return "".
+2. Construct the multiset for the first half of the palindrome (`half_counts`) and 
+   identify the middle character (`mid`) if the length is odd.
+3. A palindrome is completely determined by its first half `h`. The full palindrome 
+   is `h + mid + reverse(h)`. We need the lexicographically smallest such palindrome 
+   that is strictly greater than `target`.
+4. First, check if setting `h` equal to `target[:m]` is feasible and produces a 
+   palindrome strictly greater than `target`. If so, return it.
+5. Otherwise, find the lexicographically smallest permutation `h` of `half_counts` 
+   that is strictly greater than `target[:m]`. This is done via a recursive DFS that 
+   greedily matches the target prefix; when a match cannot be completed, it backtracks 
+   and places the smallest possible larger character at the earliest viable position, 
+   filling the remainder with the smallest available characters.
+6. If such `h` exists, return the corresponding palindrome; otherwise return "".
+
+Time Complexity: O(26 * N), where N is the length of s.
+Space Complexity: O(N).
+'''
