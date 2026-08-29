@@ -1,0 +1,51 @@
+from typing import List
+
+class Solution:
+    def lexicographicallySmallestArray(self, nums: List[int], limit: int) -> List[int]:
+        n = len(nums)
+        # Pair each value with its original index and sort by value
+        indexed = sorted([(nums[i], i) for i in range(n)])
+        
+        # Group consecutive elements in sorted order where adjacent difference <= limit
+        groups = []
+        cur_vals = [indexed[0][0]]
+        cur_idx = [indexed[0][1]]
+        
+        for i in range(1, n):
+            if indexed[i][0] - indexed[i - 1][0] <= limit:
+                cur_vals.append(indexed[i][0])
+                cur_idx.append(indexed[i][1])
+            else:
+                groups.append((cur_vals, cur_idx))
+                cur_vals = [indexed[i][0]]
+                cur_idx = [indexed[i][1]]
+        groups.append((cur_vals, cur_idx))
+        
+        # Within each group, sort values and indices independently,
+        # then place the smallest value at the smallest index, etc.
+        ans = [0] * n
+        for vals, idxs in groups:
+            vals.sort()
+            idxs.sort()
+            for pos, v in zip(idxs, vals):
+                ans[pos] = v
+        
+        return ans
+
+'''
+Approach:
+1. Pair each element with its original index and sort by value. In this sorted order, 
+   consecutive elements that differ by at most `limit` can be directly swapped. 
+   Through a chain of such swaps, any value in a contiguous block can be moved to 
+   any index originally occupied by a value in that same block.
+2. Scan the sorted array to form connected groups: a new group starts whenever the 
+   gap between consecutive sorted values exceeds `limit`.
+3. For each group, independently sort the values in ascending order and the original 
+   indices in ascending order. Place the smallest value at the smallest index, the 
+   second smallest at the second smallest index, and so on. This yields the 
+   lexicographically smallest arrangement for that group.
+4. Concatenate the results across all groups to form the final array.
+
+Time Complexity: O(N log N), where N is the length of nums.
+Space Complexity: O(N).
+'''
