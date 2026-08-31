@@ -1,0 +1,58 @@
+from typing import List, Optional
+
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
+
+class Solution:
+    def nodesBetweenCriticalPoints(self, head: Optional[ListNode]) -> List[int]:
+        prev_val = head.val
+        curr = head.next
+        pos = 2
+        
+        first_crit = -1
+        last_crit = -1
+        min_dist = float('inf')
+        
+        while curr and curr.next:
+            curr_val = curr.val
+            next_val = curr.next.val
+            
+            is_critical = (curr_val > prev_val and curr_val > next_val) or \
+                          (curr_val < prev_val and curr_val < next_val)
+            
+            if is_critical:
+                if first_crit == -1:
+                    first_crit = pos
+                else:
+                    min_dist = min(min_dist, pos - last_crit)
+                last_crit = pos
+            
+            prev_val = curr_val
+            curr = curr.next
+            pos += 1
+        
+        if first_crit == -1 or first_crit == last_crit:
+            return [-1, -1]
+        
+        return [min_dist, last_crit - first_crit]
+
+'''
+Approach:
+1. Traverse the linked list while maintaining the previous node's value, the current 
+   node, and the current 1-indexed position.
+2. A node at position `pos` is a critical point if its value is strictly greater 
+   than both neighbors (local maxima) or strictly smaller than both neighbors 
+   (local minima).
+3. Track the first and last critical points encountered. For the minimum distance, 
+   update it whenever a new critical point is found by comparing with the previous 
+   critical point.
+4. The maximum distance is always `last_crit - first_crit` since the critical points 
+   are discovered in order of their positions.
+5. If fewer than two critical points exist, return [-1, -1].
+
+Time Complexity: O(N), where N is the number of nodes in the linked list.
+Space Complexity: O(1).
+'''
