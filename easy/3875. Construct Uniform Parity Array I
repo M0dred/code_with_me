@@ -1,0 +1,20 @@
+class Solution:
+    def uniformArray(self, nums1: list[int]) -> bool:
+        return True
+
+'''
+Approach:
+1. Consider the parity of each element in nums1.
+2. If all elements in nums1 are even, choosing nums2[i] = nums1[i] for all i makes 
+   nums2 all even.
+3. If there is at least one odd element in nums1:
+   - For indices where nums1[i] is odd, choose nums2[i] = nums1[i] (odd).
+   - For indices where nums1[i] is even, choose nums2[i] = nums1[i] - nums1[j] 
+     where j is any index with an odd value. Since even - odd = odd, nums2[i] is odd.
+   Thus, nums2 can be made all odd.
+4. In all possible cases, a valid construction exists. Therefore, the answer is 
+   always true.
+
+Time Complexity: O(1).
+Space Complexity: O(1).
+'''
